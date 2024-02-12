@@ -2,23 +2,22 @@
  
 // Piece data-members we can swap out all at once
 struct PieceData {
-    double _color[3][3];
-    int _colorNum[3];
-    const char* _colorName[3];
-    int pieceNum;
-    int flipStatus;
-    //Highlight in bright green while algorithming (called in .render())
-    bool hotPieceMoving = false;
-};
+    _color: [f32; 9],
+    _colorNum: [i8; 3],
+    _colorName: [&'static str; 3],
+    pieceNum: i8,
+    flipStatus: i8,
+    hotPieceMoving: bool,
+}
 
 // Piece struct
-class Piece {                                                                                                                                     
+struct Piece {                                                                                                                                     
     //Coords for GL vertex (up to 7, not all used)
-    double _vertex[7][3] = {};
+    vertex: [f32; 21], // = {};
     //Keeps the default number in the piece. do not swap.
-    int _defaultPieceNum;
+    _defaultPieceNum: i8,
     //Center has 1, Edge has 2, Corner has 3
-    int numSides;
+    numSides: i8,
 	//Data Struct
-	PieceData data;
-};
+	data: PieceData,
+}
