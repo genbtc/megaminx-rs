@@ -28,9 +28,15 @@ struct ColorPack {
     name: &'static str
 }
 
+/*
+struct RGBPack {
+	ase: RGB,
+    name: &'static str
+}*/
+
 //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
-const MAX_STATES: usize = MaxColorStates as usize;
-static G_COLORRGBS: [ColorPack; MAX_STATES] = [
+const MAX_COLOR_STATES: usize = MaxColorStates as usize;
+static G_COLORRGBS: [ColorPack; MAX_COLOR_STATES] = [
     ColorPack{ i:0, r:0.0, g:0.0, b:0.0, name:"BLACK" },
     ColorPack{ i:1, r:1.0, g:1.0, b:1.0, name:"WHITE" },
     ColorPack{ i:2, r:0.0, g:0.0, b:1.0, name:"DARK_BLUE" },
@@ -131,68 +137,68 @@ struct ColorDirection {
     bottom: MegaminxColor
 }
 //TupleStruct
-struct ColorDirs(MegaminxColor,MegaminxColor,MegaminxColor,MegaminxColor,MegaminxColor,MegaminxColor,MegaminxColor);
+struct ColorDirs([MegaminxColor; 7]);
 
 //Defines which faces are touching each other. Entire relational color map.
 // For Human Algo Rotate., used by RotateAlgo, ParseAlgorithmID and param to ParseAlgorithmString
-static G_FACENEIGHBORS: [ColorDirs; MAX_STATES as usize] = [
+static G_FACENEIGHBORS: [ColorDirs; MAX_COLOR_STATES] = [
 // #case converted with https://www.better-converter.com/Case-Converters/Camel-Case-Converter
     //initializeThe0SlotToBlackInvalid
-    ColorDirs( Black, Black, Black, Black, Black, Black, Black ),
+    ColorDirs([ Black, Black, Black, Black, Black, Black, Black ]),
     //Bottom/White1-6
-    ColorDirs( White, DarkBlue, Red, DarkGreen, Purple, Yellow, Orange ),
-    ColorDirs( DarkBlue, Red, White, Yellow, LightGreen, Pink, Gray ),
-    ColorDirs( Red, DarkGreen, White, DarkBlue, Pink, Beige, Gray ),
-    ColorDirs( DarkGreen, Purple, White, Red, Beige, LightBlue, Gray ),
-    ColorDirs( Purple, Yellow, White, DarkGreen, LightBlue, Orange, Gray ),
-    ColorDirs( Yellow, DarkBlue, White, Purple, Orange, LightGreen, Gray ),
+    ColorDirs([ White, DarkBlue, Red, DarkGreen, Purple, Yellow, Orange ]),
+    ColorDirs([ DarkBlue, Red, White, Yellow, LightGreen, Pink, Gray ]),
+    ColorDirs([ Red, DarkGreen, White, DarkBlue, Pink, Beige, Gray ]),
+    ColorDirs([ DarkGreen, Purple, White, Red, Beige, LightBlue, Gray ]),
+    ColorDirs([ Purple, Yellow, White, DarkGreen, LightBlue, Orange, Gray ]),
+    ColorDirs([ Yellow, DarkBlue, White, Purple, Orange, LightGreen, Gray ]),
     //Top/Gray7-12
-    ColorDirs( Gray, Pink, LightGreen, Orange, LightBlue, Beige, DarkGreen ),
-    ColorDirs( LightBlue, Beige, Gray, Orange, Purple, DarkGreen, White ),
-    ColorDirs( Orange, LightBlue, Gray, LightGreen, Yellow, Purple, White ),
-    ColorDirs( LightGreen, Orange, Gray, Pink, DarkBlue, Yellow, White ),
-    ColorDirs( Pink, LightGreen, Gray, Beige, Red, DarkBlue, White ),
-    ColorDirs( Beige, Pink, Gray, LightBlue, DarkGreen, Red, White )
+    ColorDirs([ Gray, Pink, LightGreen, Orange, LightBlue, Beige, DarkGreen ]),
+    ColorDirs([ LightBlue, Beige, Gray, Orange, Purple, DarkGreen, White ]),
+    ColorDirs([ Orange, LightBlue, Gray, LightGreen, Yellow, Purple, White ]),
+    ColorDirs([ LightGreen, Orange, Gray, Pink, DarkBlue, Yellow, White ]),
+    ColorDirs([ Pink, LightGreen, Gray, Beige, Red, DarkBlue, White ]),
+    ColorDirs([ Beige, Pink, Gray, LightBlue, DarkGreen, Red, White ])
 ];
 
 //Determine which direction those faces need to rotate to land the Edge on the white
-struct RotationDirs(i16,i16,i16,i16,i16);
+struct RotationDirs([i16; 5]);
 
 //Decides which direction, up or down, for the pieces to passively float to their original home
 //Spatial awareness vision introspection
-static DIRTOWHITEFACE: [RotationDirs; MAX_STATES] = [
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( -1, -1, 1, 1, -1 ),  //e2&3 swapped @ D.Blue
-    RotationDirs( -1, 1, -1, 1, -1 ),
-    RotationDirs( -1, 1, -1, 1, -1 ),
-    RotationDirs( -1, 1, -1, 1, -1 ),
-    RotationDirs( -1, 1, -1, 1, -1 ),
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( -1, 1, 1, -1, -1 ),
-    RotationDirs( -1, 1, 1, -1, -1 ),
-    RotationDirs( -1, 1, 1, -1, -1 ),
-    RotationDirs( -1, 1, -1, 1, -1 ), //e3&4 swapped @ Pink
-    RotationDirs( -1, 1, 1, -1, -1 )
+static DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ -1, -1, 1, 1, -1 ]),  //e2&3 swapped @ D.Blue
+    RotationDirs( [ -1, 1, -1, 1, -1 ]),
+    RotationDirs( [ -1, 1, -1, 1, -1 ]),
+    RotationDirs( [ -1, 1, -1, 1, -1 ]),
+    RotationDirs( [ -1, 1, -1, 1, -1 ]),
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ -1, 1, 1, -1, -1 ]),
+    RotationDirs( [ -1, 1, 1, -1, -1 ]),
+    RotationDirs( [ -1, 1, 1, -1, -1 ]),
+    RotationDirs( [ -1, 1, -1, 1, -1 ]), //e3&4 swapped @ Pink
+    RotationDirs( [ -1, 1, 1, -1, -1 ])
 ];
 
-//edge self-solve bitmap (introspection)
-//Edges that have their solved-Face-Color in the color[1] index. (marked by 1's),
-//                                instead of the color[0] index. (marked by 0's)
-//(Which half of the edge would the solved face be on)
+//edge self-solve bitmap ( [introspection])
+//Edges that have their solved-Face-Color in the color[1] index. ( [marked by 1's]),
+//                                instead of the color[0] index. ( [marked by 0's])
+//( [Which half of the edge would the solved face be on])
 //these bits must be set, equal to the color data index, to consider as solved
-static EDGESOLVEFACEBITMAP: [RotationDirs; MAX_STATES] = [
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( 1, 0, 1, 0, 0 ),
-    RotationDirs( 1, 1, 0, 0, 0 ),
-    RotationDirs( 1, 1, 0, 0, 0 ),
-    RotationDirs( 1, 1, 0, 0, 0 ),
-    RotationDirs( 1, 1, 0, 0, 0 ),
-    RotationDirs( 0, 0, 0, 0, 0 ),
-    RotationDirs( 1, 1, 1, 0, 1 ),
-    RotationDirs( 1, 1, 1, 0, 1 ),
-    RotationDirs( 1, 1, 1, 0, 1 ),
-    RotationDirs( 1, 1, 0, 1, 1 ),
-    RotationDirs( 1, 1, 1, 0, 1 )
+static EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ 1, 0, 1, 0, 0 ]),
+    RotationDirs( [ 1, 1, 0, 0, 0 ]),
+    RotationDirs( [ 1, 1, 0, 0, 0 ]),
+    RotationDirs( [ 1, 1, 0, 0, 0 ]),
+    RotationDirs( [ 1, 1, 0, 0, 0 ]),
+    RotationDirs( [ 0, 0, 0, 0, 0 ]),
+    RotationDirs( [ 1, 1, 1, 0, 1 ]),
+    RotationDirs( [ 1, 1, 1, 0, 1 ]),
+    RotationDirs( [ 1, 1, 1, 0, 1 ]),
+    RotationDirs( [ 1, 1, 0, 1, 1 ]),
+    RotationDirs( [ 1, 1, 1, 0, 1 ])
 ];
