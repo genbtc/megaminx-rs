@@ -1,8 +1,8 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
-include!{"piece-color.rs"}
-include!{"piece-static.rs"}
-include!{"piece.rs"}
+mod piece;
+mod piece_color;
+mod piece_static;
 extern crate sdl2;
 extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
@@ -22,9 +22,6 @@ pub fn main() -> Result<(), String> {
                 .window("Megaminx_SDL2", 640, 640)
                 .opengl().resizable().position_centered()
                 .build().unwrap();
-    //title says Untitled Window still!
-    let _ = window.set_title("Megaminx_SDL2");
-    //title says Untitled Window still!?
 
     let mut canvas = window
                 .into_canvas()
