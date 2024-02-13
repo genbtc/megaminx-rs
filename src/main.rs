@@ -1,6 +1,7 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
 include!{"piece-color.rs"}
+include!{"piece-static.rs"}
 include!{"piece.rs"}
 extern crate sdl2;
 extern crate gl;
