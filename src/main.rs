@@ -3,25 +3,28 @@
 mod piece;
 mod piece_color;
 mod piece_static;
-extern crate sdl2;
+//extern crate sdl2;
 extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
-use sdl2::rect::Rect;
-use sdl2::rect::Point;
+use sdl2::rect::{Rect, Point};
 use sdl2::video::GLProfile;
-use crate::sdl2::gfx::primitives::DrawRenderer;
+//extern crate glium;
+use glium::implement_vertex;
+include!{"../glium_sdl2_lib.rs"}
+use crate::glium::Surface;
 
 pub fn main() -> Result<(), String> {
+
     let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context
-                        .video()
-                        .unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
 
     let mut window = video_subsystem
                 .window("Megaminx_SDL2", 640, 640)
                 .opengl().resizable().position_centered()
                 .build().unwrap();
+
+	let display = video_subsystem.window("Megaminx_SDL2", 640, 640).build_glium().unwrap();
 
     let mut canvas = window
                 .into_canvas()
@@ -43,6 +46,47 @@ pub fn main() -> Result<(), String> {
     canvas.set_draw_color(Color::RGB(255, 210, 0));
     canvas.clear();
 
+    #[derive(Copy, Clone)]
+    struct Vertex {
+        position: [f32; 2],
+    }
+    implement_vertex!(Vertex, position);
+    let shape = vec![
+        Vertex { position: [-0.5, -0.5] },
+        Vertex { position: [ 0.0,  0.5] },
+        Vertex { position: [ 0.5, -0.25] }
+    ];
+    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+
+    let vertex_shader_src = r#"
+        #version 140
+
+        in vec2 position;
+
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    "#;
+
+    let fragment_shader_src = r#"
+        #version 140
+
+        out vec4 color;
+
+        void main() {
+            color = vec4(1.0, 0.0, 0.0, 1.0);
+        }
+    "#;
+
+    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 1.0, 1.0);
+    target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
+        &Default::default()).unwrap();
+    target.finish().unwrap();
+
     //Main Event Loop
     let mut i = 0;
     let mut event_pump = sdl_context.event_pump()?;
@@ -60,6 +104,8 @@ pub fn main() -> Result<(), String> {
         //Black Diagonal 2D Line
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
+
+		use crate::sdl2::gfx::primitives::DrawRenderer;
         //Black Diagonal 2D Thick Line (opposite)
         let _ = canvas.thick_line(556, 0, 0, 556, 4, Color::RGB(0, 0, 0));
 
