@@ -3,13 +3,13 @@
 mod piece;
 mod piece_color;
 mod piece_static;
-//extern crate sdl2;
 extern crate gl;
+use sdl2::video;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
 use sdl2::rect::{Rect, Point};
-use sdl2::video::GLProfile;
-//extern crate glium;
+use sdl2::video::{GLProfile, WindowBuilder, WindowContext};
+use sdl2::render::{Canvas, CanvasBuilder};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
@@ -17,20 +17,15 @@ use crate::glium::Surface;
 pub fn main() -> Result<(), String> {
 
     let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-
-    let mut window = video_subsystem
-                .window("Megaminx_SDL2", 640, 640)
-                .opengl().resizable().position_centered()
-                .build().unwrap();
-
-	let display = video_subsystem.window("Megaminx_SDL2", 640, 640).build_glium().unwrap();
-
-    let mut canvas = window
+    let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
+    let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
+	let mut display: SDL2Facade = binding.build_glium().unwrap();
+    let mut windowB: Window = unsafe { Window::from_ref(display.window().context()) };
+    let mut canvas: Canvas<Window> = windowB
                 .into_canvas()
                 .accelerated()
                 .build().unwrap();
-
+   
     //GL Set Core Profile
     let gl_attr = video_subsystem.gl_attr();
     gl_attr.set_context_profile(GLProfile::Core);
@@ -43,39 +38,34 @@ pub fn main() -> Result<(), String> {
     debug_assert_eq!(gl_attr.context_version(), (4, 5));
 
     //Gold Background
-    canvas.set_draw_color(Color::RGB(255, 210, 0));
-    canvas.clear();
+    //canvas.set_draw_color(Color::RGB(255, 210, 0));
+    //canvas.clear();	//This clears the shaders.
 
     #[derive(Copy, Clone)]
     struct Vertex {
-        position: [f32; 2],
+        position: [f32; 3],
     }
     implement_vertex!(Vertex, position);
     let shape = vec![
-        Vertex { position: [-0.5, -0.5] },
-        Vertex { position: [ 0.0,  0.5] },
-        Vertex { position: [ 0.5, -0.25] }
+        Vertex { position: [-0.4, -0.9, 0.0 ] },
+        Vertex { position: [ 0.0,  0.9, 0.0 ] },
+        Vertex { position: [ 0.8, -0.5, 0.0 ] }
     ];
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     let vertex_shader_src = r#"
         #version 140
-
-        in vec2 position;
-
+        in vec3 position;
         void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
+            gl_Position = vec4(position, 1.0);
         }
     "#;
-
     let fragment_shader_src = r#"
         #version 140
-
         out vec4 color;
-
         void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
+            color = vec4(0.2, 0.6, 0.2, 0.4);
         }
     "#;
 
@@ -83,8 +73,7 @@ pub fn main() -> Result<(), String> {
 
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 1.0, 1.0);
-    target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-        &Default::default()).unwrap();
+    target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 
     //Main Event Loop
