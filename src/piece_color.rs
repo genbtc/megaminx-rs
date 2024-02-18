@@ -1,4 +1,7 @@
 // Megaminx-rs/piece_color.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
+#![allow(non_snake_case)]
+#![allow(unused_variables)]
+#![allow(dead_code)]
 
 mod PieceColor {
     //Megaminx standard color names defined in numerical int order 

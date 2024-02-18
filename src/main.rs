@@ -1,15 +1,13 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
 mod piece;
-mod piece_color;
-mod piece_static;
 extern crate gl;
 use sdl2::video;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
 use sdl2::rect::{Rect, Point};
-use sdl2::video::{GLProfile, WindowBuilder, WindowContext};
-use sdl2::render::{Canvas, CanvasBuilder};
+use sdl2::video::{GLProfile, WindowBuilder};
+use sdl2::render::{Canvas};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
@@ -36,10 +34,6 @@ pub fn main() -> Result<(), String> {
     let _setcontext = canvas.window().gl_set_context_to_current();
     debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
     debug_assert_eq!(gl_attr.context_version(), (4, 5));
-
-    //Gold Background
-    //canvas.set_draw_color(Color::RGB(255, 210, 0));
-    //canvas.clear();	//This clears the shaders.
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -72,7 +66,7 @@ pub fn main() -> Result<(), String> {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
     let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 1.0);
+    target.clear_color(0.0, 0.0, 1.0, 0.1);
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 
