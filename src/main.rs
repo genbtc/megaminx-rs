@@ -11,6 +11,7 @@ use sdl2::render::{Canvas};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
+use crate::piece::piece::Piece;
 
 pub fn main() -> Result<(), String> {
 
@@ -34,6 +35,10 @@ pub fn main() -> Result<(), String> {
     let _setcontext = canvas.window().gl_set_context_to_current();
     debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
     debug_assert_eq!(gl_attr.context_version(), (4, 5));
+
+	//let onepiece: Piece = Piece { };
+//	error: cannot construct `Piece` with struct literal syntax due to private fields
+//	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
 
     #[derive(Copy, Clone)]
     struct Vertex {

@@ -2,7 +2,7 @@
 #![allow(non_snake_case)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
-
+pub mod piece {
 // Piece data-members we can swap out all at once
 struct PieceData {
     _color: [[f32; 3]; 3],
@@ -13,10 +13,10 @@ struct PieceData {
     hotPieceMoving: bool,
 }
 
-struct Piece { 
+pub struct Piece { 
 	// Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-	_vertex: [[f32; 7]; 3],
+	_vertex: [[f32; 3]; 7],
     //Keeps the default number in the piece. do not swap.
 	defaultPieceNum: i8,
     //Center has 1, Edge has 2, Corner has 3
@@ -25,34 +25,37 @@ struct Piece {
 	data: PieceData,
 }
 
-	//CONSTANTS:
-	//default size in 3d coords for main megaminx
+pub struct piecepack {
+    axis1: char,
+    axis2: char,
+    multi: i32
+}
 
+//CONSTANTS:
+//default size in 3d coords for main megaminx
+//let something; can't do it, const something can't do it; static something, can't do it;
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::acos` in constants
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::sin` in statics
 //= note: calls in statics are limited to constant functions, tuple structs and tuple variants
-macro_rules! dodesize { () => {  {  100f32  }  }; }
-	//common geometric constants
-macro_rules! pi { () => {  {  (-1f32).acos()  }  }; }           	 //3.1415927410125732
-	//golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
-macro_rules! phi { () => {  {  (1. + (5f32).sqrt()) / 2f32  }  }; }        //1.6180340051651001
-macro_rules! sideangle { () => {  {  2. * phi!().atan()  }  }; }      //2.0344439448698051
-	//inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
-macro_rules! inssphererad { () => {  { dodesize!() * (10. + 22. / (5f32).sqrt()).sqrt() / 4.   }  }; }      //111.35163307189941
-macro_rules! inscirclerad { () => {  { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }  }; }      // 85.065082037033278
-	//megaminx vertex math shortcuts
-macro_rules! twofifths { () => {  { 2./5.  }  }; }
+//arbitrary size of dodecahedron
+macro_rules! dodesize { () => {   100f32   }; }
+//common geometric constants
+macro_rules! pi { () => {  (-1f32).acos()  }; }           	 //3.1415927410125732
+//golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
+macro_rules! phi { () => {  (1. + (5f32).sqrt()) / 2f32  }; }       //1.6180340051651001
+macro_rules! sideangle { () => {  2. * phi!().atan()  }; }      	//2.0344439448698051
+//inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
+macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / (5f32).sqrt()).sqrt() / 4.   }; }    //111.35163307189941
+macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }      	// 85.065082037033278
+//megaminx vertex math shortcuts
+macro_rules! twofifths { () => { 2./5.  }; }
 fn pim(x: f32) -> f32 {	return x*pi!()/5. }
-macro_rules! edgefifth { () => {  { dodesize!() / pim(2.).sin()   }  }; }      //105.14622122913930
-macro_rules! cospim35 { () => {  { inscirclerad!() * pim(3.5).cos()   }  }; }      //-50.000004917867173
-macro_rules! cospim15 { () => {  { inscirclerad!() * pim(1.5).cos()   }  }; }      //49.999998901510480
-macro_rules! sinpim35 { () => {  { inscirclerad!() * pim(3.5).sin()   }  }; }      //68.819093936061520
+macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }      	//105.14622122913930
+macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
+macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
+macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
 impl Piece {
-	fn rotateVertex(&mut self, axis1: [f32; 7], axis2: char, axis3: f32) -> &[f32; 7] {
-		return &self._vertex[0];
-	}
-
     fn cornerInit(&mut self) -> &f32 {
         self.numSides = 3;
         for i in 0..7  {
@@ -144,4 +147,73 @@ impl Piece {
         }
         return &self._vertex[0][0];
     }
+
+	fn rotateVertexX(&mut self, vx: f32, vy: f32, angle: f32) {
+	    let r: f32 = (vx * vx + vy * vy).sqrt();
+	    let a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
+	    a += angle;
+	    vx = r * a.cos();
+	    vy = r * a.sin();
+	}
+
+	fn rotateVertex(&mut self, vertex: [f32; 3], axis: char, angle: f32) {
+		match axis {
+			'x' => self.rotateVertexX(vertex[1], vertex[2], angle),
+		    'y' => self.rotateVertexX(vertex[0], vertex[2], angle),
+		    'z' => self.rotateVertexX(vertex[0], vertex[1], angle),
+		    _ => println!("Axis must be in x, y, z")
+	    }
+	}
+
+	//main transform: used in almost every other algo
+	fn axis1multi(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pim(pack.multi as f32));
+	}
+	fn CenterSide1(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pim(1.));
+	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
+	    self.axis1multi(target, pack);
+	}
+	fn CenterCenter(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pi!());
+	}
+	fn CenterSide2(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.CenterCenter(target, pack);
+	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
+	    self.rotateVertex(target, 'z', pim(pack.multi as f32));
+	    //This is always z, because axis1/2 are usually y/x and
+	    //is re-used by face, where it is Z.
+	}
+	fn CornerGrp3(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.CenterSide1(target, pack);
+	    self.rotateVertex(target, pack.axis2, pi!());
+	}
+	fn CornerGrp4(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.CenterCenter(target, pack);
+	    self.rotateVertex(target, pack.axis2, pim(pack.multi as f32));
+	}
+	fn EdgeGrp2(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pim(3.));
+	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
+	    self.axis1multi(target, pack);
+	}
+	fn EdgeGrp3(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pim(6.));
+	    self.EdgeGrp2(target, pack);
+	}
+	fn EdgeGrp4(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis1, pim(8.));
+	    self.EdgeGrp2(target, pack);
+	}
+	fn EdgeGrp5(&mut self, target: [f32; 3], pack: piecepack) {
+	    pack.multi += 1;
+	    self.rotateVertex(target, pack.axis1, pim(2.));
+	    self.rotateVertex(target, pack.axis2, sideangle!());
+	    self.axis1multi(target, pack);
+	}
+	fn EdgeGrp6(&mut self, target: [f32; 3], pack: piecepack) {
+	    self.rotateVertex(target, pack.axis2, pi!());
+	    self.axis1multi(target, pack);
+	}
+  }
 }
