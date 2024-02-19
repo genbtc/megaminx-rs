@@ -11,16 +11,16 @@ use sdl2::render::{Canvas};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
-//use crate::piece::piece::Piece;
 mod center;
+use crate::center::center::Center;
 
 pub fn main() -> Result<(), String> {
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
-	let mut display: SDL2Facade = binding.build_glium().unwrap();
-    let mut windowB: Window = unsafe { Window::from_ref(display.window().context()) };
+	let  display: SDL2Facade = binding.build_glium().unwrap();
+    let  windowB: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = windowB
                 .into_canvas()
                 .accelerated()
@@ -41,6 +41,7 @@ pub fn main() -> Result<(), String> {
 //^^^^^ help: use struct literal syntax instead: `Piece { _vertex: val, defaultPieceNum: val, numSides: val, data: val }`
 //	error: cannot construct `Piece` with struct literal syntax due to private fields
 //	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
+	let centerpiece: &dyn Center; // = { }; //center::center::Center` cannot be made into an object
 
     #[derive(Copy, Clone)]
     struct Vertex {

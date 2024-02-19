@@ -3,7 +3,9 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 pub mod piece {
+
 // Piece data-members we can swap out all at once
+#[derive(Copy, Clone)]
 struct PieceData {
     _color: [[f32; 3]; 3],
     _colorNum: [i8; 3],
@@ -12,7 +14,7 @@ struct PieceData {
     flipStatus: i8,
     hotPieceMoving: bool,
 }
-
+#[derive(Copy, Clone)]
 pub struct Piecepack {
     pub axis1: char,
     pub axis2: char,
@@ -43,10 +45,22 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
-pub struct Block {
+pub trait PieceTrait {
 	// Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-	_vertex: [[f32; 3]; 7],
+	const _vertex: [[f32; 3]; 7];
+    //Keeps the default number in the piece. do not swap.
+	const defaultPieceNum: i8;
+    //Center has 1, Edge has 2, Corner has 3
+	const numSides: i8;
+	//Data Struct (can swap out)
+	const data: PieceData;
+}
+#[derive(Copy, Clone)]
+pub struct Piece {
+	// Piece struct
+    //Coords for GL vertex (up to 7, not all used) * max possible sides 3
+	pub _vertex: [[f32; 3]; 7],
     //Keeps the default number in the piece. do not swap.
 	defaultPieceNum: i8,
     //Center has 1, Edge has 2, Corner has 3
@@ -55,7 +69,29 @@ pub struct Block {
 	data: PieceData,
 }
 
-pub trait Piece {
+pub trait PieceMath {
+	fn cornerInit(&mut self) -> &f32 ;
+    fn edgeInit(&mut self) -> &f32 ;
+    fn centerInit(&mut self) -> &f32 ;
+    fn faceInit(&mut self) -> &f32 ;
+	fn rotateVertexX(&mut self, vx: f32, vy: f32, angle: f32);
+	fn rotateVertex(&mut self, vertex: [f32; 3], axis: char, angle: f32);
+	fn axis1multi(&mut self, target: [f32; 3], pack: Piecepack);
+	fn CenterSide1(&mut self, target: [f32; 3], pack: Piecepack);
+	fn CenterCenter(&mut self, target: [f32; 3], pack: Piecepack);
+	fn CenterSide2(&mut self, target: [f32; 3], pack: Piecepack);
+	fn CornerGrp3(&mut self, target: [f32; 3], pack: Piecepack);
+	fn CornerGrp4(&mut self, target: [f32; 3], pack: Piecepack);
+	fn EdgeGrp2(&mut self, target: [f32; 3], pack: Piecepack);
+	fn EdgeGrp3(&mut self, target: [f32; 3], pack: Piecepack);
+	fn EdgeGrp4(&mut self, target: [f32; 3], pack: Piecepack);
+	fn EdgeGrp5(&mut self, target: [f32; 3], pack: Piecepack);
+	fn EdgeGrp6(&mut self, target: [f32; 3], pack: Piecepack);
+//	fn init(&self, n: i8);
+//	fn createAxis(&self, n: i32, target: [f32; 3]);
+//	fn render();
+}
+impl PieceMath for Piece {
     fn cornerInit(&mut self) -> &f32 {
         self.numSides = 3;
         for i in 0..7  {
@@ -148,9 +184,9 @@ pub trait Piece {
         return &self._vertex[0][0];
     }
 
-	fn rotateVertexX(&mut self, vx: f32, vy: f32, angle: f32) {
+	fn rotateVertexX(&mut self, mut vx: f32, mut vy: f32, angle: f32) {
 	    let r: f32 = (vx * vx + vy * vy).sqrt();
-	    let a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
+	    let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
 	    a += angle;
 	    vx = r * a.cos();
 	    vy = r * a.sin();
@@ -204,7 +240,7 @@ pub trait Piece {
 	    self.rotateVertex(target, pack.axis1, pim(8.));
 	    self.EdgeGrp2(target, pack);
 	}
-	fn EdgeGrp5(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp5(&mut self, target: [f32; 3], mut pack: Piecepack) {
 	    pack.multi += 1;
 	    self.rotateVertex(target, pack.axis1, pim(2.));
 	    self.rotateVertex(target, pack.axis2, sideangle!());
@@ -214,11 +250,5 @@ pub trait Piece {
 	    self.rotateVertex(target, pack.axis2, pi!());
 	    self.axis1multi(target, pack);
 	}
-
-	//center.rs
-//	fn init(&self, n: i8);
-//	fn createAxis(&self, n: i32, target: [f32; 3]);
-//	fn render();
-
   }
 }

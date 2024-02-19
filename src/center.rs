@@ -1,15 +1,23 @@
 //2024 megaminx-rs center.rs , by genr8eofl - LICENSED APGL3
-use crate::piece::piece::Piecepack;
-use crate::piece::piece::Piece;
-trait Center: Piece {
+pub mod center {
+  use crate::piece::piece::Piecepack;
+  use crate::piece::piece::Piece;
+  use crate::piece::piece::PieceMath;
+//  struct Center;
+  pub trait Center {
+	  fn init(&mut self, n: i8);
+	  fn createAxis(&mut self, n: i32, target: [f32; 3]);
+	  fn render(&self);
+  }
+  impl Center for Piece {
 	/**
 	 * \brief Inits a Center piece
 	 * \note  (calls createAxis and initColor)
 	 * \param n the number of the piece
 	 */
-	fn init(&self, n: i8) {
+	fn init(&mut self, n: i8) {
 		for i in 0..5  {
-	        self.createAxis(n as i32, self._vertex[i]);
+	        self.createAxis(n as i32, self._vertex[i]);	//error[E0616]: field `_vertex` of struct `Piece` is private
 		}
 	    //TODO: self.initColor(n + 1);
 	}
@@ -20,7 +28,7 @@ trait Center: Piece {
 	 * \param n - the number of the piece
 	 * \param *target - the pre-existing Vertex Array
 	 */
-	fn createAxis(&self, n: i32, target: [f32; 3]) {
+	fn createAxis(&mut self, n: i32, target: [f32; 3]) {
 	    let pack: Piecepack;
 	    match n + 1 {
 	    2..=6 => {
@@ -39,7 +47,7 @@ trait Center: Piece {
 	/**
 	 * \brief Render Center Node (CONST)
 	 */
-	fn render()	{
+	fn render(&self)	{
 /*
 	    //Make a solid color pentagon
 	    glColor3dv(data._color[0]);
@@ -55,4 +63,5 @@ trait Center: Piece {
 	    //TODO: Crude coords, aesthetics of text numbers is suboptimal... Option: configure Disable text shown
 */
 	}
+  }
 }
