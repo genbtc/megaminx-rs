@@ -12,6 +12,7 @@ use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
 use crate::piece::piece::Piece;
+mod center;
 
 pub fn main() -> Result<(), String> {
 
@@ -36,7 +37,8 @@ pub fn main() -> Result<(), String> {
     debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
     debug_assert_eq!(gl_attr.context_version(), (4, 5));
 
-	//let onepiece: Piece = Piece { };
+//	let onepiece: Piece = Piece;
+//^^^^^ help: use struct literal syntax instead: `Piece { _vertex: val, defaultPieceNum: val, numSides: val, data: val }`
 //	error: cannot construct `Piece` with struct literal syntax due to private fields
 //	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
 
