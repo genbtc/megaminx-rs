@@ -13,18 +13,6 @@ struct PieceData {
     hotPieceMoving: bool,
 }
 
-pub struct Piece { 
-	// Piece struct
-    //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-	pub _vertex: [[f32; 3]; 7],
-    //Keeps the default number in the piece. do not swap.
-	pub defaultPieceNum: i8,
-    //Center has 1, Edge has 2, Corner has 3
-	pub numSides: i8,
-	//Data Struct (can swap out)
-	pub data: PieceData,
-}
-
 pub struct Piecepack {
     pub axis1: char,
     pub axis2: char,
@@ -55,8 +43,20 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
-impl Piece {
-    pub fn cornerInit(&mut self) -> &f32 {
+pub struct Block {
+	// Piece struct
+    //Coords for GL vertex (up to 7, not all used) * max possible sides 3
+	_vertex: [[f32; 3]; 7],
+    //Keeps the default number in the piece. do not swap.
+	defaultPieceNum: i8,
+    //Center has 1, Edge has 2, Corner has 3
+	numSides: i8,
+	//Data Struct (can swap out)
+	data: PieceData,
+}
+
+pub trait Piece {
+    fn cornerInit(&mut self) -> &f32 {
         self.numSides = 3;
         for i in 0..7  {
             self._vertex[i][2] = -inssphererad!();
@@ -94,7 +94,7 @@ impl Piece {
         return &self._vertex[0][0];
     }
     //Creates the common starting vertexes for all pieces that are EDGES
-    pub fn edgeInit(&mut self) -> &f32 {
+    fn edgeInit(&mut self) -> &f32 {
         self.numSides = 2;
         for i in 0..6 {
             self._vertex[i][2] = -inssphererad!();
@@ -124,7 +124,7 @@ impl Piece {
         return &self._vertex[0][0];
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
-    pub fn centerInit(&mut self) -> &f32 {
+    fn centerInit(&mut self) -> &f32 {
         self.numSides = 1;
         for i in 0..5 {
             self._vertex[i][0] = inscirclerad!() * (pim(2.) * i as f32 + pim(1.5)).cos() * twofifths!();
@@ -134,7 +134,7 @@ impl Piece {
         return &self._vertex[0][0];
     }    
     //Creates the common starting vertexes for all pieces that are FACES
-    pub fn faceInit(&mut self) -> &f32 {
+    fn faceInit(&mut self) -> &f32 {
         self.numSides = 0;
         for i in 0..5 {
             //This puts it on the back face
@@ -148,15 +148,14 @@ impl Piece {
         return &self._vertex[0][0];
     }
 
-	pub fn rotateVertexX(&mut self, vx: f32, vy: f32, angle: f32) {
+	fn rotateVertexX(&mut self, vx: f32, vy: f32, angle: f32) {
 	    let r: f32 = (vx * vx + vy * vy).sqrt();
 	    let a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
 	    a += angle;
 	    vx = r * a.cos();
 	    vy = r * a.sin();
 	}
-
-	pub fn rotateVertex(&mut self, vertex: [f32; 3], axis: char, angle: f32) {
+	fn rotateVertex(&mut self, vertex: [f32; 3], axis: char, angle: f32) {
 		match axis {
 			'x' => self.rotateVertexX(vertex[1], vertex[2], angle),
 		    'y' => self.rotateVertexX(vertex[0], vertex[2], angle),
@@ -166,54 +165,60 @@ impl Piece {
 	}
 
 	//main transform: used in almost every other algo
-	pub fn axis1multi(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn axis1multi(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pim(pack.multi as f32));
 	}
-	pub fn CenterSide1(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn CenterSide1(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pim(1.));
 	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
 	    self.axis1multi(target, pack);
 	}
-	pub fn CenterCenter(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn CenterCenter(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pi!());
 	}
-	pub fn CenterSide2(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn CenterSide2(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.CenterCenter(target, pack);
 	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
 	    self.rotateVertex(target, 'z', pim(pack.multi as f32));
 	    //This is always z, because axis1/2 are usually y/x and
 	    //is re-used by face, where it is Z.
 	}
-	pub fn CornerGrp3(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn CornerGrp3(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.CenterSide1(target, pack);
 	    self.rotateVertex(target, pack.axis2, pi!());
 	}
-	pub fn CornerGrp4(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn CornerGrp4(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.CenterCenter(target, pack);
 	    self.rotateVertex(target, pack.axis2, pim(pack.multi as f32));
 	}
-	pub fn EdgeGrp2(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp2(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pim(3.));
 	    self.rotateVertex(target, pack.axis2, pi!() - sideangle!());
 	    self.axis1multi(target, pack);
 	}
-	pub fn EdgeGrp3(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp3(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pim(6.));
 	    self.EdgeGrp2(target, pack);
 	}
-	pub fn EdgeGrp4(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp4(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis1, pim(8.));
 	    self.EdgeGrp2(target, pack);
 	}
-	pub fn EdgeGrp5(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp5(&mut self, target: [f32; 3], pack: Piecepack) {
 	    pack.multi += 1;
 	    self.rotateVertex(target, pack.axis1, pim(2.));
 	    self.rotateVertex(target, pack.axis2, sideangle!());
 	    self.axis1multi(target, pack);
 	}
-	pub fn EdgeGrp6(&mut self, target: [f32; 3], pack: Piecepack) {
+	fn EdgeGrp6(&mut self, target: [f32; 3], pack: Piecepack) {
 	    self.rotateVertex(target, pack.axis2, pi!());
 	    self.axis1multi(target, pack);
 	}
+
+	//center.rs
+//	fn init(&self, n: i8);
+//	fn createAxis(&self, n: i32, target: [f32; 3]);
+//	fn render();
+
   }
 }

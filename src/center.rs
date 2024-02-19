@@ -1,7 +1,7 @@
 //2024 megaminx-rs center.rs , by genr8eofl - LICENSED APGL3
-use crate::Piece;
 use crate::piece::piece::Piecepack;
-impl Piece {
+use crate::piece::piece::Piece;
+trait Center: Piece {
 	/**
 	 * \brief Inits a Center piece
 	 * \note  (calls createAxis and initColor)

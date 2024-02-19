@@ -11,7 +11,7 @@ use sdl2::render::{Canvas};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
 use crate::glium::Surface;
-use crate::piece::piece::Piece;
+//use crate::piece::piece::Piece;
 mod center;
 
 pub fn main() -> Result<(), String> {
