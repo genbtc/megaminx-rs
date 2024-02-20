@@ -5,7 +5,9 @@
 
 mod PieceColor {
     //Megaminx standard color names defined in numerical int order 
+    #[derive(Default)]
     enum MegaminxColor {
+        #[default]
         Black,
         White,
         DarkBlue,
@@ -20,10 +22,12 @@ mod PieceColor {
         Pink,
         Beige,
         MaxColorStates
-    }
+    } // Make available to use
     use MegaminxColor::*;
+    const MAX_COLOR_STATES: usize = MaxColorStates as usize;
 
     //scaffolding Struct, a shell for a color, for G_COLORRGBS
+    #[derive(Default)]
     struct ColorPack {
         i: u16,
         r: f32,
@@ -31,15 +35,13 @@ mod PieceColor {
         b: f32,
         name: &'static str
     }
-
-    /*
-    struct RGBPack {
-        ase: RGB,
-        name: &'static str
-    }*/
+    impl ColorPack {
+        fn getRGB(&self) -> (f32,f32,f32) {
+           return (self.r, self.g, self.b);
+        }
+    }
 
     //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
-    const MAX_COLOR_STATES: usize = MaxColorStates as usize;
     static G_COLORRGBS: [ColorPack; MAX_COLOR_STATES] = [
         ColorPack{ i:0, r:0.0, g:0.0, b:0.0, name:"BLACK" },
         ColorPack{ i:1, r:1.0, g:1.0, b:1.0, name:"WHITE" },
@@ -56,14 +58,15 @@ mod PieceColor {
         ColorPack{ i:12, r:1.0, g:0.9, b:0.65, name:"BEIGE" },
     ];
 
-    const NUM_FACES:   i16 = 12;
-    const NUM_CORNERS: i16 = 20;
-    const NUM_EDGES:   i16 = 30;
+    const NUM_FACES:   usize = 12;
+    const NUM_CORNERS: usize = 20;
+    const NUM_EDGES:   usize = 30;
 
     //scaffolding Struct, a shell for a piece, holds 1-3 Colors for a Center/Edge/Corner definition
-    struct ColorPiece(MegaminxColor,MegaminxColor,MegaminxColor);
+    struct ColorPiece(MegaminxColor, MegaminxColor, MegaminxColor);
 
-    static G_EDGEPIECESCOLORS: [ColorPiece; NUM_EDGES as usize] = [
+    //Defines the 30 Edge pieces (0-29) by color
+    static G_EDGEPIECESCOLORS: [ColorPiece; NUM_EDGES] = [
         // 0 - 4
         ColorPiece( White, DarkBlue,  Black),
         ColorPiece( White, Red,       Black),
@@ -102,7 +105,8 @@ mod PieceColor {
         ColorPiece( Gray, Beige,      Black)
     ];
 
-    static G_CORNERPIECESCOLORS: [ColorPiece; NUM_CORNERS as usize] = [
+    //Defines the 20 Corner Pieces (0-19) by color
+    static G_CORNERPIECESCOLORS: [ColorPiece; NUM_CORNERS] = [
         // 0 - 4
         ColorPiece( White, Red, DarkBlue),
         ColorPiece( White, DarkGreen, Red),
@@ -140,13 +144,12 @@ mod PieceColor {
         downl: MegaminxColor,
         bottom: MegaminxColor
     }
-    //TupleStruct
+    //TupleStruct (TODO: Combine?)
     struct ColorDirs([MegaminxColor; 7]);
 
     //Defines which faces are touching each other. Entire relational color map.
     // For Human Algo Rotate., used by RotateAlgo, ParseAlgorithmID and param to ParseAlgorithmString
     static G_FACENEIGHBORS: [ColorDirs; MAX_COLOR_STATES] = [
-    // #case converted with https://www.better-converter.com/Case-Converters/Camel-Case-Converter
         //initializeThe0SlotToBlackInvalid
         ColorDirs([ Black, Black, Black, Black, Black, Black, Black ]),
         //Bottom/White1-6
@@ -166,11 +169,12 @@ mod PieceColor {
     ];
 
     //Determine which direction those faces need to rotate to land the Edge on the white
+    #[derive(Default)]
     struct RotationDirs([i16; 5]);
 
     //Decides which direction, up or down, for the pieces to passively float to their original home
     //Spatial awareness vision introspection
-    static DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
+    static G_DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
         RotationDirs( [ 0, 0, 0, 0, 0 ]),
         RotationDirs( [ 0, 0, 0, 0, 0 ]),
         RotationDirs( [ -1, -1, 1, 1, -1 ]),  //e2&3 swapped @ D.Blue
@@ -191,7 +195,7 @@ mod PieceColor {
     //                                instead of the color[0] index. ( [marked by 0's])
     //( [Which half of the edge would the solved face be on])
     //these bits must be set, equal to the color data index, to consider as solved
-    static EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
+    static G_EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
         RotationDirs( [ 0, 0, 0, 0, 0 ]),
         RotationDirs( [ 0, 0, 0, 0, 0 ]),
         RotationDirs( [ 1, 0, 1, 0, 0 ]),

@@ -1,10 +1,10 @@
-
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube                                                                                                                                                                          
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 pub mod piece {
+
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone)]
 pub struct VertexPosition {
@@ -17,8 +17,13 @@ pub use VertexPosition as Vertex;
 //Regular Vertex 3 Array
 pub type Vertex3 = [f32; 3];
 
+//Default initializer data
+pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
+pub const VERTEXDATAZERO: [Vertex3; 7] = [VERTEXZERO; 7];
+pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
+
 // Piece data-members we can swap out all at once
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct PieceData {
     pub _color: [Vertex3; 3],
     pub _colorNum: [i8; 3],
@@ -28,14 +33,14 @@ pub struct PieceData {
     pub hotPieceMoving: bool,
 }
 //Pack struct to rotateVertex
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Piecepack {
     pub axis1: char,
     pub axis2: char,
     pub multi: i32
 }
 //Main Piece Object
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Piece {
     // Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
@@ -71,7 +76,7 @@ macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //6
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::acos` in constants
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::sin` in statics
 //= note: calls in statics are limited to constant functions, tuple structs and tuple variants
-
+//Math & init functions:
 pub trait PieceMath {
     fn cornerInit(&mut self) -> &[Vertex3; 7] ;
     fn edgeInit(&mut self) -> &[Vertex3; 7] ;
@@ -90,7 +95,7 @@ pub trait PieceMath {
     fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
     fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
 }
-//Attach these math functions to Piece object
+//Attach these Math functions to Piece object
 impl PieceMath for Piece {
     fn cornerInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 3;
@@ -201,7 +206,7 @@ impl PieceMath for Piece {
         self._vertex[index][vxIndex] = r * a.cos();
         self._vertex[index][vyIndex] = r * a.sin();
     }   
-
+//Vertex Transformation Functions
     //main transform: used in almost every other algo
     fn axis1multi(&mut self, index: usize, pack: Piecepack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(pack.multi as f32));
