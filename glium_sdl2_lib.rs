@@ -8,9 +8,6 @@
 // notice may not be copied, modified, or distributed except
 // according to those terms.
 
-extern crate glium;
-extern crate sdl2;
-
 use std::mem;
 use std::cell::UnsafeCell;
 use std::ops::Deref;
@@ -54,6 +51,7 @@ impl From<IncompatibleOpenGl> for GliumSdl2Error {
 impl std::error::Error for GliumSdl2Error {
     fn description(&self) -> &str {
         return match *self {
+			#[allow(deprecated)]
             GliumSdl2Error::WindowBuildError(ref err) => err.description(),
             GliumSdl2Error::ContextCreationError(ref s) => s
         }
@@ -75,7 +73,6 @@ impl std::fmt::Display for GliumSdl2Error {
         }
     }
 }
-
 
 /// Facade implementation for an SDL2 window.
 #[derive(Clone)]

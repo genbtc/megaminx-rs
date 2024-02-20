@@ -2,7 +2,6 @@
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
 mod piece;
 extern crate gl;
-use sdl2::video;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
 use sdl2::rect::{Rect, Point};
@@ -10,10 +9,12 @@ use sdl2::video::{GLProfile, WindowBuilder};
 use sdl2::render::{Canvas};
 use glium::implement_vertex;
 include!{"../glium_sdl2_lib.rs"}
-use crate::glium::Surface;
+use glium::Surface;                                                                                                                                                                                                                                                           
+use sdl2::gfx::primitives::DrawRenderer;
 mod center;
 use crate::center::center::Center;
-use crate::piece::piece::Piece;
+//use crate::piece::piece::Piece;
+
 pub fn main() -> Result<(), String> {
 
     let sdl_context = sdl2::init().unwrap();
@@ -22,9 +23,9 @@ pub fn main() -> Result<(), String> {
 	let  display: SDL2Facade = binding.build_glium().unwrap();
     let  window_b: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = window_b
-                .into_canvas()
-                .accelerated()
-                .build().unwrap();
+	                .into_canvas()
+	                .accelerated()
+	                .build().unwrap();
    
     //GL Set Core Profile
     let gl_attr = video_subsystem.gl_attr();
@@ -97,7 +98,6 @@ pub fn main() -> Result<(), String> {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
 
-		use crate::sdl2::gfx::primitives::DrawRenderer;
         //Black Diagonal 2D Thick Line (opposite)
         let _ = canvas.thick_line(556, 0, 0, 556, 4, Color::RGB(0, 0, 0));
 
