@@ -37,32 +37,32 @@ pub struct Piecepack {
 //Main Piece Object
 #[derive(Copy, Clone)]
 pub struct Piece {
-	// Piece struct
+    // Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-	pub _vertex: [Vertex3; 7],
+    pub _vertex: [Vertex3; 7],
     //Keeps the default number in the piece. do not swap.
-	pub defaultPieceNum: i8,
+    pub defaultPieceNum: i8,
     //Center has 1, Edge has 2, Corner has 3
-	pub numSides: i8,
-	//Data Struct (can swap out)
-	pub data: PieceData,
+    pub numSides: i8,
+    //Data Struct (can swap out)
+    pub data: PieceData,
 }
 
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
 macro_rules! dodesize { () => {   100f32   }; }
 //common geometric constants
-macro_rules! pi { () => {  (-1f32).acos()  }; }           	 		//3.1415927410125732
+macro_rules! pi { () => {  (-1f32).acos()  }; }                     //3.1415927410125732
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
 macro_rules! phi { () => {  (1. + (5f32).sqrt()) / 2.  }; }         //1.6180340051651001
-macro_rules! sideangle { () => {  2. * phi!().atan()  }; }      	//2.0344439448698051
+macro_rules! sideangle { () => {  2. * phi!().atan()  }; }          //2.0344439448698051
 //inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
 macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / (5f32).sqrt()).sqrt() / 4.   }; }    //111.35163307189941
-macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }      	// 85.065082037033278
+macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }         // 85.065082037033278
 //megaminx vertex math shortcuts
 macro_rules! twofifths { () => { 0.4  }; }
-fn pim(x: f32) -> f32 {	return x*pi!()/5. }
-macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }      	//105.14622122913930
+fn pim(x: f32) -> f32 { return x*pi!()/5. }
+macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }         //105.14622122913930
 macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
@@ -73,22 +73,22 @@ macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //6
 //= note: calls in statics are limited to constant functions, tuple structs and tuple variants
 
 pub trait PieceMath {
-	fn cornerInit(&mut self) -> &[Vertex3; 7] ;
+    fn cornerInit(&mut self) -> &[Vertex3; 7] ;
     fn edgeInit(&mut self) -> &[Vertex3; 7] ;
     fn centerInit(&mut self) -> &[Vertex3; 7] ;
     fn faceInit(&mut self) -> &[Vertex3; 7] ;
-	fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
-	fn axis1multi(&mut self, index: usize, pack: Piecepack);
-	fn CenterSide1(&mut self, index: usize, pack: Piecepack);
-	fn CenterCenter(&mut self, index: usize, pack: Piecepack);
-	fn CenterSide2(&mut self, index: usize, pack: Piecepack);
-	fn CornerGrp3(&mut self, index: usize, pack: Piecepack);
-	fn CornerGrp4(&mut self, index: usize, pack: Piecepack);
-	fn EdgeGrp2(&mut self, index: usize, pack: Piecepack);
-	fn EdgeGrp3(&mut self, index: usize, pack: Piecepack);
-	fn EdgeGrp4(&mut self, index: usize, pack: Piecepack);
-	fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
-	fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
+    fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
+    fn axis1multi(&mut self, index: usize, pack: Piecepack);
+    fn CenterSide1(&mut self, index: usize, pack: Piecepack);
+    fn CenterCenter(&mut self, index: usize, pack: Piecepack);
+    fn CenterSide2(&mut self, index: usize, pack: Piecepack);
+    fn CornerGrp3(&mut self, index: usize, pack: Piecepack);
+    fn CornerGrp4(&mut self, index: usize, pack: Piecepack);
+    fn EdgeGrp2(&mut self, index: usize, pack: Piecepack);
+    fn EdgeGrp3(&mut self, index: usize, pack: Piecepack);
+    fn EdgeGrp4(&mut self, index: usize, pack: Piecepack);
+    fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
+    fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
 }
 //Attach these math functions to Piece object
 impl PieceMath for Piece {
@@ -184,73 +184,73 @@ impl PieceMath for Piece {
         return &self._vertex;
     }
 
-	fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
-		let mut vxIndex: usize = 0;
-		let mut vyIndex: usize = 0;
-		match axis {
-			'x' => { vxIndex=1; vyIndex=2; },
-		    'y' => vyIndex=2,
-		    'z' => vyIndex=1,
-		    _ => println!("Axis must be in x, y, z"),
-	    }
-		let vx: f32 = self._vertex[index as usize][vxIndex];
-		let vy: f32 = self._vertex[index as usize][vyIndex];
-	    let r: f32 = (vx * vx + vy * vy).sqrt();
-	    let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
-	    a += angle;
-		self._vertex[index][vxIndex] = r * a.cos();
-		self._vertex[index][vyIndex] = r * a.sin();
-	}	
+    fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
+        let mut vxIndex: usize = 0;
+        let mut vyIndex: usize = 0;
+        match axis {
+            'x' => { vxIndex=1; vyIndex=2; },
+            'y' => vyIndex=2,
+            'z' => vyIndex=1,
+            _ => println!("Axis must be in x, y, z"),
+        }
+        let vx: f32 = self._vertex[index as usize][vxIndex];
+        let vy: f32 = self._vertex[index as usize][vyIndex];
+        let r: f32 = (vx * vx + vy * vy).sqrt();
+        let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
+        a += angle;
+        self._vertex[index][vxIndex] = r * a.cos();
+        self._vertex[index][vyIndex] = r * a.sin();
+    }   
 
-	//main transform: used in almost every other algo
-	fn axis1multi(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pim(pack.multi as f32));
-	}
-	fn CenterSide1(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pim(1.));
-	    self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
-	    self.axis1multi(index, pack);
-	}
-	fn CenterCenter(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pi!());
-	}
-	fn CenterSide2(&mut self, index: usize, pack: Piecepack) {
-	    self.CenterCenter(index, pack);
-	    self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
-	    self.rotateVertexXYZ(index,  'z', pim(pack.multi as f32));
-	    //This is always z, because axis1/2 are usually y/x and
-	    //is re-used by face, where it is Z.
-	}
-	fn CornerGrp3(&mut self, index: usize, pack: Piecepack) {
-	    self.CenterSide1(index, pack);
-	    self.rotateVertexXYZ(index, pack.axis2, pi!());
-	}
-	fn CornerGrp4(&mut self, index: usize, pack: Piecepack) {
-	    self.CenterCenter(index, pack);
-	    self.rotateVertexXYZ(index, pack.axis2, pim(pack.multi as f32));
-	}
-	fn EdgeGrp2(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pim(3.));
-	    self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
-	    self.axis1multi(index, pack);
-	}
-	fn EdgeGrp3(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pim(6.));
-	    self.EdgeGrp2(index, pack);
-	}
-	fn EdgeGrp4(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis1, pim(8.));
-	    self.EdgeGrp2(index, pack);
-	}
-	fn EdgeGrp5(&mut self, index: usize, mut pack: Piecepack) {
-	    pack.multi += 1;
-	    self.rotateVertexXYZ(index, pack.axis1, pim(2.));
-	    self.rotateVertexXYZ(index, pack.axis2, sideangle!());
-	    self.axis1multi(index, pack);
-	}
-	fn EdgeGrp6(&mut self, index: usize, pack: Piecepack) {
-	    self.rotateVertexXYZ(index, pack.axis2, pi!());
-	    self.axis1multi(index, pack);
-	}
+    //main transform: used in almost every other algo
+    fn axis1multi(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pim(pack.multi as f32));
+    }
+    fn CenterSide1(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pim(1.));
+        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.axis1multi(index, pack);
+    }
+    fn CenterCenter(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pi!());
+    }
+    fn CenterSide2(&mut self, index: usize, pack: Piecepack) {
+        self.CenterCenter(index, pack);
+        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.rotateVertexXYZ(index,  'z', pim(pack.multi as f32));
+        //This is always z, because axis1/2 are usually y/x and
+        //is re-used by face, where it is Z.
+    }
+    fn CornerGrp3(&mut self, index: usize, pack: Piecepack) {
+        self.CenterSide1(index, pack);
+        self.rotateVertexXYZ(index, pack.axis2, pi!());
+    }
+    fn CornerGrp4(&mut self, index: usize, pack: Piecepack) {
+        self.CenterCenter(index, pack);
+        self.rotateVertexXYZ(index, pack.axis2, pim(pack.multi as f32));
+    }
+    fn EdgeGrp2(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pim(3.));
+        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.axis1multi(index, pack);
+    }
+    fn EdgeGrp3(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pim(6.));
+        self.EdgeGrp2(index, pack);
+    }
+    fn EdgeGrp4(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis1, pim(8.));
+        self.EdgeGrp2(index, pack);
+    }
+    fn EdgeGrp5(&mut self, index: usize, mut pack: Piecepack) {
+        pack.multi += 1;
+        self.rotateVertexXYZ(index, pack.axis1, pim(2.));
+        self.rotateVertexXYZ(index, pack.axis2, sideangle!());
+        self.axis1multi(index, pack);
+    }
+    fn EdgeGrp6(&mut self, index: usize, pack: Piecepack) {
+        self.rotateVertexXYZ(index, pack.axis2, pi!());
+        self.axis1multi(index, pack);
+    }
   }
 }

@@ -19,81 +19,81 @@ use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
 
 pub fn main() -> Result<(), String> {
-	//SDL2 + Glium setup (combined)
+    //SDL2 + Glium setup (combined)
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
-	let  display: SDL2Facade = binding.build_glium().unwrap();
+    let  display: SDL2Facade = binding.build_glium().unwrap();
     let  window_b: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = window_b
-	                .into_canvas()
-	                .accelerated()
-	                .build().unwrap();
+                    .into_canvas()
+                    .accelerated()
+                    .build().unwrap();
 
 //WORK IN PROGRESS:
-	let vertexzero: Vertex3 = [0.,0.,0.];
-	let vertexdata: [[f32; 3]; 7] = [vertexzero; 7];
-	let colorgray: Vertex3 = [0.5,0.5,0.5];
-//	 and other private fields `_color`, `_colorNum`, `_colorName`, `pieceNum`, `flipStatus` and `hotPieceMoving` that were not provided
-	let piecedata: PieceData = PieceData { _color: [colorgray; 3] , _colorNum: [1,1,1] , _colorName: ["GRAY","GRAY","GRAY"] , pieceNum: 7, flipStatus: 0, hotPieceMoving: false };
-//	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
+    let vertexzero: Vertex3 = [0.,0.,0.];
+    let vertexdata: [[f32; 3]; 7] = [vertexzero; 7];
+    let colorgray: Vertex3 = [0.5,0.5,0.5];
+//   and other private fields `_color`, `_colorNum`, `_colorName`, `pieceNum`, `flipStatus` and `hotPieceMoving` that were not provided
+    let piecedata: PieceData = PieceData { _color: [colorgray; 3] , _colorNum: [1,1,1] , _colorName: ["GRAY","GRAY","GRAY"] , pieceNum: 7, flipStatus: 0, hotPieceMoving: false };
+//  = note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
 //Piece 7:
-	let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 7, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
-	centerpiece.init(1);
-	centerpiece.centerInit();
-	print!("Center Piece 1 Vertex Array: [ ");
-	for i in 0..5 {
+    let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 7, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
+    centerpiece.init(1);
+    centerpiece.centerInit();
+    print!("Center Piece 1 Vertex Array: [ ");
+    for i in 0..5 {
       print!("[ ");
-	  for j in 0..3 {
-    	print!("{}", centerpiece._vertex[i][j].to_string());
-	    if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
+      for j in 0..3 {
+        print!("{}", centerpiece._vertex[i][j].to_string());
+        if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
       }
       if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
-	}
-	println!("]");
+    }
+    println!("]");
 //reset to 1 from 100
-	for i in 0..5 {
-	  for j in 0..3 {
-		centerpiece._vertex[i][j] /= 100.;
+    for i in 0..5 {
+      for j in 0..3 {
+        centerpiece._vertex[i][j] /= 100.;
       }
     }
 
 //Piece 2:
-//	centerpiece._vertex = vertexdata;
-	centerpiece.init(6);
-	centerpiece.edgeInit();
-	print!("Edge Piece 6 Vertex Array: [ ");
-	for i in 0..6 {
+//  centerpiece._vertex = vertexdata;
+    centerpiece.init(6);
+    centerpiece.edgeInit();
+    print!("Edge Piece 6 Vertex Array: [ ");
+    for i in 0..6 {
       print!("[ ");
-	  for j in 0..3 {
-    	print!("{}", centerpiece._vertex[i][j].to_string());
-	    if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
+      for j in 0..3 {
+        print!("{}", centerpiece._vertex[i][j].to_string());
+        if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
       }
       if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
-	}
-	println!("]");
+    }
+    println!("]");
 //NOT YET DONE!
-	for i in 0..5 {
-	  for j in 0..3 {
-		centerpiece._vertex[i][j] /= 100.;
+    for i in 0..5 {
+      for j in 0..3 {
+        centerpiece._vertex[i][j] /= 100.;
       }
     }
 
 
-	let shape = vec![
-		Vertex { position: [ -0.4, -0.9, 0.0 ] },
-		Vertex { position: [ 0.0,  0.9, 0.0 ] },
-		Vertex { position: [ 0.8, -0.5, 0.0 ] }
-	];
-	let _pentagon = vec![
-		Vertex { position: centerpiece._vertex[0] },
-		Vertex { position: centerpiece._vertex[1] },
-		Vertex { position: centerpiece._vertex[2] },
-		Vertex { position: centerpiece._vertex[3] },
-		Vertex { position: centerpiece._vertex[4] }
-	];
+    let shape = vec![
+        Vertex { position: [ -0.4, -0.9, 0.0 ] },
+        Vertex { position: [ 0.0,  0.9, 0.0 ] },
+        Vertex { position: [ 0.8, -0.5, 0.0 ] }
+    ];
+    let _pentagon = vec![
+        Vertex { position: centerpiece._vertex[0] },
+        Vertex { position: centerpiece._vertex[1] },
+        Vertex { position: centerpiece._vertex[2] },
+        Vertex { position: centerpiece._vertex[3] },
+        Vertex { position: centerpiece._vertex[4] }
+    ];
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);	//LineLoop isnt Fill'ed
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);  //LineLoop isnt Fill'ed
 
     let vertex_shader_src = r#"
         #version 140
@@ -113,7 +113,7 @@ pub fn main() -> Result<(), String> {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
     let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 0.1);	// Blue background
+    target.clear_color(0.0, 0.0, 1.0, 0.1); // Blue background
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 
