@@ -1,6 +1,5 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
-mod piece;
 extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
@@ -11,14 +10,16 @@ include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;                                                                                                                                                                                                                                                           
 use sdl2::gfx::primitives::DrawRenderer;
 mod center;
-use crate::center::center::Center;
+//use crate::center::center::Center;
+mod piece;
 use crate::piece::piece::Piece;
 use crate::piece::piece::PieceMath;
 use crate::piece::piece::PieceData;
 use crate::piece::piece::Vertex;
+use crate::piece::piece::Vertex3;
 
 pub fn main() -> Result<(), String> {
-	//SDL2 + Glium setup combined
+	//SDL2 + Glium setup (combined)
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
@@ -30,13 +31,40 @@ pub fn main() -> Result<(), String> {
 	                .build().unwrap();
 
 //WORK IN PROGRESS:
-	let vertexdata: [[f32; 3]; 7] = [ [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.] ];
+	let vertexzero: Vertex3 = [0.,0.,0.];
+	let vertexdata: [[f32; 3]; 7] = [vertexzero; 7];
+	let colorgray: Vertex3 = [0.5,0.5,0.5];
 //	 and other private fields `_color`, `_colorNum`, `_colorName`, `pieceNum`, `flipStatus` and `hotPieceMoving` that were not provided
-	let piecedata: PieceData = PieceData { _color: [[0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,0.5]] , _colorNum: [1,1,1] , _colorName: ["WHITE","WHITE","WHITE"] , pieceNum: 1, flipStatus: 0, hotPieceMoving: false };
+	let piecedata: PieceData = PieceData { _color: [colorgray; 3] , _colorNum: [1,1,1] , _colorName: ["GRAY","GRAY","GRAY"] , pieceNum: 7, flipStatus: 0, hotPieceMoving: false };
 //	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
-	let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 1, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
-	centerpiece.init(1);
+//Piece 7:
+	let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 7, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
+//	centerpiece.init(1);
 	centerpiece.centerInit();
+	print!("Center Piece 1 Vertex Array: [ ");
+	for i in 0..5 {
+      print!("[ ");
+	  for j in 0..3 {
+    	print!("{}", centerpiece._vertex[i][j].to_string());
+	    if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
+      }
+      if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
+	}
+	println!("]");
+//Piece 2:
+	centerpiece._vertex = vertexdata;
+//	centerpiece.init(1);
+	centerpiece.centerInit();
+	print!("Center Piece 2 Vertex Array: [ ");
+	for i in 0..5 {
+      print!("[ ");
+	  for j in 0..3 {
+    	print!("{}", centerpiece._vertex[i][j].to_string());
+	    if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
+      }
+      if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
+	}
+	println!("]");
 //NOT YET DONE!
 
 	let shape = vec![

@@ -4,6 +4,7 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 pub mod piece {
+//Vertex 3 Position Definitions
 #[derive(Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
@@ -47,15 +48,15 @@ pub struct Piece {
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
 macro_rules! dodesize { () => {   100f32   }; }
 //common geometric constants
-macro_rules! pi { () => {  (-1f32).acos()  }; }           	 //3.1415927410125732
+macro_rules! pi { () => {  (-1f32).acos()  }; }           	 		//3.1415927410125732
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
-macro_rules! phi { () => {  (1. + (5f32).sqrt()) / 2f32  }; }       //1.6180340051651001
+macro_rules! phi { () => {  (1. + (5f32).sqrt()) / 2.  }; }         //1.6180340051651001
 macro_rules! sideangle { () => {  2. * phi!().atan()  }; }      	//2.0344439448698051
 //inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
 macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / (5f32).sqrt()).sqrt() / 4.   }; }    //111.35163307189941
 macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }      	// 85.065082037033278
 //megaminx vertex math shortcuts
-macro_rules! twofifths { () => { 2./5.  }; }
+macro_rules! twofifths { () => { 0.4  }; }
 fn pim(x: f32) -> f32 {	return x*pi!()/5. }
 macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }      	//105.14622122913930
 macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
@@ -68,10 +69,10 @@ macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //6
 //= note: calls in statics are limited to constant functions, tuple structs and tuple variants
 
 pub trait PieceMath {
-	fn cornerInit(&mut self) -> &[[f32; 3]; 7] ;
-    fn edgeInit(&mut self) -> &[[f32; 3]; 7] ;
-    fn centerInit(&mut self) -> &[[f32; 3]; 7] ;
-    fn faceInit(&mut self) -> &[[f32; 3]; 7] ;
+	fn cornerInit(&mut self) -> &[Vertex3; 7] ;
+    fn edgeInit(&mut self) -> &[Vertex3; 7] ;
+    fn centerInit(&mut self) -> &[Vertex3; 7] ;
+    fn faceInit(&mut self) -> &[Vertex3; 7] ;
 	fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
 	fn axis1multi(&mut self, index: usize, pack: Piecepack);
 	fn CenterSide1(&mut self, index: usize, pack: Piecepack);
@@ -87,7 +88,7 @@ pub trait PieceMath {
 }
 //Attach these math functions to Piece object
 impl PieceMath for Piece {
-    fn cornerInit(&mut self) -> &[[f32; 3]; 7] {
+    fn cornerInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 3;
         for i in 0..7  {
             self._vertex[i][2] = -inssphererad!();
@@ -125,7 +126,7 @@ impl PieceMath for Piece {
         return &self._vertex;
     }
     //Creates the common starting vertexes for all pieces that are EDGES
-    fn edgeInit(&mut self) -> &[[f32; 3]; 7] {
+    fn edgeInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 2;
         for i in 0..6 {
             self._vertex[i][2] = -inssphererad!();
@@ -155,17 +156,17 @@ impl PieceMath for Piece {
         return &self._vertex;
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
-    fn centerInit(&mut self) -> &[[f32; 3]; 7] {
+    fn centerInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 1;
         for i in 0..5 {
-            self._vertex[i][0] = inscirclerad!() * (pim(2.) * i as f32 + pim(1.5)).cos() * twofifths!();
-            self._vertex[i][1] = inscirclerad!() * (pim(2.) * i as f32 + pim(1.5)).sin() * twofifths!();
+            self._vertex[i][0] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).cos() * twofifths!();
+            self._vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
             self._vertex[i][2] = -inssphererad!();
         }
         return &self._vertex;
     }    
     //Creates the common starting vertexes for all pieces that are FACES
-    fn faceInit(&mut self) -> &[[f32; 3]; 7] {
+    fn faceInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 0;
         for i in 0..5 {
             //This puts it on the back face
@@ -174,7 +175,7 @@ impl PieceMath for Piece {
             self._vertex[i][2] = -inssphererad!();
             self.rotateVertexXYZ(i, 'z', pim(2.));
             self.rotateVertexXYZ(i, 'x', pi!() - sideangle!());
-            self.rotateVertexXYZ(i, 'z', i as f32 * pim(2.));
+            self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
         return &self._vertex;
     }
