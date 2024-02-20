@@ -5,7 +5,7 @@ pub mod center {
   use crate::piece::piece::PieceMath;
   pub trait Center {
 	  fn init(&mut self, n: i8);
-	  fn create_axis(&mut self, n: i32, index: i8);
+	  fn create_axis(&mut self, n: i32, index: usize);
 	  fn render(&self);
   }
   impl Center for Piece {
@@ -27,18 +27,18 @@ pub mod center {
 	 * \param n - the number of the piece
 	 * \param *target - the pre-existing Vertex Array
 	 */
-	fn create_axis(&mut self, n: i32, index: i8) {
-	    let pack: Piecepack;
+	fn create_axis(&mut self, n: i32, index: usize) {
+	    let pack; //: Piecepack;
 	    match n + 1 {
 	    2..=6 => {
 	        pack = Piecepack { axis1: 'z', axis2: 'x', multi: ((n-1) * 2 % 10) };
-	        self.CenterSide1(&self._vertex[index as usize], pack); },
+	        self.CenterSide1(index, pack); },
 	    7 => {
 	        pack = Piecepack { axis1: 'x', axis2: '0', multi: 0 };
-	        self.CenterCenter(&self._vertex[index as usize], pack); },
+	        self.CenterCenter(index, pack); },
 	    8..=12 => {
 	        pack = Piecepack { axis1: 'y', axis2:'x', multi: ((n-2) * 2 % 10) };
-	        self.CenterSide2(&self._vertex[index as usize], pack); },
+	        self.CenterSide2(index, pack); },
 	    _ => println!("Must be within 1-12"),
 	    }
 	}
