@@ -1,3 +1,4 @@
+
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube                                                                                                                                                                          
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
@@ -6,11 +7,14 @@
 pub mod piece {
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone)]
-pub struct Vertex {
+pub struct VertexPosition {
     pub position: [f32; 3],
 }
 use glium::implement_vertex;
-implement_vertex!(Vertex, position);
+implement_vertex!(VertexPosition, position);
+pub use VertexPosition as Vertex;
+
+//Regular Vertex 3 Array
 pub type Vertex3 = [f32; 3];
 
 // Piece data-members we can swap out all at once
@@ -90,7 +94,7 @@ pub trait PieceMath {
 impl PieceMath for Piece {
     fn cornerInit(&mut self) -> &[Vertex3; 7] {
         self.numSides = 3;
-        for i in 0..7  {
+        for i in 0..7 {
             self._vertex[i][2] = -inssphererad!();
         }
 
@@ -184,7 +188,7 @@ impl PieceMath for Piece {
 		let mut vxIndex: usize = 0;
 		let mut vyIndex: usize = 0;
 		match axis {
-			'x' => { vxIndex=1; vyIndex=2 },
+			'x' => { vxIndex=1; vyIndex=2; },
 		    'y' => vyIndex=2,
 		    'z' => vyIndex=1,
 		    _ => println!("Axis must be in x, y, z"),

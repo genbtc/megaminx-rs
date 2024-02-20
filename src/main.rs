@@ -10,7 +10,7 @@ include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;                                                                                                                                                                                                                                                           
 use sdl2::gfx::primitives::DrawRenderer;
 mod center;
-//use crate::center::center::Center;
+use crate::center::center::Center;
 mod piece;
 use crate::piece::piece::Piece;
 use crate::piece::piece::PieceMath;
@@ -39,7 +39,7 @@ pub fn main() -> Result<(), String> {
 //	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
 //Piece 7:
 	let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 7, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
-//	centerpiece.init(1);
+	centerpiece.init(1);
 	centerpiece.centerInit();
 	print!("Center Piece 1 Vertex Array: [ ");
 	for i in 0..5 {
@@ -51,12 +51,19 @@ pub fn main() -> Result<(), String> {
       if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
 	}
 	println!("]");
-//Piece 2:
-	centerpiece._vertex = vertexdata;
-//	centerpiece.init(1);
-	centerpiece.centerInit();
-	print!("Center Piece 2 Vertex Array: [ ");
+//reset to 1 from 100
 	for i in 0..5 {
+	  for j in 0..3 {
+		centerpiece._vertex[i][j] /= 100.;
+      }
+    }
+
+//Piece 2:
+//	centerpiece._vertex = vertexdata;
+	centerpiece.init(6);
+	centerpiece.edgeInit();
+	print!("Edge Piece 6 Vertex Array: [ ");
+	for i in 0..6 {
       print!("[ ");
 	  for j in 0..3 {
     	print!("{}", centerpiece._vertex[i][j].to_string());
@@ -66,14 +73,27 @@ pub fn main() -> Result<(), String> {
 	}
 	println!("]");
 //NOT YET DONE!
+	for i in 0..5 {
+	  for j in 0..3 {
+		centerpiece._vertex[i][j] /= 100.;
+      }
+    }
+
 
 	let shape = vec![
 		Vertex { position: [ -0.4, -0.9, 0.0 ] },
 		Vertex { position: [ 0.0,  0.9, 0.0 ] },
 		Vertex { position: [ 0.8, -0.5, 0.0 ] }
 	];
+	let _pentagon = vec![
+		Vertex { position: centerpiece._vertex[0] },
+		Vertex { position: centerpiece._vertex[1] },
+		Vertex { position: centerpiece._vertex[2] },
+		Vertex { position: centerpiece._vertex[3] },
+		Vertex { position: centerpiece._vertex[4] }
+	];
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);	//LineLoop isnt Fill'ed
 
     let vertex_shader_src = r#"
         #version 140
@@ -86,7 +106,7 @@ pub fn main() -> Result<(), String> {
         #version 140
         out vec4 color;
         void main() {
-            color = vec4(0.2, 0.6, 0.2, 0.4);
+            color = vec4(0.2, 0.6, 0.2, 0.4); //Green
         }
     "#;
 
