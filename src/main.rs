@@ -5,18 +5,20 @@ extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
 use sdl2::rect::{Rect, Point};
-use sdl2::video::{GLProfile, WindowBuilder};
-use sdl2::render::{Canvas};
-use glium::implement_vertex;
+use sdl2::video::WindowBuilder;
+use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;                                                                                                                                                                                                                                                           
 use sdl2::gfx::primitives::DrawRenderer;
 mod center;
 use crate::center::center::Center;
-//use crate::piece::piece::Piece;
+use crate::piece::piece::Piece;
+use crate::piece::piece::PieceMath;
+use crate::piece::piece::PieceData;
+use crate::piece::piece::Vertex;
 
 pub fn main() -> Result<(), String> {
-
+	//SDL2 + Glium setup combined
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
@@ -26,35 +28,22 @@ pub fn main() -> Result<(), String> {
 	                .into_canvas()
 	                .accelerated()
 	                .build().unwrap();
-   
-    //GL Set Core Profile
-    let gl_attr = video_subsystem.gl_attr();
-    gl_attr.set_context_profile(GLProfile::Core);
-    gl_attr.set_context_version(4, 5);
 
-    //GL Context to Pointer
-    gl::load_with(|ptr| video_subsystem.gl_get_proc_address(ptr) as *const _);
-    let _setcontext = canvas.window().gl_set_context_to_current();
-    debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
-    debug_assert_eq!(gl_attr.context_version(), (4, 5));
-
-//	let onepiece: Piece = Piece;
-//^^^^^ help: use struct literal syntax instead: `Piece { _vertex: val, defaultPieceNum: val, numSides: val, data: val }`
-//	error: cannot construct `Piece` with struct literal syntax due to private fields
+//WORK IN PROGRESS:
+	let vertexdata: [[f32; 3]; 7] = [ [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.], [0.,0.,0.] ];
+//	 and other private fields `_color`, `_colorNum`, `_colorName`, `pieceNum`, `flipStatus` and `hotPieceMoving` that were not provided
+	let piecedata: PieceData = PieceData { _color: [[0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,0.5]] , _colorNum: [1,1,1] , _colorName: ["WHITE","WHITE","WHITE"] , pieceNum: 1, flipStatus: 0, hotPieceMoving: false };
 //	= note: ... and other private fields `_vertex`, `defaultPieceNum`, `numSides` and `data` that were not provided
-	let _centerpiece: &dyn Center;  // = { }; //center::center::Center` cannot be made into an object
-//	_centerpiece.init(1);
+	let mut centerpiece: Piece = Piece { _vertex: vertexdata, defaultPieceNum: 1, numSides: 1, data: piecedata  };  // dyn Center = { }; //center::center::Center` cannot be made into an object
+	centerpiece.init(1);
+	centerpiece.centerInit();
+//NOT YET DONE!
 
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 3],
-    }
-    implement_vertex!(Vertex, position);
-    let shape = vec![
-        Vertex { position: [-0.4, -0.9, 0.0 ] },
-        Vertex { position: [ 0.0,  0.9, 0.0 ] },
-        Vertex { position: [ 0.8, -0.5, 0.0 ] }
-    ];
+	let shape = vec![
+		Vertex { position: [ -0.4, -0.9, 0.0 ] },
+		Vertex { position: [ 0.0,  0.9, 0.0 ] },
+		Vertex { position: [ 0.8, -0.5, 0.0 ] }
+	];
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
@@ -76,7 +65,7 @@ pub fn main() -> Result<(), String> {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
     let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 0.1);
+    target.clear_color(0.0, 0.0, 1.0, 0.1);	// Blue background
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 

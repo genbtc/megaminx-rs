@@ -1,18 +1,26 @@
+// megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube                                                                                                                                                                          
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
 #![allow(unused_variables)]
 #![allow(dead_code)]
 pub mod piece {
+#[derive(Copy, Clone)]
+pub struct Vertex {
+    pub position: [f32; 3],
+}
+use glium::implement_vertex;
+implement_vertex!(Vertex, position);
+pub type Vertex3 = [f32; 3];
 
 // Piece data-members we can swap out all at once
 #[derive(Copy, Clone)]
 pub struct PieceData {
-    _color: [[f32; 3]; 3],
-    _colorNum: [i8; 3],
-    _colorName: [&'static str; 3],
-    pieceNum: i8,
-    flipStatus: i8,
-    hotPieceMoving: bool,
+    pub _color: [Vertex3; 3],
+    pub _colorNum: [i8; 3],
+    pub _colorName: [&'static str; 3],
+    pub pieceNum: i8,
+    pub flipStatus: i8,
+    pub hotPieceMoving: bool,
 }
 //Pack struct to rotateVertex
 #[derive(Copy, Clone)]
@@ -26,7 +34,7 @@ pub struct Piecepack {
 pub struct Piece {
 	// Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-	pub _vertex: [[f32; 3]; 7],
+	pub _vertex: [Vertex3; 7],
     //Keeps the default number in the piece. do not swap.
 	pub defaultPieceNum: i8,
     //Center has 1, Edge has 2, Corner has 3
@@ -54,7 +62,7 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 //why?
-//let something; can't do it, const something can't do it; static something, can't do it;
+// let something; can't do it // const something; can't do it // static something; can't do it!!!
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::acos` in constants
 //error[E0015]: cannot call non-const fn `f32::<impl f32>::sin` in statics
 //= note: calls in statics are limited to constant functions, tuple structs and tuple variants
@@ -180,15 +188,13 @@ impl PieceMath for Piece {
 		    'z' => vyIndex=1,
 		    _ => println!("Axis must be in x, y, z"),
 	    }
-		let mut vx: f32 = 0.0;
-		let mut vy: f32 = 0.0;
+		let vx: f32 = self._vertex[index as usize][vxIndex];
+		let vy: f32 = self._vertex[index as usize][vyIndex];
 	    let r: f32 = (vx * vx + vy * vy).sqrt();
 	    let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
 	    a += angle;
-	    vx = r * a.cos();	// `vx` is a `&` reference, so the data it refers to cannot be written
-	    vy = r * a.sin();
-		self._vertex[index as usize][vxIndex] = vx;
-		self._vertex[index as usize][vyIndex] = vy;
+		self._vertex[index][vxIndex] = r * a.cos();
+		self._vertex[index][vyIndex] = r * a.sin();
 	}	
 
 	//main transform: used in almost every other algo
