@@ -16,10 +16,10 @@ pub mod corner {
      * \brief Inits a Corner piece
      * \note  (calls createAxis and initColor)
      * \param n the number of the Corner piece (piecenum)
-     * \param doAxes True by default. First Time Initialization Only
+     * \param do_axes True by default. First Time Initialization Only
      */
     fn init(&mut self, piecenum: i8, do_axes: bool) {
-        if doAxes {
+        if do_axes {
             for i in 0..7  {
                 self.create_axis(piecenum as i32, i);
             }
@@ -31,11 +31,11 @@ pub mod corner {
     }
     /**
      * \brief Inits the piece with a pre-existing Vertex Array
-     * \param cornerVertexBase the starting points to be memcpy'ed in
+     * \param corner_vertex_base the starting points to be memcpy'ed in
      */
     fn init_data(&mut self, piecenum: i8, corner_vertex_base: [Vertex3; 7]) {
-        self._vertex = cornerVertexBase;
-        self.init(piecenum)
+        self._vertex = corner_vertex_base;
+        self.init(piecenum, true)
     }
     /**
      * \brief createAxis sets up the x,y,z Axes that the Corner pieces ride on

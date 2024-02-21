@@ -11,6 +11,8 @@ use glium::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
 mod center;
 mod edge;
+mod corner;
+mod face;
 use crate::center::center::Center;
 mod piece;
 mod piece_color;
