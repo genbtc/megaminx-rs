@@ -19,7 +19,7 @@ pub mod edge {
      * \param doAxes True by default. First Time Initialization Only
      */
     fn init(&mut self, piecenum: i8, do_axes: bool) {
-        if doAxes {
+        if do_axes {
             for i in 0..6 {
                 self.create_axis(piecenum as i32, i);
             }
@@ -34,8 +34,8 @@ pub mod edge {
      * \param edgeVertexBase the starting points to be memcpy'ed in
      */
     fn init_data(&mut self, piecenum: i8, edge_vertex_base: [Vertex3; 7]) {
-        self._vertex = edgeVertexBase;
-        self.init(piecenum)
+        self._vertex = edge_vertex_base;
+        self.init(piecenum, false);
     }
     /**
      * \brief createAxis sets up the x,y,z Axes that the Edge pieces ride on
