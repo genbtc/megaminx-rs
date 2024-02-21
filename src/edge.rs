@@ -20,7 +20,7 @@ pub mod edge {
      */
     fn init(&mut self, piecenum: i8, do_axes: bool) {
         if doAxes {
-            for i in 0..5  {
+            for i in 0..6 {
                 self.create_axis(piecenum as i32, i);
             }
         }
