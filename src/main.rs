@@ -10,6 +10,7 @@ include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
 mod center;
+mod edge;
 use crate::center::center::Center;
 mod piece;
 mod piece_color;

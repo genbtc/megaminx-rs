@@ -12,7 +12,7 @@ pub mod center {
     /**
      * \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
-     * \param n the number of the piece
+     * \param n the number of the piece (piecenum)
      */
     fn init(&mut self, piecenum: i8) {
         for i in 0..5  {
@@ -24,8 +24,8 @@ pub mod center {
     /**
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
      * \note (called by init on startup)
-     * \param n - the number of the piece
-     * \param *target - the pre-existing Vertex Array
+     * \param n - the number of the piece (piecenum)
+     * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
     fn create_axis(&mut self, piecenum: i32, index: usize) {
         match piecenum + 1 {
