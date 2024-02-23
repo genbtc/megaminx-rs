@@ -32,6 +32,7 @@ pub fn main() -> Result<(), String> {
                     .into_canvas()
                     .accelerated()
                     .build().unwrap();
+    //Canvas Draw Examples:
     //Black Diagonal 2D Line
     let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
     //Black Diagonal 2D Thick Line (opposite)
@@ -67,7 +68,7 @@ for i in 0..5 {
 
 //NOT YET DONE!
 
-    let shape = vec![
+    let _shape = vec![
         Vertex { position: [ -0.4, -0.9, 0.0 ] },
         Vertex { position: [ 0.0,  0.9, 0.0 ] },
         Vertex { position: [ 0.8, -0.5, 0.0 ] }
@@ -80,6 +81,7 @@ for i in 0..5 {
         Vertex { position: centerpiece._vertex[4] },
         Vertex { position: centerpiece._vertex[0] }
     ];
+    //Glium GL VBO
     let vertex_buffer = glium::VertexBuffer::new(&display, &_pentagon).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);  //LineLoop isnt Fill'ed
 
@@ -105,6 +107,7 @@ for i in 0..5 {
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 
+    //attempt to draw vertex from pieces using canvas. not correct coordinate space
     let _ = canvas.thick_line(centerpiece._vertex[0][0].round() as i16, centerpiece._vertex[0][1].round() as i16,
                               centerpiece._vertex[2][0].round() as i16, centerpiece._vertex[2][1].round() as i16, 4, Color::RGB(0, 0, 0));
 
@@ -115,7 +118,9 @@ for i in 0..5 {
         //color var cycles
         i = (i + 1) % 255;
         //Color Changing Square
-        //canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
+        let _ = canvas.fill_rect(Rect::new(36, 36, 80, 80));
+
         canvas.present();
 
         //Keyboard Event Handler

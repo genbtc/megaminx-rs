@@ -2,8 +2,6 @@
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
 pub mod face {
-  use crate::piece::piece::Piece;
-  use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceData;
   use crate::center::center::Center;
 
@@ -18,11 +16,11 @@ pub mod face {
     //Duplicated from Piece Struct since no longer a Piece
     default_piece_num: i8,
     data: PieceData,
-    center: dyn Center,
+    //center: dyn Center,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
-    corners: [&Corner; 5],
-    edges: [&Edge; 5]
+    //corners: [&dyn Corner; 5],
+    //edges: [&dyn Edge; 5]
   }
   //active from center.rs already;
 /*pub trait Center {
@@ -40,14 +38,14 @@ pub mod face {
     fn init(&mut self, piecenum: i8) {
         if self.do_axes {
             for i in 0..5  {
-                self.create_axis(piecenum as i32, i);
+              Center::create_axis(self, piecenum as i32, i);
             }
         }
         //TODO: initColor(G_FACEPIECESCOLORS[piecenum], true);
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
-    fn create_axis(&mut self, piecenum: i32, _index: usize) {
+     fn create_axis(&mut self, piecenum: i32, _index: usize) {
         self.init(piecenum as i8);
     }
     fn render(&self) {
@@ -58,7 +56,7 @@ pub mod face {
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
 
-  trait FaceFunctions {
+  pub trait FaceFunctions {
     fn getnum(&self) -> i8;
     fn attach_center(&mut self);                            //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&self, _corners: &dyn Corner); //(const Megaminx* megaminx, Corner& cornersPTR);
@@ -70,7 +68,7 @@ pub mod face {
     }
     fn attach_center(&mut self) {
         //let mut centerpiece: Piece = Piece::new(self.this_num);
-        //centerpiece.centerInit();
+        //centerpiece.centerInit(); ^^^^^^^^^^ method not found in `Piece`
         //error[E0620]: cast to unsized type: `Piece` as `dyn center::center::Center`
         //self.center = centerpiece as dyn Center;
         //error[E0277]: the size for values of type `(dyn center::center::Center + 'static)` cannot be known at compilation time

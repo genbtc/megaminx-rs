@@ -2,22 +2,29 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 mod megaminx {
-//  use crate::center::center::Center;
+  use crate::face::face::FaceFunctions;
   use crate::face::face::Face;
   use crate::piece::piece::Piece;
+  use crate::piece::piece::PieceMath;
+  use crate::center::center::Center;
+  use crate::edge::edge::Edge;
+  use crate::corner::corner::Corner;
 
-  static NUM_FACES: i8 = 12;
-  static NUM_CORNERS: i8 = 20;
-  static NUM_EDGES: i8 = 30;
+  const NUM_FACES: usize = 12;
+  const NUM_CORNERS: usize = 20;
+  const NUM_EDGES: usize = 30;
 
   pub struct Megaminx<'a> { 
     pub invisible: bool,
     pub is_rotating: bool,
         rotating_face_index: i8,
-    pub g_current_face: &'a Face,
+    pub faces: [&'a mut Face; NUM_FACES],
+        centers: [&'a mut dyn Center; NUM_FACES],
+        corners: [&'a mut dyn Corner; NUM_CORNERS],
+        edges: [&'a mut dyn Edge; NUM_EDGES],
+    pub g_current_face: &'a Face,        
   }
   impl Megaminx<'_> {
-
     /**
      * \brief Megaminx main simple constructor for init.
      * \note   Setup, Solve Puzzle (aka Reset), Render
@@ -32,34 +39,41 @@ mod megaminx {
         self.init_face_pieces();
         self.render_all_pieces();
     }
+  }
+
+  //Piece Init Setup
+  pub trait MegaminxInitFunctions {
+    fn init_corner_pieces(&mut self);
+    fn init_edge_pieces(&mut self);
+    fn init_face_pieces(&mut self);
+    fn render_all_pieces(&self);
+  }
+  impl MegaminxInitFunctions for Megaminx<'_> {
 
     /**
      * \brief Init the Edge pieces.
      * \note   numEdges = 30
      */
-    fn init_edge_pieces(&self) {
+    fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         let mut edgepiece: Piece = Piece::new(0);
         let edge_vertex_list = edgepiece.edgeInit();        
-/*        double* edgeVertexList = edges[0].edgeInit();
         for i in 0..NUM_EDGES {
-            edges[i].init(i, edgeVertexList);
-        }*/
+            self.edges[i].init_data(i as i8, *edge_vertex_list);
+        }
     }
 
     /**
      * \brief Init the Corner pieces.
      * \note   numCorners = 20
      */
-    fn init_corner_pieces(&self) {
+    fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
         let mut cornerpiece: Piece = Piece::new(0);
         let corner_vertex_list = cornerpiece.cornerInit();
-/*
-        double* cornerVertexList = corners[0].cornerInit();
         for i in 0..NUM_CORNERS {
-            corners[i].init(i, cornerVertexList);
-        }*/
+            self.corners[i].init_data(i as i8, *corner_vertex_list);
+        }
     }
 
     /**
@@ -68,29 +82,45 @@ mod megaminx {
      *         Set up the Axes of the faces,
      *          and attach the Edge and Corner pieces to the Faces.
      */
-    fn init_face_pieces(&self) {
-        let mut centerpiece: Piece = Piece::new(0);
-        let center_vertex_list = centerpiece.centerInit();
-//        let centerVertexList = faces[0].faceInit();
-/*        for i in 0..NUM_FACES {
-            centers[i].init(i);
-            faces[i].attachCenter(centers + i, centerVertexList);
-            faces[i].initAxis(i);
-            faces[i].attachEdgePieces(this, edges[0]);
-            faces[i].attachCornerPieces(this, corners[0]); 
-        }*/
+    fn init_face_pieces(&mut self) {
+//        let mut centerpiece: Piece = Piece::new(0);
+//        let center_vertex_list = centerpiece.centerInit();
+        let mut facepiece: Piece = Piece::new(0);
+        let center_vertex_list = facepiece.faceInit();
+        for i in 0..NUM_FACES {
+            self.centers[i].init(i as i8);
+            self.faces[i].create_axis(i as i32, 0);
+            self.faces[i].attach_center();//self.centers[i], *center_vertex_list);
+            self.faces[i].attach_edge_pieces(self.edges[0]);
+            self.faces[i].attach_corner_pieces(self.corners[0]); 
+        }
     }
+
     /**                                                                                                                                     
      * \brief Default Render ALL the pieces (unconditionally)                                                                               
      */
-    fn render_all_pieces(&self) { /*
-        for center in centers:
+    fn render_all_pieces(&self) {
+        for center in &self.centers {
             center.render();
-        for edge in edges:
+        }
+        for edge in &self.edges {
             edge.render();
-        for corner in corners:
-            corner.render(); */
-    }
+        }
+        for corner in &self.corners {
+            corner.render();
+        }
+    }    
+  }
 
+  //Control Functions
+  pub trait MegaminxMoveFunctions {
+    //fn render_all_pieces();
+    fn render();
+    fn undo();
+    fn undo_double();
+    fn undo_quad();
+    fn undo_bulk();
+    fn reset_queue();
+    fn scramble();
   }
 }
