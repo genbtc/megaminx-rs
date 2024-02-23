@@ -6,7 +6,7 @@ pub mod face {
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceData;
   use crate::center::center::Center;
-//  use crate::PieceData;
+
   //Face Data
   pub struct Face {
     this_num: i8,
@@ -18,9 +18,11 @@ pub mod face {
     //Duplicated from Piece Struct since no longer a Piece
     default_piece_num: i8,
     data: PieceData,
-    center: dyn Center
+    center: dyn Center,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
+    corners: [&Corner; 5],
+    edges: [&Edge; 5]
   }
   //active from center.rs already;
 /*pub trait Center {
@@ -56,40 +58,39 @@ pub mod face {
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
 
-  trait FaceFunctions { 
+  trait FaceFunctions {
     fn getnum(&self) -> i8;
-    fn attach_center(&mut self);    //(Center* c, double* centerVertexBase);
+    fn attach_center(&mut self);                            //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&self, _corners: &dyn Corner); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&self, _edges: &dyn Edge);   //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_edge_pieces(&self, _edges: &dyn Edge);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
-  impl FaceFunctions for Face { 
+  impl FaceFunctions for Face {
     fn getnum(&self) -> i8 { 
         return self.this_num;
     }
-    fn attach_center(&mut self){
-        let mut centerpiece: Piece = Default::default();
-        self.init(self.this_num); //not working either
-        centerpiece.centerInit();
+    fn attach_center(&mut self) {
+        //let mut centerpiece: Piece = Piece::new(self.this_num);
+        //centerpiece.centerInit();
         //error[E0620]: cast to unsized type: `Piece` as `dyn center::center::Center`
         //self.center = centerpiece as dyn Center;
         //error[E0277]: the size for values of type `(dyn center::center::Center + 'static)` cannot be known at compilation time
         //^^^^^^^^^ doesn't have a size known at compile-time
         // = help: the trait `Sized` is not implemented for `(dyn center::center::Center + 'static)`
-        // = note: the left-hand-side of an assignment must have a statically known size        
+        // = note: the left-hand-side of an assignment must have a statically known size
     }
-    fn attach_corner_pieces(&self, _corners: &dyn Corner) { /* 
+    fn attach_corner_pieces(&self, _corners: &dyn Corner) { /*
       const int color = faces[face - 1].center->data._colorNum[0];
-      defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);                                           
-      for (int i = 0; i < 5; ++i) {
+      defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);
+      for i in 0..5 {
           corner[i] = &dyn CornersPTR + defaultCorners[i];
           assert(corner[i]->data.pieceNum == defaultCorners[i]);
       }  */
     }
     fn attach_edge_pieces(&self, _edges: &dyn Edge) {  /*
-      defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);                                                 
-      for (int i = 0; i < 5; ++i) {                                                                                                       
-          edge[i] = &dyn EdgesPTR + defaultEdges[i];                                                                                          
-          assert(edge[i]->data.pieceNum == defaultEdges[i]);                                                                              
+      defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);
+      for i in 0..5 {
+          edge[i] = &dyn EdgesPTR + defaultEdges[i];
+          assert(edge[i]->data.pieceNum == defaultEdges[i]);
       }  */
     }
   }

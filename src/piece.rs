@@ -52,6 +52,17 @@ pub struct Piece {
     //Data Struct (can swap out)
     pub data: PieceData,
 }
+//Initialize constructor
+impl Piece {
+    pub fn new(defaultPieceNum: i8) -> Self {
+      Self {
+        _vertex: Default::default(),
+        numSides: 0,
+        defaultPieceNum: defaultPieceNum,
+        data: Default::default(),
+      }
+    }    
+}
 
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
@@ -71,11 +82,7 @@ macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }         //10
 macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
-//why?
-// let something; can't do it // const something; can't do it // static something; can't do it!!!
-//error[E0015]: cannot call non-const fn `f32::<impl f32>::acos` in constants
-//error[E0015]: cannot call non-const fn `f32::<impl f32>::sin` in statics
-//= note: calls in statics are limited to constant functions, tuple structs and tuple variants
+
 //Math & init functions:
 pub trait PieceMath {
     fn cornerInit(&mut self) -> &[Vertex3; 7] ;
@@ -198,13 +205,14 @@ impl PieceMath for Piece {
             'z' => vyIndex=1,
             _ => println!("Axis must be in x, y, z"),
         }
-        let vx: f32 = self._vertex[index as usize][vxIndex];
-        let vy: f32 = self._vertex[index as usize][vyIndex];
+        let vx: f32 = self._vertex[index][vxIndex];
+        let vy: f32 = self._vertex[index][vyIndex];
         let r: f32 = (vx * vx + vy * vy).sqrt();
         let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
         a += angle;
         self._vertex[index][vxIndex] = r * a.cos();
         self._vertex[index][vyIndex] = r * a.sin();
+        println!("{} = {} index, angle", index, angle);
     }   
 //Vertex Transformation Functions
     //main transform: used in almost every other algo

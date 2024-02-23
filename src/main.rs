@@ -32,10 +32,28 @@ pub fn main() -> Result<(), String> {
                     .into_canvas()
                     .accelerated()
                     .build().unwrap();
+    //Black Diagonal 2D Line
+    let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
+    //Black Diagonal 2D Thick Line (opposite)
+    let _ = canvas.thick_line(556, 0, 0, 556, 4, Color::RGB(0, 0, 0));
+    //Black Horizontal Line
+    let _ = canvas.hline(0, 600, 280, Color::RGB(0, 0, 0));
+    //Green anti-aliased Circle
+    let _ = canvas.aa_circle(70, 70, 70, Color::GREEN);
+    //Red Filled Triangle
+    let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
 //WORK IN PROGRESS:
-   let mut centerpiece: Piece = Default::default();
+   let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();
+
+for i in 0..5 {
+    for j in 0..2 {
+//      centerpiece._vertex[i][j] *= 0.01; scale //reset scale from 100 to 1
+      centerpiece._vertex[i][j] = centerpiece._vertex[i][j].abs();  //Clamp to >0 
+    }
+    centerpiece._vertex[i][2] = 0.0;    
+  }    
     print!("Center Piece 1 Vertex Array: [ ");
     for i in 0..5 {
       print!("[ ");
@@ -46,14 +64,7 @@ pub fn main() -> Result<(), String> {
       if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
     }
     println!("]");
-//reset scale from 100 to 1
-    for i in 0..5 {
-      for j in 0..3 {
-        centerpiece._vertex[i][j] *= 0.01;
-        centerpiece._vertex[i][j] *= centerpiece._vertex[i][j].abs();
-        centerpiece._vertex[i][2] = 0.0;
-      }
-    }
+
 //NOT YET DONE!
 
     let shape = vec![
@@ -69,7 +80,7 @@ pub fn main() -> Result<(), String> {
         Vertex { position: centerpiece._vertex[4] },
         Vertex { position: centerpiece._vertex[0] }
     ];
-    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+    let vertex_buffer = glium::VertexBuffer::new(&display, &_pentagon).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);  //LineLoop isnt Fill'ed
 
     let vertex_shader_src = r#"
@@ -94,36 +105,17 @@ pub fn main() -> Result<(), String> {
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
     target.finish().unwrap();
 
+    let _ = canvas.thick_line(centerpiece._vertex[0][0].round() as i16, centerpiece._vertex[0][1].round() as i16,
+                              centerpiece._vertex[2][0].round() as i16, centerpiece._vertex[2][1].round() as i16, 4, Color::RGB(0, 0, 0));
+
     //Main Event Loop
     let mut i = 0;
     let mut event_pump = sdl_context.event_pump()?;
     'mainevent: loop {
         //color var cycles
         i = (i + 1) % 255;
-
         //Color Changing Square
-        canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
-        let _ = canvas.fill_rect(Rect::new(120, 120, 320, 320));
-        //Color Changing Square 2
-        canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
-        let _ = canvas.fill_rect(Rect::new(180, 60, 320, 320));
-
-        //Black Diagonal 2D Line
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
-
-        //Black Diagonal 2D Thick Line (opposite)
-        let _ = canvas.thick_line(556, 0, 0, 556, 4, Color::RGB(0, 0, 0));
-
-        //Black Horizontal Line
-        let _ = canvas.hline(0, 600, 280, Color::RGB(0, 0, 0));
-
-        //Green anti-aliased Circle
-        let _ = canvas.aa_circle(70, 70, 70, Color::GREEN);
-
-        //Red Filled Triangle
-        let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
-
+        //canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
         canvas.present();
 
         //Keyboard Event Handler
@@ -137,7 +129,6 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-
         ::std::thread::sleep(std::time::Duration::new(0, 1_000_000_000u32 / 60));
     }
     Ok(())
