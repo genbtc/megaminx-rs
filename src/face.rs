@@ -4,9 +4,9 @@
 pub mod face {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
-  use crate::Vertex3; 
+  use crate::piece::piece::PieceData;
   use crate::center::center::Center;
-  use crate::PieceData;
+//  use crate::PieceData;
   //Face Data
   pub struct Face {
     this_num: i8,
@@ -22,7 +22,7 @@ pub mod face {
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
   }
-  //From center.rs already;
+  //active from center.rs already;
 /*pub trait Center {
     fn init(&mut self, piecenum: i8);
     fn create_axis(&mut self, piecenum: i32, index: usize);
@@ -45,18 +45,22 @@ pub mod face {
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
-    fn create_axis(&mut self, piecenum: i32, index: usize) {
+    fn create_axis(&mut self, piecenum: i32, _index: usize) {
         self.init(piecenum as i8);
     }
     fn render(&self) {
         todo!();
     }
   }
+
+  use crate::edge::edge::Edge;
+  use crate::corner::corner::Corner;
+
   trait FaceFunctions { 
     fn getnum(&self) -> i8;
     fn attach_center(&mut self);    //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces(&self); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&self);   //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_corner_pieces(&self, _corners: &dyn Corner); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&self, _edges: &dyn Edge);   //(const Megaminx* megaminx, Edge& edgesPTR);
   }
   impl FaceFunctions for Face { 
     fn getnum(&self) -> i8 { 
@@ -64,7 +68,7 @@ pub mod face {
     }
     fn attach_center(&mut self){
         let mut centerpiece: Piece = Default::default();
-        centerpiece.init(self.this_num); //not working either
+        self.init(self.this_num); //not working either
         centerpiece.centerInit();
         //error[E0620]: cast to unsized type: `Piece` as `dyn center::center::Center`
         //self.center = centerpiece as dyn Center;
@@ -73,17 +77,18 @@ pub mod face {
         // = help: the trait `Sized` is not implemented for `(dyn center::center::Center + 'static)`
         // = note: the left-hand-side of an assignment must have a statically known size        
     }
-    fn attach_corner_pieces(&self) { /* 
+    fn attach_corner_pieces(&self, _corners: &dyn Corner) { /* 
+      const int color = faces[face - 1].center->data._colorNum[0];
       defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);                                           
       for (int i = 0; i < 5; ++i) {
-          corner[i] = &cornersPTR + defaultCorners[i];
+          corner[i] = &dyn CornersPTR + defaultCorners[i];
           assert(corner[i]->data.pieceNum == defaultCorners[i]);
       }  */
     }
-    fn attach_edge_pieces(&self) {  /*
+    fn attach_edge_pieces(&self, _edges: &dyn Edge) {  /*
       defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);                                                 
       for (int i = 0; i < 5; ++i) {                                                                                                       
-          edge[i] = &edgesPTR + defaultEdges[i];                                                                                          
+          edge[i] = &dyn EdgesPTR + defaultEdges[i];                                                                                          
           assert(edge[i]->data.pieceNum == defaultEdges[i]);                                                                              
       }  */
     }

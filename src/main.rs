@@ -9,16 +9,15 @@ use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
+mod megaminx;
 mod center;
 mod edge;
 mod corner;
 mod face;
-use crate::center::center::Center;
 mod piece;
 mod piece_color;
 use crate::piece::piece::Piece;
 use crate::piece::piece::PieceMath;
-use crate::piece::piece::PieceData;
 use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
 
