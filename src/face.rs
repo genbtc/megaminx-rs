@@ -1,42 +1,79 @@
 //2024 megaminx-rs face.rs , by genr8eofl - LICENSED APGL3
 #![allow(dead_code)]
+#![allow(non_upper_case_globals)]
 pub mod face {
-//  use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
-//  use crate::piece::piece::PieceMath;
   use crate::Vertex3; 
   use crate::center::center::Center;
-  //Face functions
-  pub trait Face {
-      fn init(&mut self, piecenum: i8, do_axes: bool);
-      fn init_data_attach_center(&mut self, piecenum: i8, face_vertex_base: [Vertex3; 7]);
+  use crate::PieceData;
+  //Face Data
+  pub struct Face {
+    this_num: i8,
+    turn_dir: i8,
+    rotating: bool,
+    angle: f32,
+    axis: [f32;3],
+    do_axes: bool,
+    //Duplicated from Piece Struct since no longer a Piece
+    default_piece_num: i8,
+    data: PieceData,
+    center: dyn Center
+    //TODO: hold a pointer back to the parent megaminx
+    //Megaminx *megaminx;
   }
-  impl Face for Piece {
+  //From center.rs already;
+/*pub trait Center {
+    fn init(&mut self, piecenum: i8);
+    fn create_axis(&mut self, piecenum: i32, index: usize);
+    fn render(&self);
+  } */
+  impl Center for Face {
     /**
-     * \brief Inits a Face piece
+     * \brief Inits a Face piece based on Center
      * \note  (calls createAxis and initColor)
      * \param n the number of the Face piece (piecenum)
      * \param doAxes True by default. First Time Initialization Only
      */
-    fn init(&mut self, piecenum: i8, do_axes: bool) {
-        if do_axes {
+    fn init(&mut self, piecenum: i8) {
+        if self.do_axes {
             for i in 0..5  {
                 self.create_axis(piecenum as i32, i);
             }
         }
         //TODO: initColor(G_FACEPIECESCOLORS[piecenum], true);
         self.data.pieceNum = piecenum;
-        self.defaultPieceNum = piecenum;
+        self.default_piece_num = piecenum;
     }
-    /**
-     * \brief Inits the piece with a pre-existing Vertex Array
-     * \param faceVertexBase the starting points to be memcpy'ed in
-     */
-    fn init_data_attach_center(&mut self, piecenum: i8, face_vertex_base: [Vertex3; 7]) {
-        self._vertex = face_vertex_base;
-        Face::init(self, piecenum, false);
+    fn create_axis(&mut self, piecenum: i32, index: usize) {
+        self.init(piecenum as i8);
+    }
+    fn render(&self) {
+        todo!();
     }
   }
+  trait FaceFunctions { 
+    fn getnum(&self) -> i8;
+    fn attach_center(&mut self);    //(Center* c, double* centerVertexBase);
+    fn attach_corner_pieces(&self); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&self);   //(const Megaminx* megaminx, Edge& edgesPTR);
+  }
+  impl FaceFunctions for Face { 
+    fn getnum(&self) -> i8 { 
+        return self.this_num;
+    }
+    fn attach_center(&mut self){
+        //self.center = c;
+    }
+    fn attach_corner_pieces(&self) {
+        todo!();
+    }
+    fn attach_edge_pieces(&self) {
+        todo!();
+    }
+  }
+
+enum TurnDir { Clockwise = -1, None = 0, CounterClockwise = 1 }
+enum TurnDir2 { CW = -1, CCW = 1 }
 
 //Named Flip Direction lists:
 static FlipInwards: [i8;4] =     [ 0, 1, 1, 0 ];
