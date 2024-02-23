@@ -35,9 +35,7 @@ pub fn main() -> Result<(), String> {
                     .build().unwrap();
 
 //WORK IN PROGRESS:
-    let _piecedata: PieceData = Default::default();
-    let mut centerpiece: Piece = Default::default();
-    centerpiece.init(1);
+   let mut centerpiece: Piece = Default::default();
     centerpiece.centerInit();
     print!("Center Piece 1 Vertex Array: [ ");
     for i in 0..5 {

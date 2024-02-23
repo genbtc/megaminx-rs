@@ -3,6 +3,7 @@
 #![allow(non_upper_case_globals)]
 pub mod face {
   use crate::piece::piece::Piece;
+  use crate::piece::piece::PieceMath;
   use crate::Vertex3; 
   use crate::center::center::Center;
   use crate::PieceData;
@@ -62,13 +63,29 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self){
-        //self.center = c;
+        let mut centerpiece: Piece = Default::default();
+        centerpiece.init(self.this_num); //not working either
+        centerpiece.centerInit();
+        //error[E0620]: cast to unsized type: `Piece` as `dyn center::center::Center`
+        //self.center = centerpiece as dyn Center;
+        //error[E0277]: the size for values of type `(dyn center::center::Center + 'static)` cannot be known at compilation time
+        //^^^^^^^^^ doesn't have a size known at compile-time
+        // = help: the trait `Sized` is not implemented for `(dyn center::center::Center + 'static)`
+        // = note: the left-hand-side of an assignment must have a statically known size        
     }
-    fn attach_corner_pieces(&self) {
-        todo!();
+    fn attach_corner_pieces(&self) { /* 
+      defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);                                           
+      for (int i = 0; i < 5; ++i) {
+          corner[i] = &cornersPTR + defaultCorners[i];
+          assert(corner[i]->data.pieceNum == defaultCorners[i]);
+      }  */
     }
-    fn attach_edge_pieces(&self) {
-        todo!();
+    fn attach_edge_pieces(&self) {  /*
+      defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);                                                 
+      for (int i = 0; i < 5; ++i) {                                                                                                       
+          edge[i] = &edgesPTR + defaultEdges[i];                                                                                          
+          assert(edge[i]->data.pieceNum == defaultEdges[i]);                                                                              
+      }  */
     }
   }
 
