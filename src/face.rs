@@ -1,8 +1,11 @@
 //2024 megaminx-rs face.rs , by genr8eofl - LICENSED APGL3
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
+#![allow(unused_variables)]
+#![allow(unused_imports)]
 pub mod face {
   use crate::piece::piece::PieceData;
+  use crate::piece::piece::PieceMath;  
   use crate::piece::piece::Piece;
   use crate::center::center::Center;
   use crate::piece::piece::VERTEXZERO;
@@ -20,7 +23,7 @@ pub mod face {
     default_piece_num: i8,
     data: PieceData,
     //Boxed References to Trait Objects
-    center: Vec<Box<dyn Center>>,
+    pub center: Vec<Box<dyn Center>>,
     corners: Vec<Box<dyn Corner>>,
     edges: Vec<Box<dyn Edge>>,
     //TODO: hold a pointer back to the parent megaminx
@@ -29,20 +32,24 @@ pub mod face {
   /*Initialize constructor */
   impl Face {
     pub fn new() -> Self {
-    Self {
-      this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default(),
-      center: vec![Box::<Piece>::new(Default::default())], corners: vec![Box::<Piece>::new(Default::default())], edges: vec![Box::<Piece>::new(Default::default())],
+      Self {
+        this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default(),
+        center: vec![Box::<Piece>::new(Default::default())], corners: vec![Box::<Piece>::new(Default::default())], edges: vec![Box::<Piece>::new(Default::default())],
+      }
     }
-   }
   }  
   //included from center.rs already;
 /*pub trait Center {
     fn init(&mut self, piecenum: i8);
     fn create_axis(&mut self, piecenum: i32, index: usize);
     fn render(&self);
+    fn new(&mut self);
   } */
   impl Center for Face {
-    /**
+    fn new(&mut self){
+      return Default::default();
+    }
+   /**
      * \brief Inits a Face piece based on Center
      * \note  (calls createAxis and initColor)
      * \param n the number of the Face piece (piecenum)
@@ -61,14 +68,13 @@ pub mod face {
      fn create_axis(&mut self, piecenum: i32, _index: usize) {
         self.init(piecenum as i8);
     }
-    fn render(&self) {
-        todo!();
+    fn render(&mut self) {
+        //self.place_parts(self.this_num);
     }
   }
 
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
-  use crate::piece::piece::PieceMath;
 
   pub trait FaceFunctions {
     fn getnum(&self) -> i8;
@@ -173,5 +179,212 @@ static  CW8E: [i8;8] = [ 3, 4, 2, 4, 1, 2, 0, 1 ];
 static  CW9E: [i8;8] = [ 3, 4, 2, 4, 1, 2, 0, 1 ];
 static CW10E: [i8;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
 static CW11E: [i8;8] = [ 0, 1, 0, 2, 0, 4, 0, 3 ];
+
+trait FacePlace {
+  fn place_parts(&mut self, dir: i8) -> bool;
+  fn two_edges_flip(&mut self, a: i8, b: i8);
+  fn flip_corners(&mut self, a: i8, b: i8, c: i8, d: i8, pack: [i8;4]);
+  fn quad_swap_pieces(&mut self, pack: [i8;8]);
+  fn quad_swap_edges(&mut self, pack: [i8;8]) ;
+  fn quad_swap_corners(&mut self, pack: [i8;8]);
+  fn swap_pieces(&mut self, a: i8, b: i8);
+  fn get_face_piece(&mut self, i: i8);
+  fn rotate(&mut self, direction: i8);
+}
+use crate::face::face::TurnDir::{CounterClockwise,Clockwise};
+/**
+ * \brief Colorizing function. Intricate series of flips/swaps.
+ * \param dir Each case is for each of the 12 faces,
+ * / in order to get it to switch colors after it rotates.
+ * / called from render()
+ */
+impl FacePlace for Face {
+  fn two_edges_flip(&mut self, a: i8, b: i8) {
+      todo!(); /*
+      assert(a >= 0 && a < 5 && b >= 0 && b < 5);
+      edge[a]->flip();
+      edge[b]->flip(); */
+  }
+  fn flip_corners(&mut self, a: i8, b: i8, c: i8, d: i8, pack: [i8;4]){
+      todo!(); /*
+      //Feed in 4 ints a,b,c,d representing four of the face's Five Corner indexes (Range 0-4)
+      //Feed in these Flip lists like { 0, 1, 1, 0 }; telling each index how to flip
+      // Boolean ? 1 = Flip piece once ||  0      = Flip twice
+      pack[0] ? corner[a]->flip() : corner[a]->flipTwice();
+      pack[1] ? corner[b]->flip() : corner[b]->flipTwice();
+      pack[2] ? corner[c]->flip() : corner[c]->flipTwice();
+      pack[3] ? corner[d]->flip() : corner[d]->flipTwice();   */
+  }
+  //Private. Swap 4 Pieces, given a list of 8 indexes
+  fn quad_swap_pieces(&mut self, pack: [i8;8]) {
+      for i in (0..8).step_by(2) {
+          self.swap_pieces(pack[i], pack[i+1]);
+      }
+  }
+  fn quad_swap_edges(&mut self, pack: [i8;8]) {
+      self.quad_swap_pieces(pack);
+  }
+  fn quad_swap_corners(&mut self, pack: [i8;8]) {
+      self.quad_swap_pieces(pack);
+  }
+  /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
+  fn swap_pieces(&mut self, a: i8, b: i8) {
+      todo!(); /*
+      assert(a >= 0 && a < 5 && b >= 0 && b < 5);
+      Piece* pieceA = getFacePiece(a);
+      Piece* pieceB = getFacePiece(b);
+      pieceA->swapdata(pieceB->data); */
+  }
+  fn get_face_piece(&mut self, i: i8) {
+      todo!(); /*
+      if (std::is_same<T, Edge>::value)
+          return edge[i];
+      else if (std::is_same<T, Corner>::value)
+          return corner[i];
+      return center; */
+  }
+  /**
+   * \brief Colorizing function. Intricate series of flips/swaps.
+  *  \param dir Each case is for each of the 12 faces,
+  * / in order to get it to switch colors after it rotates.
+  * / called from render() */
+  fn place_parts(&mut self, dir: i8) -> bool {
+    //assert(dir == Face::CCW || dir == Face::CW);
+    if dir == CounterClockwise as i8 { // 1 = CCW = Left Turn = Counter-ClockWise
+        match self.this_num {
+        0 => { //WHITE
+            self.quad_swap_edges(CCW0E);
+            self.quad_swap_corners(CCW0C); }
+        1 => { //DARK_BLUE
+            self.quad_swap_edges(CCW1E);
+            self.two_edges_flip(1, 2);
+            self.quad_swap_corners(CCW1C);
+            self.flip_corners(0, 2, 3, 4, FlipBackwards); }
+        2 => { //RED
+            self.quad_swap_edges(CCW2E);
+            self.two_edges_flip(1, 2);
+            self.quad_swap_corners(CCW2C);
+            self.flip_corners(1, 2, 3, 4, FlipBackwardAlt); }
+        3 => { //DARK_GREEN
+            self.quad_swap_edges(CCW3E);
+            self.two_edges_flip(1, 2);
+            self.quad_swap_corners(CCW3C);
+            self.flip_corners(1, 2, 3, 4, FlipBackwardAlt); }
+        4 => { //PURPLE
+            self.quad_swap_edges(CCW4E);
+            self.two_edges_flip(1, 2);
+            self.quad_swap_corners(CCW4C);
+            self.flip_corners(1, 2, 3, 4, FlipBackwardAlt); }
+        5 => { //YELLOW
+            self.quad_swap_edges(CCW5E);
+            self.two_edges_flip(1, 2);
+            self.quad_swap_corners(CCW5C);
+            self.flip_corners(1, 2, 3, 4, FlipBackwardAlt); }
+        6 => { //GRAY
+            self.quad_swap_edges(CCW6E);
+            self.quad_swap_corners(CCW6C); }
+        7 => { //LIGHT_BLUE Front Face, Left Turn = Counter-ClockWise;
+            self.quad_swap_edges(CCW7E);
+            self.two_edges_flip(3, 4);
+            self.quad_swap_corners(CCW7C);
+            self.flip_corners(0, 1, 2, 3, FlipForwardAlt); }
+        8 => { //ORANGE
+            self.quad_swap_edges(CCW8E);
+            self.two_edges_flip(3, 4);
+            self.quad_swap_corners(CCW8C);
+            self.flip_corners(0, 1, 2, 3, FlipForwards); }
+        9 => { //GREEN
+            self.quad_swap_edges(CCW9E);
+            self.two_edges_flip(3, 4);
+            self.quad_swap_corners(CCW9C);
+            self.flip_corners(0, 1, 2, 3, FlipForwards); }
+        10 => { //PINK
+            self.quad_swap_edges(CCW10E);
+            self.two_edges_flip(2, 4);
+            self.quad_swap_corners(CCW10C);
+            self.flip_corners(0, 1, 2, 3, FlipForwards); }
+        11 => { //BEIGE
+            self.quad_swap_edges(CCW11E);
+            self.two_edges_flip(3, 4);
+            self.quad_swap_corners(CCW11C);
+            self.flip_corners(0, 1, 2, 4, FlipForwards); }
+        _ => {
+            println!("CCW Face must be in 0-11") },
+        }
+    }
+    else {  // -1 = CW = Right Turn = ClockWise
+        match self.this_num {
+        0 => { //WHITE
+            self.quad_swap_edges(CW0E);
+            self.quad_swap_corners(CW0C); }
+        1 => { //DARK_BLUE
+            self.quad_swap_edges(CW1E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW1C);
+            self.flip_corners(0, 1, 2, 4, FlipForwards); }
+        2 => { //RED
+            self.quad_swap_edges(CW2E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW2C);
+            self.flip_corners(0, 1, 3, 4, FlipForwards); }
+        3 => { //DARK_GREEN
+            self.quad_swap_edges(CW3E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW3C);
+            self.flip_corners(0, 1, 3, 4, FlipForwards); }
+        4 => { //PURPLE
+            self.quad_swap_edges(CW4E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW4C);
+            self.flip_corners(0, 1, 3, 4, FlipForwards); }
+        5 => { //YELLOW
+            self.quad_swap_edges(CW5E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW5C);
+            self.flip_corners(0, 1, 3, 4, FlipForwards); }
+        6 => { //GRAY
+            self.quad_swap_edges(CW6E);
+            self.quad_swap_corners(CW6C); }
+        7 => { //LIGHT_BLUE Front Face, Right Turn = ClockWise;
+            self.quad_swap_edges(CW7E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW7C);
+            self.flip_corners(0, 1, 3, 4, FlipBackwards); }
+        8 => { //ORANGE
+            self.quad_swap_edges(CW8E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW8C);
+            self.flip_corners(0, 2, 3, 4, FlipBackwards); }
+        9 => { //GREEN
+            self.quad_swap_edges(CW9E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW9C);
+            self.flip_corners(0, 2, 3, 4, FlipBackwards); }
+        10 => { //PINK
+            self.quad_swap_edges(CW10E);
+            self.two_edges_flip(0, 2);
+            self.quad_swap_corners(CW10C);
+            self.flip_corners(0, 2, 3, 4, FlipBackwards); }
+        11 => { //BEIGE
+            self.quad_swap_edges(CW11E);
+            self.two_edges_flip(0, 3);
+            self.quad_swap_corners(CW11C);
+            self.flip_corners(0, 2, 3, 4, FlipBackwards); }
+        _ => {
+              println!("CW Face must be in 0-11") },
+          }
+    }
+    return true;
+  }
+  /**
+   * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
+   * \param direction turn direction: -1 for Right, +1 for left (seems/is backwards). */
+  fn rotate(&mut self, direction: i8) {
+      //assert(direction == Clockwise || direction == CounterClockwise);
+      self.rotating = true;
+      self.turn_dir = direction;
+  }
+
+}
 
 }

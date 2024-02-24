@@ -9,9 +9,13 @@ pub mod corner {
       fn init(&mut self, piecenum: i8, do_axes: bool);
       fn init_data(&mut self, piecenum: i8, corner_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: i32, index: usize);
-      fn render(&self);
+      fn render(&mut self);
+      fn new(&mut self);
   }
   impl Corner for Piece {
+    fn new(&mut self) {
+        self.cornerInit();
+    }
     /**
      * \brief Inits a Corner piece
      * \note  (calls createAxis and initColor)
@@ -62,7 +66,7 @@ pub mod corner {
     /**
      * \brief Render Corner Node (CONST)
      */
-    fn render(&self) {
+    fn render(&mut self) {
         todo!();
 /*
    glColor3dv(data._color[0]);

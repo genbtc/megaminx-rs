@@ -21,6 +21,9 @@ use crate::piece::piece::PieceMath;
 use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
 use crate::megaminx::megaminx::Megaminx;
+//use crate::center::center::Center;
+//use crate::face::face::Face;
+use crate::face::face::FaceFunctions;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -48,6 +51,16 @@ pub fn main() -> Result<(), String> {
 //WORK IN PROGRESS:
     let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
     megaminx.init_reset();
+    let faces = megaminx.faces;
+    for face in faces {
+        let num = face.getnum();
+        println!("facenum {}", num);
+        let centers = face.center;
+        for mut center in centers {
+            center.init(num);
+            //center._vertex[0][0];
+        }
+    }
 //MEGAMINX INIT WORKS FINALLY ^^^^^^    
     let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();

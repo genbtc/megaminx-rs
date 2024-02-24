@@ -31,10 +31,10 @@ pub mod megaminx {
         invisible: false,
         is_rotating: false,
         rotating_face_index: -1,
-        faces: vec![Box::<Face>::new(Default::default())],
-        centers: vec![Box::<Piece>::new(Default::default())],
+        faces: Default::default(),
+        centers: Default::default(),
         corners: vec![Box::<Piece>::new(Default::default())],
-        edges: vec![Box::<Piece>::new(Default::default())],
+        edges: Vec::new(),
         g_current_face: Box::<Face>::new(Default::default()),
       }
     }
@@ -62,11 +62,11 @@ pub mod megaminx {
 
   //Megaminx Init Pieces Setup
   pub trait MegaminxInitFunctions {
-    fn init_corner_pieces(&mut self);
     fn init_edge_pieces(&mut self);
+    fn init_corner_pieces(&mut self);
     fn init_center_pieces(&mut self);
     fn init_face_pieces(&mut self);
-    fn render_all_pieces(&self);
+    fn render_all_pieces(&mut self);
   }
   impl MegaminxInitFunctions for Megaminx {
 
@@ -79,6 +79,7 @@ pub mod megaminx {
         let mut edgepiece: Piece = Piece::new(0);
         let edge_vertex_list = *edgepiece.edgeInit();
         for i in 0..NUM_EDGES {
+            println!("initing edge: {}", i);
             self.edges[i].init_data(i as i8, edge_vertex_list);
         }
     }
@@ -92,6 +93,7 @@ pub mod megaminx {
         let mut cornerpiece: Piece = Piece::new(0);
         let corner_vertex_list = *cornerpiece.cornerInit();
         for i in 0..NUM_CORNERS {
+            println!("initing corner: {}", i);
             self.corners[i].init_data(i as i8, corner_vertex_list);
         }
     }
@@ -101,6 +103,7 @@ pub mod megaminx {
         let mut centerpiece: Piece = Piece::new(0);
         let center_vertex_list = *centerpiece.centerInit();
         for i in 0..NUM_FACES {
+            println!("initing face: {}", i);
             self.centers[i].init(i as i8);
         }        
     }
@@ -110,6 +113,7 @@ pub mod megaminx {
      *          and attach the Edge and Corner pieces to the Faces.
      */
     fn init_face_pieces(&mut self) {
+        println!("initing All Face Pieces");
         let mut facepiece: Piece = Piece::new(0);
         let center_vertex_list = *facepiece.faceInit();
         for i in 0..NUM_FACES {
@@ -123,14 +127,14 @@ pub mod megaminx {
     /**                                                                                                                                     
      * \brief Default Render ALL the pieces (unconditionally)                                                                               
      */
-    fn render_all_pieces(&self) {
-        for center in &self.centers {
+    fn render_all_pieces(&mut self) {
+        for center in &mut self.centers {
             center.render();
         }
-        for edge in &self.edges {
+        for edge in &mut self.edges {
             edge.render();
         }
-        for corner in &self.corners {
+        for corner in &mut self.corners {
             corner.render();
         }
     }    

@@ -6,9 +6,13 @@ pub mod center {
   pub trait Center {
       fn init(&mut self, piecenum: i8);
       fn create_axis(&mut self, piecenum: i32, index: usize);
-      fn render(&self);
+      fn render(&mut self);
+      fn new(&mut self);
   }
   impl Center for Piece {
+    fn new(&mut self) {
+        self.centerInit();
+    }    
     /**
      * \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
@@ -42,7 +46,7 @@ pub mod center {
     /**
      * \brief Render Center Node (CONST)
      */
-    fn render(&self) {
+    fn render(&mut self) {
 /*
         //Make a solid color pentagon
         glColor3dv(data._color[0]);
