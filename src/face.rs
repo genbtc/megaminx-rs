@@ -4,8 +4,10 @@
 pub mod face {
   use crate::piece::piece::PieceData;
   use crate::center::center::Center;
+  use crate::piece::piece::VERTEXZERO;
 
   //Face Data
+  #[derive(Default)]
   pub struct Face {
     this_num: i8,
     turn_dir: i8,
@@ -22,6 +24,14 @@ pub mod face {
     //corners: [&dyn Corner; 5],
     //edges: [&dyn Edge; 5]
   }
+  /*Initialize constructor */
+  impl Face {
+    pub fn new() -> Self {
+    Self {
+      this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default()
+    }
+   }
+  }  
   //active from center.rs already;
 /*pub trait Center {
     fn init(&mut self, piecenum: i8);

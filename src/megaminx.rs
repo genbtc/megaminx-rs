@@ -14,29 +14,35 @@ pub mod megaminx {
   const NUM_CORNERS: usize = 20;
   const NUM_EDGES: usize = 30;
 
-  pub struct Megaminx<'a> { 
+  pub struct Megaminx { 
     pub invisible: bool,
     pub is_rotating: bool,
         rotating_face_index: i8,
-    pub faces: [&'a mut Face; NUM_FACES],
-        centers: [&'a mut dyn Center; NUM_FACES],
-        corners: [&'a mut dyn Corner; NUM_CORNERS],
-        edges: [&'a mut dyn Edge; NUM_EDGES],
-    pub g_current_face: &'a Face,        
+    pub faces: Vec<Box<Face>>,
+        centers: Vec<Box<dyn Center>>,
+        corners: Vec<Box<dyn Corner>>,
+        edges: Vec<Box<dyn Edge>>,
+    pub g_current_face: Box<Face>,        
   }
-  /*Initialize constructor
-  impl Megaminx<'_>  {
+  /*Initialize constructor */
+  impl Megaminx {
       pub fn new() -> Self {
       Self {
         invisible: false,
         is_rotating: false,
         rotating_face_index: -1,
-        //missing other fields cause reference not initialized yet
+        faces: vec![Box::<Face>::new(Default::default())],
+        centers: vec![Box::<dyn Center>::new(Default::default())],
+//        ^^^ function or associated item cannot be called on `Box<dyn Center>` due to unsatisfied trait bounds
+        //|   ---------------- doesn't satisfy `dyn center::center::Center: Sized`        
+        corners: vec![Box::<dyn Corner>::new(Default::default())],
+        edges: vec![Box::<dyn Edge>::new(Default::default())],
+        g_current_face: Box::<Face>::new(Default::default()),
       }
     }
   }
-  */
-  impl Megaminx<'_> {
+  //
+  impl Megaminx {
     /**
      * \brief Megaminx main simple constructor for init.
      * \note   Setup, Solve Puzzle (aka Reset), Render
@@ -60,7 +66,7 @@ pub mod megaminx {
     fn init_face_pieces(&mut self);
     fn render_all_pieces(&self);
   }
-  impl MegaminxInitFunctions for Megaminx<'_> {
+  impl MegaminxInitFunctions for Megaminx {
 
     /**
      * \brief Init the Edge pieces.
