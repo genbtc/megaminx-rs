@@ -7,8 +7,8 @@ pub mod megaminx {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::center::center::Center;
-//  use crate::edge::edge::Edge;
-//  use crate::corner::corner::Corner;
+  use crate::edge::edge::Edge;
+  use crate::corner::corner::Corner;
 
   const NUM_FACES: usize = 12;
   const NUM_CORNERS: usize = 20;
@@ -19,9 +19,9 @@ pub mod megaminx {
     pub is_rotating: bool,
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
-        centers: Vec<Box<Piece>>,
-        corners: Vec<Box<Piece>>,
-        edges: Vec<Box<Piece>>,
+        centers: Vec<Box<dyn Center>>,
+        corners: Vec<Box<dyn Corner>>,
+        edges: Vec<Box<dyn Edge>>,
     pub g_current_face: Box<Face>,        
   }
   /*Initialize constructor */
@@ -55,9 +55,6 @@ pub mod megaminx {
         self.init_face_pieces();
         self.render_all_pieces();
     }
-    pub fn initialize_trait_objects(&mut self) {
-        let centerpiece: dyn Center = Piece::new(1) as dyn Center;
-    }
   }
 
   //Piece Init Setup
@@ -76,7 +73,7 @@ pub mod megaminx {
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         let mut edgepiece: Piece = Piece::new(0);
-        let edge_vertex_list = *edgepiece.edgeInit();        
+        let edge_vertex_list = *edgepiece.edgeInit();
         for i in 0..NUM_EDGES {
             self.edges[i].init_data(i as i8, edge_vertex_list);
         }
