@@ -107,8 +107,8 @@ pub mod megaminx {
             self.centers[i].init(i as i8);
             self.faces[i].create_axis(i as i32, 0);
             self.faces[i].attach_center();//self.centers[i], *center_vertex_list);
-            self.faces[i].attach_edge_pieces(self.edges[0]);
-            self.faces[i].attach_corner_pieces(self.corners[0]); 
+            self.faces[i].attach_edge_pieces(&self.edges[0]);
+            self.faces[i].attach_corner_pieces(&self.corners[0]); 
         }
     }
 
