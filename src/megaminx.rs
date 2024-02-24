@@ -1,7 +1,7 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 #![allow(unused_variables)]
 #![allow(dead_code)]
-mod megaminx {
+pub mod megaminx {
   use crate::face::face::FaceFunctions;
   use crate::face::face::Face;
   use crate::piece::piece::Piece;
@@ -24,12 +24,24 @@ mod megaminx {
         edges: [&'a mut dyn Edge; NUM_EDGES],
     pub g_current_face: &'a Face,        
   }
+  /*Initialize constructor
+  impl Megaminx<'_>  {
+      pub fn new() -> Self {
+      Self {
+        invisible: false,
+        is_rotating: false,
+        rotating_face_index: -1,
+        //missing other fields cause reference not initialized yet
+      }
+    }
+  }
+  */
   impl Megaminx<'_> {
     /**
      * \brief Megaminx main simple constructor for init.
      * \note   Setup, Solve Puzzle (aka Reset), Render
      */
-    fn new(&mut self) {
+    pub fn init_reset(&mut self) {
         //self.g_currentFace = NULL;
         self.rotating_face_index = 0;
         self.is_rotating = false;
@@ -57,9 +69,9 @@ mod megaminx {
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         let mut edgepiece: Piece = Piece::new(0);
-        let edge_vertex_list = edgepiece.edgeInit();        
+        let edge_vertex_list = *edgepiece.edgeInit();        
         for i in 0..NUM_EDGES {
-            self.edges[i].init_data(i as i8, *edge_vertex_list);
+            self.edges[i].init_data(i as i8, edge_vertex_list);
         }
     }
 
@@ -70,9 +82,9 @@ mod megaminx {
     fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
         let mut cornerpiece: Piece = Piece::new(0);
-        let corner_vertex_list = cornerpiece.cornerInit();
+        let corner_vertex_list = *cornerpiece.cornerInit();
         for i in 0..NUM_CORNERS {
-            self.corners[i].init_data(i as i8, *corner_vertex_list);
+            self.corners[i].init_data(i as i8, corner_vertex_list);
         }
     }
 
@@ -86,7 +98,7 @@ mod megaminx {
 //        let mut centerpiece: Piece = Piece::new(0);
 //        let center_vertex_list = centerpiece.centerInit();
         let mut facepiece: Piece = Piece::new(0);
-        let center_vertex_list = facepiece.faceInit();
+        let center_vertex_list = *facepiece.faceInit();
         for i in 0..NUM_FACES {
             self.centers[i].init(i as i8);
             self.faces[i].create_axis(i as i32, 0);

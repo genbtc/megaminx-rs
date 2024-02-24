@@ -20,6 +20,7 @@ use crate::piece::piece::Piece;
 use crate::piece::piece::PieceMath;
 use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
+use crate::megaminx::megaminx::Megaminx;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -45,7 +46,8 @@ pub fn main() -> Result<(), String> {
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
 //WORK IN PROGRESS:
-   let mut centerpiece: Piece = Piece::new(1);
+    let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
+    let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();
 
 for i in 0..5 {
