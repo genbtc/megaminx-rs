@@ -46,7 +46,7 @@ pub fn main() -> Result<(), String> {
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
 //WORK IN PROGRESS:
-    let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
+    //let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
     let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();
 

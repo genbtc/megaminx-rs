@@ -7,8 +7,8 @@ pub mod megaminx {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::center::center::Center;
-  use crate::edge::edge::Edge;
-  use crate::corner::corner::Corner;
+//  use crate::edge::edge::Edge;
+//  use crate::corner::corner::Corner;
 
   const NUM_FACES: usize = 12;
   const NUM_CORNERS: usize = 20;
@@ -19,9 +19,9 @@ pub mod megaminx {
     pub is_rotating: bool,
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
-        centers: Vec<Box<dyn Center>>,
-        corners: Vec<Box<dyn Corner>>,
-        edges: Vec<Box<dyn Edge>>,
+        centers: Vec<Box<Piece>>,
+        corners: Vec<Box<Piece>>,
+        edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,        
   }
   /*Initialize constructor */
@@ -32,15 +32,13 @@ pub mod megaminx {
         is_rotating: false,
         rotating_face_index: -1,
         faces: vec![Box::<Face>::new(Default::default())],
-        centers: vec![Box::<dyn Center>::new(Default::default())],
-//        ^^^ function or associated item cannot be called on `Box<dyn Center>` due to unsatisfied trait bounds
-        //|   ---------------- doesn't satisfy `dyn center::center::Center: Sized`        
-        corners: vec![Box::<dyn Corner>::new(Default::default())],
-        edges: vec![Box::<dyn Edge>::new(Default::default())],
+        centers: vec![Box::<Piece>::new(Default::default())],
+        corners: vec![Box::<Piece>::new(Default::default())],
+        edges: vec![Box::<Piece>::new(Default::default())],
         g_current_face: Box::<Face>::new(Default::default()),
       }
     }
-  }
+  } //
   //
   impl Megaminx {
     /**
@@ -56,6 +54,9 @@ pub mod megaminx {
         self.init_corner_pieces();
         self.init_face_pieces();
         self.render_all_pieces();
+    }
+    pub fn initialize_trait_objects(&mut self) {
+        let centerpiece: dyn Center = Piece::new(1) as dyn Center;
     }
   }
 
