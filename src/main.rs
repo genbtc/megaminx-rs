@@ -46,17 +46,19 @@ pub fn main() -> Result<(), String> {
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
 //WORK IN PROGRESS:
-    let _megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
+    let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
+    megaminx.init_reset();
+//MEGAMINX INIT WORKS FINALLY ^^^^^^    
     let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();
-
-for i in 0..5 {
-    for j in 0..2 {
-//      centerpiece._vertex[i][j] *= 0.01; scale //reset scale from 100 to 1
-      centerpiece._vertex[i][j] = centerpiece._vertex[i][j].abs();  //Clamp to >0 
+//Array Mutate
+    for i in 0..5 {
+      for j in 0..2 {
+        centerpiece._vertex[i][j] = centerpiece._vertex[i][j].abs();  //Clamp to >0 
+      }
+      centerpiece._vertex[i][2] = 0.0;    
     }
-    centerpiece._vertex[i][2] = 0.0;    
-  }    
+//Array Print
     print!("Center Piece 1 Vertex Array: [ ");
     for i in 0..5 {
       print!("[ ");

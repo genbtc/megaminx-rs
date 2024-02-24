@@ -3,6 +3,7 @@
 #![allow(non_upper_case_globals)]
 pub mod face {
   use crate::piece::piece::PieceData;
+  use crate::piece::piece::Piece;
   use crate::center::center::Center;
   use crate::piece::piece::VERTEXZERO;
 
@@ -18,21 +19,23 @@ pub mod face {
     //Duplicated from Piece Struct since no longer a Piece
     default_piece_num: i8,
     data: PieceData,
-    //center: dyn Center,
+    //Boxed References to Trait Objects
+    center: Vec<Box<dyn Center>>,
+    corners: Vec<Box<dyn Corner>>,
+    edges: Vec<Box<dyn Edge>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
-    //corners: [&dyn Corner; 5],
-    //edges: [&dyn Edge; 5]
   }
   /*Initialize constructor */
   impl Face {
     pub fn new() -> Self {
     Self {
-      this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default()
+      this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default(),
+      center: vec![Box::<Piece>::new(Default::default())], corners: vec![Box::<Piece>::new(Default::default())], edges: vec![Box::<Piece>::new(Default::default())],
     }
    }
   }  
-  //active from center.rs already;
+  //included from center.rs already;
 /*pub trait Center {
     fn init(&mut self, piecenum: i8);
     fn create_axis(&mut self, piecenum: i32, index: usize);
@@ -47,7 +50,7 @@ pub mod face {
      */
     fn init(&mut self, piecenum: i8) {
         if self.do_axes {
-            for i in 0..5  {
+            for i in 0..5 {
               Center::create_axis(self, piecenum as i32, i);
             }
         }
@@ -65,10 +68,11 @@ pub mod face {
 
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
+  use crate::piece::piece::PieceMath;
 
   pub trait FaceFunctions {
     fn getnum(&self) -> i8;
-    fn attach_center(&mut self);                            //(Center* c, double* centerVertexBase);
+    fn attach_center(&mut self, _center: &Box <dyn Center>);     //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&self, _corners: &Box <dyn Corner>); //(const Megaminx* megaminx, Corner& cornersPTR);
     fn attach_edge_pieces(&self, _edges: &Box<dyn Edge>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
@@ -76,15 +80,12 @@ pub mod face {
     fn getnum(&self) -> i8 { 
         return self.this_num;
     }
-    fn attach_center(&mut self) {
-        //let mut centerpiece: Piece = Piece::new(self.this_num);
-        //centerpiece.centerInit(); ^^^^^^^^^^ method not found in `Piece`
-        //error[E0620]: cast to unsized type: `Piece` as `dyn center::center::Center`
-        //self.center = centerpiece as dyn Center;
-        //error[E0277]: the size for values of type `(dyn center::center::Center + 'static)` cannot be known at compilation time
-        //^^^^^^^^^ doesn't have a size known at compile-time
-        // = help: the trait `Sized` is not implemented for `(dyn center::center::Center + 'static)`
-        // = note: the left-hand-side of an assignment must have a statically known size
+    fn attach_center(&mut self, _center: &Box <dyn Center>) {
+        let mut centerpiece: Piece = Piece::new(self.this_num);
+        centerpiece.centerInit();
+        //self.center[0] = *_center;
+        //error[E0507]: cannot move out of `*_center` which is behind a shared reference
+//|                      ^^^^^^^^ move occurs because `*_center` has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
     }
     fn attach_corner_pieces(&self, _corners: &Box <dyn Corner>) { /*
       const int color = faces[face - 1].center->data._colorNum[0];
