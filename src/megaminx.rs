@@ -32,9 +32,9 @@ pub mod megaminx {
         is_rotating: false,
         rotating_face_index: -1,
         faces: Default::default(),
-        centers: Default::default(),
+        centers: vec![Box::<Piece>::new(Default::default())],
         corners: vec![Box::<Piece>::new(Default::default())],
-        edges: Vec::new(),
+        edges:   vec![Box::<Piece>::new(Default::default())],
         g_current_face: Box::<Face>::new(Default::default()),
       }
     }
@@ -46,11 +46,20 @@ pub mod megaminx {
      * \note   Setup, Solve Puzzle (aka Reset), Render
      */
     pub fn init_reset(&mut self) {
+        println!("initing Megaminx!");
         //(re)/initialize Struct w/ defaults
         self.g_current_face = Box::<Face>::new(Default::default());
         self.rotating_face_index = 0;
         self.is_rotating = false;
         self.invisible = false;
+        //   = note: the following trait bounds were not satisfied:
+        // `Box<Face>: Clone`
+        //`Box<(dyn center::center::Center + 'static)>: Clone`
+        //self.faces.resize(NUM_FACES);
+        //self.centers.resize(NUM_FACES);
+        //self.corners.resize(NUM_CORNERS);
+        //self.edges.resize(NUM_EDGES);
+        //self.faces.push(Box::<Face>::new());
         //MegaminxInitFunctions
         self.init_edge_pieces();
         self.init_corner_pieces();
@@ -76,9 +85,10 @@ pub mod megaminx {
      */
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
-        let mut edgepiece: Piece = Piece::new(0);
-        let edge_vertex_list = *edgepiece.edgeInit();
         for i in 0..NUM_EDGES {
+            let mut edgepiece: Piece = Piece::new(i as i8);
+            let edge_vertex_list = *edgepiece.edgeInit();
+            self.edges.push(Box::new(edgepiece));            
             println!("initing edge: {}", i);
             self.edges[i].init_data(i as i8, edge_vertex_list);
         }
@@ -90,9 +100,10 @@ pub mod megaminx {
      */
     fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
-        let mut cornerpiece: Piece = Piece::new(0);
-        let corner_vertex_list = *cornerpiece.cornerInit();
         for i in 0..NUM_CORNERS {
+            let mut cornerpiece: Piece = Piece::new(i as i8);
+            let corner_vertex_list = *cornerpiece.cornerInit();
+            self.corners.push(Box::new(cornerpiece));
             println!("initing corner: {}", i);
             self.corners[i].init_data(i as i8, corner_vertex_list);
         }
@@ -100,10 +111,11 @@ pub mod megaminx {
 
     /** \brief - Init the Centers, attach them to Faces. */
     fn init_center_pieces(&mut self) {
-        let mut centerpiece: Piece = Piece::new(0);
-        let center_vertex_list = *centerpiece.centerInit();
         for i in 0..NUM_FACES {
-            println!("initing face: {}", i);
+            let mut centerpiece: Piece = Piece::new(i as i8);
+            let center_vertex_list = *centerpiece.centerInit();
+            self.centers.push(Box::new(centerpiece));
+            println!("initing center: {}", i);
             self.centers[i].init(i as i8);
         }        
     }
@@ -113,14 +125,15 @@ pub mod megaminx {
      *          and attach the Edge and Corner pieces to the Faces.
      */
     fn init_face_pieces(&mut self) {
-        println!("initing All Face Pieces");
-        let mut facepiece: Piece = Piece::new(0);
-        let center_vertex_list = *facepiece.faceInit();
         for i in 0..NUM_FACES {
-            self.faces[i].create_axis(i as i32, 0);
-            self.faces[i].attach_center(&self.centers[i]);//, *center_vertex_list);
-            self.faces[i].attach_edge_pieces(&self.edges[0]);
-            self.faces[i].attach_corner_pieces(&self.corners[0]); 
+            println!("initing face: {}", i);
+            let mut facepiece: Face = Face::new();
+            facepiece.init(i as i8);
+            facepiece.create_axis(i as i32, 0);
+            facepiece.attach_center(&self.centers[i]);//, *center_vertex_list);
+            facepiece.attach_edge_pieces(&self.edges[i]);
+            facepiece.attach_corner_pieces(&self.corners[i]);
+            self.faces.push(Box::new(facepiece));
         }
     }
 

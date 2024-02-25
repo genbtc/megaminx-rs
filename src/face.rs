@@ -65,11 +65,11 @@ pub mod face {
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
-     fn create_axis(&mut self, piecenum: i32, _index: usize) {
+    fn create_axis(&mut self, piecenum: i32, _index: usize) {
         self.init(piecenum as i8);
     }
     fn render(&mut self) {
-        //self.place_parts(self.this_num);
+        self.place_parts(self.this_num);
     }
   }
 
@@ -87,11 +87,9 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self, _center: &Box <dyn Center>) {
-        let mut centerpiece: Piece = Piece::new(self.this_num);
-        centerpiece.centerInit();
-        //self.center[0] = *_center;
-        //error[E0507]: cannot move out of `*_center` which is behind a shared reference
-//|                      ^^^^^^^^ move occurs because `*_center` has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
+        //self.center.extend(Box::<Piece>::new(Default::default()));
+        self.center[0].init(self.this_num);
+        println!("attach_center to face num {}", self.this_num);
     }
     fn attach_corner_pieces(&self, _corners: &Box <dyn Corner>) { /*
       const int color = faces[face - 1].center->data._colorNum[0];
@@ -180,7 +178,7 @@ static  CW9E: [i8;8] = [ 3, 4, 2, 4, 1, 2, 0, 1 ];
 static CW10E: [i8;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
 static CW11E: [i8;8] = [ 0, 1, 0, 2, 0, 4, 0, 3 ];
 
-trait FacePlace {
+trait FacePlaceFunctions {
   fn place_parts(&mut self, dir: i8) -> bool;
   fn two_edges_flip(&mut self, a: i8, b: i8);
   fn flip_corners(&mut self, a: i8, b: i8, c: i8, d: i8, pack: [i8;4]);
@@ -198,7 +196,7 @@ use crate::face::face::TurnDir::{CounterClockwise,Clockwise};
  * / in order to get it to switch colors after it rotates.
  * / called from render()
  */
-impl FacePlace for Face {
+impl FacePlaceFunctions for Face {
   fn two_edges_flip(&mut self, a: i8, b: i8) {
       todo!(); /*
       assert(a >= 0 && a < 5 && b >= 0 && b < 5);
