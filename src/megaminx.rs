@@ -65,7 +65,7 @@ pub mod megaminx {
         self.init_corner_pieces();
         self.init_center_pieces();
         self.init_face_pieces();
-        self.render_all_pieces();
+        //self.render_all_pieces();
     }
   }
 
@@ -86,10 +86,10 @@ pub mod megaminx {
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         for i in 0..NUM_EDGES {
+            println!("initing edge: {}", i);
             let mut edgepiece: Piece = Piece::new(i as i8);
             let edge_vertex_list = *edgepiece.edgeInit();
-            self.edges.push(Box::new(edgepiece));            
-            println!("initing edge: {}", i);
+            self.edges.push(Box::new(edgepiece));
             self.edges[i].init_data(i as i8, edge_vertex_list);
         }
     }
@@ -101,10 +101,10 @@ pub mod megaminx {
     fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
         for i in 0..NUM_CORNERS {
+            println!("initing corner: {}", i);
             let mut cornerpiece: Piece = Piece::new(i as i8);
             let corner_vertex_list = *cornerpiece.cornerInit();
             self.corners.push(Box::new(cornerpiece));
-            println!("initing corner: {}", i);
             self.corners[i].init_data(i as i8, corner_vertex_list);
         }
     }
@@ -112,10 +112,10 @@ pub mod megaminx {
     /** \brief - Init the Centers, attach them to Faces. */
     fn init_center_pieces(&mut self) {
         for i in 0..NUM_FACES {
+          println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i as i8);
             let center_vertex_list = *centerpiece.centerInit();
             self.centers.push(Box::new(centerpiece));
-            println!("initing center: {}", i);
             self.centers[i].init(i as i8);
         }        
     }
@@ -127,9 +127,9 @@ pub mod megaminx {
     fn init_face_pieces(&mut self) {
         for i in 0..NUM_FACES {
             println!("initing face: {}", i);
-            let mut facepiece: Face = Face::new();
+            let mut facepiece: Face = Face::new(i as i8);
             facepiece.init(i as i8);
-            facepiece.create_axis(i as i32, 0);
+            facepiece.create_axis(i as i32, i);
             facepiece.attach_center(&self.centers[i]);//, *center_vertex_list);
             facepiece.attach_edge_pieces(&self.edges[i]);
             facepiece.attach_corner_pieces(&self.corners[i]);

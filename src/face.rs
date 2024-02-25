@@ -31,9 +31,9 @@ pub mod face {
   }
   /*Initialize constructor */
   impl Face {
-    pub fn new() -> Self {
+    pub fn new(num: i8) -> Self {
       Self {
-        this_num: 0, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: 0, data: Default::default(),
+        this_num: num, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: num, data: Default::default(),
         center: vec![Box::<Piece>::new(Default::default())], corners: vec![Box::<Piece>::new(Default::default())], edges: vec![Box::<Piece>::new(Default::default())],
       }
     }
@@ -87,8 +87,7 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self, _center: &Box <dyn Center>) {
-        //self.center.extend(Box::<Piece>::new(Default::default()));
-        self.center[0].init(self.this_num);
+        self.center[self.this_num as usize].init(self.this_num);
         println!("attach_center to face num {}", self.this_num);
     }
     fn attach_corner_pieces(&self, _corners: &Box <dyn Corner>) { /*
@@ -198,8 +197,9 @@ use crate::face::face::TurnDir::{CounterClockwise,Clockwise};
  */
 impl FacePlaceFunctions for Face {
   fn two_edges_flip(&mut self, a: i8, b: i8) {
-      todo!(); /*
-      assert(a >= 0 && a < 5 && b >= 0 && b < 5);
+      assert!(a >= 0  && a < 5 && b >= 0 && b < 5);
+      todo!(); 
+      /*
       edge[a]->flip();
       edge[b]->flip(); */
   }
@@ -227,8 +227,8 @@ impl FacePlaceFunctions for Face {
   }
   /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
   fn swap_pieces(&mut self, a: i8, b: i8) {
+      assert!(a >= 0 && a < 5 && b >= 0 && b < 5);
       todo!(); /*
-      assert(a >= 0 && a < 5 && b >= 0 && b < 5);
       Piece* pieceA = getFacePiece(a);
       Piece* pieceB = getFacePiece(b);
       pieceA->swapdata(pieceB->data); */
@@ -244,10 +244,10 @@ impl FacePlaceFunctions for Face {
   /**
    * \brief Colorizing function. Intricate series of flips/swaps.
   *  \param dir Each case is for each of the 12 faces,
-  * / in order to get it to switch colors after it rotates.
-  * / called from render() */
+  *   in order to get it to switch colors after it rotates.
+  *   called from render() */
   fn place_parts(&mut self, dir: i8) -> bool {
-    //assert(dir == Face::CCW || dir == Face::CW);
+    assert!(dir == CounterClockwise as i8 || dir == Clockwise as i8);
     if dir == CounterClockwise as i8 { // 1 = CCW = Left Turn = Counter-ClockWise
         match self.this_num {
         0 => { //WHITE
@@ -374,11 +374,12 @@ impl FacePlaceFunctions for Face {
     }
     return true;
   }
+  
   /**
    * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
    * \param direction turn direction: -1 for Right, +1 for left (seems/is backwards). */
   fn rotate(&mut self, direction: i8) {
-      //assert(direction == Clockwise || direction == CounterClockwise);
+      assert!(direction == Clockwise as i8 || direction == CounterClockwise as i8);
       self.rotating = true;
       self.turn_dir = direction;
   }
