@@ -7,7 +7,7 @@ pub mod megaminx {
   use crate::center::center::Center;
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
-use crate::piece::piece::Vertex3;
+  use crate::piece::piece::Vertex3;
 
   const NUM_FACES: usize = 12;
   const NUM_CORNERS: usize = 20;
@@ -30,11 +30,11 @@ use crate::piece::piece::Vertex3;
         invisible: false,
         is_rotating: false,
         rotating_face_index: -1,
-        faces: Default::default(),
-        centers: vec![Box::<Piece>::new(Default::default())],
-        corners: vec![Box::<Piece>::new(Default::default())],
-        edges:   vec![Box::<Piece>::new(Default::default())],
-        g_current_face: Box::<Face>::new(Default::default()),
+        faces:   Default::default(),
+        centers: Default::default(),
+        corners: Default::default(),
+        edges:   Default::default(),
+        g_current_face: Default::default(),
       }
     }
   }
@@ -51,14 +51,6 @@ use crate::piece::piece::Vertex3;
         self.rotating_face_index = 0;
         self.is_rotating = false;
         self.invisible = false;
-        //   = note: the following trait bounds were not satisfied:
-        // `Box<Face>: Clone`
-        //`Box<(dyn center::center::Center + 'static)>: Clone`
-        //self.faces.resize(NUM_FACES);
-        //self.centers.resize(NUM_FACES);
-        //self.corners.resize(NUM_CORNERS);
-        //self.edges.resize(NUM_EDGES);
-        //self.faces.push(Box::<Face>::new());
         //MegaminxInitFunctions
         self.init_edge_pieces();
         self.init_corner_pieces();
@@ -78,60 +70,59 @@ use crate::piece::piece::Vertex3;
   }
   impl MegaminxInitFunctions for Megaminx {
 
-    /**
-     * \brief Init the Edge pieces.
-     * \note   numEdges = 30
-     */
+    /** \brief Init the Edge pieces. (numEdges = 30)  */
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         for i in 0..NUM_EDGES {
-            println!("initing edge: {}", i);
+            //println!("initing edge: {}", i);
             let mut edgepiece: Piece = Piece::new(i);
             let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
             self.edges.push(Box::new(edgepiece));
             self.edges[i].init_data(i, edge_vertex_list);
         }
+        assert_eq!(self.edges.len(), NUM_EDGES);        
     }
 
-    /**
-     * \brief Init the Corner pieces.
-     * \note   numCorners = 20
-     */
+    /** \brief Init the Corner pieces. (numCorners = 20)  */
     fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
         for i in 0..NUM_CORNERS {
-            println!("initing corner: {}", i);
+            //println!("initing corner: {}", i);
             let mut cornerpiece: Piece = Piece::new(i);
             let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
             self.corners.push(Box::new(cornerpiece));
             self.corners[i].init_data(i, corner_vertex_list);
         }
+        assert_eq!(self.corners.len(), NUM_CORNERS);        
     }
 
-    /** \brief - Init the Centers, attach them to Faces. */
+    /** \brief Init the Centers, attach them to Faces. (numFaces = 12) */
     fn init_center_pieces(&mut self) {
         for i in 0..NUM_FACES {
-            println!("initing center: {}", i);
+            //println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i);
             let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
             self.centers.push(Box::new(centerpiece));
             self.centers[i].init(i);
-        }        
+        }
+        assert_eq!(self.centers.len(), NUM_FACES);        
     }
+
     /**
      * \brief Init the Faces and All Pieces.
-     *         Set up the Axes of the faces,
+     *         Set up the Axes of the faces, attach the centers, 
      *          and attach the Edge and Corner pieces to the Faces.
      */
     fn init_face_pieces(&mut self) {
         for i in 0..NUM_FACES {
-            println!("initing face: {}", i);
+            //println!("initing face: {}", i);
             let mut facepiece: Face = Face::new(i);
             facepiece.attach_center(&self.centers);//, *center_vertex_list);
             facepiece.attach_edge_pieces(&self.edges);
             facepiece.attach_corner_pieces(&self.corners);
             self.faces.push(Box::new(facepiece));
         }
+        assert_eq!(self.faces.len(), NUM_FACES);        
     }
 
     /**                                                                                                                                     
