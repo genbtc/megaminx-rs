@@ -210,7 +210,6 @@ impl PieceMath for Piece {
         a += angle;
         self._vertex[index][vxIndex] = r * a.cos();
         self._vertex[index][vyIndex] = r * a.sin();
-        println!("RotateXYZ {} = {} index, angle", index, angle);
     }   
 //Vertex Transformation Functions
     //main transform: used in almost every other algo

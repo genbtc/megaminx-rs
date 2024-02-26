@@ -50,7 +50,7 @@ pub mod corner {
     fn create_axis(&mut self, piecenum: usize, index: usize) {
         let mut pack: Piecepack = Piecepack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
-        2..=5 => {
+        1..=5 => {
             self.axis1multi(index, pack); },
         6..=10 => {
             self.CenterSide1(index, pack); },

@@ -8,8 +8,12 @@ pub mod center {
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
+      fn getnum(&self) -> usize;
   }
   impl Center for Piece {
+    fn getnum(&self) -> usize { 
+        return self.defaultPieceNum;
+    }    
     fn new(&mut self) {
         self.centerInit();
     }    
@@ -39,6 +43,7 @@ pub mod center {
             self.CenterCenter(index, Piecepack { axis1: 'x', axis2: '0', multi: 0 }); },
         8..=12 => {
             self.CenterSide2(index, Piecepack { axis1: 'y', axis2: 'x', multi: ((piecenum-2) * 2 % 10) }); },
+        1 => {}, 
         _ => println!("Must be within 1-12"),
         }
     }

@@ -49,6 +49,9 @@ pub mod face {
     fn new(&mut self);
   } */
   impl Center for Face {
+    fn getnum(&self) -> usize { 
+      return self.this_num;
+    }        
     fn new(&mut self){
       return Default::default();
     }
@@ -89,8 +92,10 @@ pub mod face {
     }
     fn attach_center(&mut self, _center: &Vec<Box <dyn Center>>) {
         println!("attach_center to face num {}", self.this_num);
-        assert!(self.this_num as usize == self.center.len() - 1);
-        self.center[self.this_num as usize].init(self.this_num);
+        self.init(self.this_num);
+        self.create_axis(self.this_num, self.this_num);
+        //assert!(self.this_num == self.center.len() - 1);
+        //self.center[self.this_num].init(self.this_num);
     }
     fn attach_corner_pieces(&self, _corners: &Vec<Box <dyn Corner>>) { /*
       const int color = faces[face - 1].center->data._colorNum[0];
@@ -199,8 +204,8 @@ pub mod face {
   impl FacePlaceFunctions for Face {
     fn two_edges_flip(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
-        self.edge[a as usize].flip();
-        self.edge[b as usize].flip();
+        self.edge[a].flip();
+        self.edge[b].flip();
     }
     fn flip_corners(&mut self, a: usize, b: usize, c: usize, d: usize, pack: [usize;4]){
         todo!(); /*

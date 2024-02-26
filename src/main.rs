@@ -56,8 +56,8 @@ pub fn main() -> Result<(), String> {
         let num = face.getnum();
         println!("facenum {}", num);
         let centers = face.center;
-        for mut center in centers {
-            center.init(num);
+        for _center in centers {
+            //center.init(num);
             //center._vertex[0][0];
         }
     }

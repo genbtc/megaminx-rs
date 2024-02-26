@@ -127,8 +127,6 @@ use crate::piece::piece::Vertex3;
         for i in 0..NUM_FACES {
             println!("initing face: {}", i);
             let mut facepiece: Face = Face::new(i);
-            facepiece.init(i);
-            facepiece.create_axis(i, i);
             facepiece.attach_center(&self.centers);//, *center_vertex_list);
             facepiece.attach_edge_pieces(&self.edges);
             facepiece.attach_corner_pieces(&self.corners);
