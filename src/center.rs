@@ -8,7 +8,7 @@ pub mod center {
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
-      fn getnum(&self) -> usize;
+      fn getnum(&self) -> usize; 
   }
   impl Center for Piece {
     fn getnum(&self) -> usize { 

@@ -3,7 +3,7 @@ pub mod edge {
   use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
-    use crate::Vertex3; 
+  use crate::Vertex3; 
   //Edge functions
   pub trait Edge {
       fn init(&mut self, piecenum: usize, do_axes: bool);
@@ -94,7 +94,7 @@ pub mod edge {
     fn flip_twice(&mut self) {
         self.flip();
         self.flip();
-    }    
+    }
 /*
     //Edge Side One - Color Fill
     glColor3dv(data._color[0]);

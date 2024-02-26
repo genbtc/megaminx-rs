@@ -1,14 +1,9 @@
 //2024 megaminx-rs face.rs , by genr8eofl - LICENSED APGL3
-#![allow(dead_code)]
 #![allow(non_upper_case_globals)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
+#![allow(dead_code)]
 pub mod face {
   use crate::piece::piece::VERTEXZERO;
-  //use crate::piece::piece::PieceFlip;
   use crate::piece::piece::PieceData;
-  use crate::piece::piece::PieceMath;
-  use crate::piece::piece::Piece;
   use crate::center::center::Center;
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;  
@@ -37,7 +32,7 @@ pub mod face {
     pub fn new(num: usize) -> Self {
       Self {
         this_num: num, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: num, data: Default::default(),
-        center: vec![Box::<Piece>::new(Default::default())], corner: vec![Box::<Piece>::new(Default::default())], edge: vec![Box::<Piece>::new(Default::default())],
+        center: Default::default(), corner: Default::default(), edge: Default::default(),
       }
     }
   }  
@@ -91,7 +86,7 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self, _center: &Vec<Box <dyn Center>>) {
-        println!("attach_center to face num {}", self.this_num);
+        println!("face.attach_center() to {}", self.this_num);
         self.init(self.this_num);
         self.create_axis(self.this_num, self.this_num);
         //assert!(self.this_num == self.center.len() - 1);
@@ -138,22 +133,22 @@ pub mod face {
   static  CCW6C: [usize;8] = [ 0, 1, 4, 0, 3, 4, 2, 3 ];
   static  CCW7C: [usize;8] = [ 1, 3, 3, 4, 4, 2, 2, 0 ];
   static  CCW8C: [usize;8] = [ 4, 3, 4, 2, 4, 0, 4, 1 ];
-  static  CCW9C: [usize;8] = [ 4, 3, 4, 2, 4, 0, 4, 1 ];
-  static CCW10C: [usize;8] = [ 4, 3, 4, 2, 4, 0, 4, 1 ];
+  static  CCW9C: [usize;8] = CCW8C;
+  static CCW10C: [usize;8] = CCW8C;
   static CCW11C: [usize;8] = [ 4, 2, 4, 3, 3, 1, 1, 0 ];
   //Flip direction lists for PlaceParts: //Clockwise CORNERS
   //CW Corners
-  static  CW0C: [usize;8] = [ 0, 1, 4, 0, 3, 4, 2, 3 ];
-  static  CW1C: [usize;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
+  static  CW0C: [usize;8] = CCW6C;
+  static  CW1C: [usize;8] = CCW4C;
   static  CW2C: [usize;8] = [ 0, 1, 1, 2, 1, 3, 3, 4 ];
-  static  CW3C: [usize;8] = [ 0, 1, 1, 2, 1, 3, 3, 4 ];
-  static  CW4C: [usize;8] = [ 0, 2, 0, 4, 0, 3, 0, 1 ];
+  static  CW3C: [usize;8] = CW2C;
+  static  CW4C: [usize;8] = CCW1C;
   static  CW5C: [usize;8] = [ 0, 1, 1, 2, 1, 4, 1, 3 ];
-  static  CW6C: [usize;8] = [ 0, 1, 1, 2, 2, 3, 3, 4 ];
+  static  CW6C: [usize;8] = CCW0C;
   static  CW7C: [usize;8] = [ 2, 0, 4, 2, 3, 4, 1, 3 ];
   static  CW8C: [usize;8] = [ 4, 1, 4, 0, 4, 2, 4, 3 ];
-  static  CW9C: [usize;8] = [ 4, 1, 4, 0, 4, 2, 4, 3 ];
-  static CW10C: [usize;8] = [ 4, 1, 4, 0, 4, 2, 4, 3 ];
+  static  CW9C: [usize;8] = CW8C;
+  static CW10C: [usize;8] = CW8C;
   static CW11C: [usize;8] = [ 1, 0, 3, 1, 4, 3, 2, 4 ];
   //Flip direction lists for PlaceParts: //CounterClockwise Edges
   //CCW Edges
@@ -166,23 +161,23 @@ pub mod face {
   static  CCW6E: [usize;8] = [ 0, 1, 4, 0, 3, 4, 2, 3 ];
   static  CCW7E: [usize;8] = [ 0, 3, 0, 4, 0, 2, 0, 1 ];
   static  CCW8E: [usize;8] = [ 0, 1, 1, 2, 2, 4, 3, 4 ];
-  static  CCW9E: [usize;8] = [ 0, 1, 1, 2, 2, 4, 3, 4 ];
+  static  CCW9E: [usize;8] = CCW8E;
   static CCW10E: [usize;8] = [ 0, 2, 0, 4, 0, 3, 0, 1 ];
-  static CCW11E: [usize;8] = [ 0, 3, 0, 4, 0, 2, 0, 1 ];
+  static CCW11E: [usize;8] = CCW7E;
   //Flip direction lists for PlaceParts: //Clockwise Edges
   //CW Edges
-  static  CW0E: [usize;8] = [ 0, 1, 4, 0, 3, 4, 2, 3 ];
+  static  CW0E: [usize;8] = CCW6E;
   static  CW1E: [usize;8] = [ 0, 2, 0, 1, 1, 3, 4, 1 ];
   static  CW2E: [usize;8] = [ 3, 4, 1, 3, 1, 2, 1, 0 ];
   static  CW3E: [usize;8] = [ 1, 2, 0, 1, 4, 3, 3, 2 ];
   static  CW4E: [usize;8] = [ 3, 4, 1, 3, 1, 2, 0, 1 ];
   static  CW5E: [usize;8] = [ 0, 1, 0, 2, 2, 3, 2, 4 ];
-  static  CW6E: [usize;8] = [ 0, 1, 1, 2, 2, 3, 3, 4 ];
+  static  CW6E: [usize;8] = CCW0E;
   static  CW7E: [usize;8] = [ 0, 1, 0, 2, 0, 4, 0, 3 ];
   static  CW8E: [usize;8] = [ 3, 4, 2, 4, 1, 2, 0, 1 ];
-  static  CW9E: [usize;8] = [ 3, 4, 2, 4, 1, 2, 0, 1 ];
+  static  CW9E: [usize;8] = CW8E;
   static CW10E: [usize;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
-  static CW11E: [usize;8] = [ 0, 1, 0, 2, 0, 4, 0, 3 ];
+  static CW11E: [usize;8] = CW7E;
 
   trait FacePlaceFunctions {
     fn place_parts(&mut self, dir: usize) -> bool;
@@ -194,6 +189,7 @@ pub mod face {
     fn swap_pieces(&mut self, a: usize, b: usize);
     fn get_face_piece(&mut self, i: usize);
     fn rotate(&mut self, direction: usize);
+    fn render(&mut self) -> bool;
   }
   /**
    * \brief Colorizing function. Intricate series of flips/swaps.
@@ -208,14 +204,13 @@ pub mod face {
         self.edge[b].flip();
     }
     fn flip_corners(&mut self, a: usize, b: usize, c: usize, d: usize, pack: [usize;4]){
-        todo!(); /*
         //Feed in 4 ints a,b,c,d representing four of the face's Five Corner indexes (Range 0-4)
         //Feed in these Flip lists like { 0, 1, 1, 0 }; telling each index how to flip
-        // Boolean ? 1 = Flip piece once ||  0      = Flip twice
-        pack[0] ? corner[a]->flip() : corner[a]->flipTwice();
-        pack[1] ? corner[b]->flip() : corner[b]->flipTwice();
-        pack[2] ? corner[c]->flip() : corner[c]->flipTwice();
-        pack[3] ? corner[d]->flip() : corner[d]->flipTwice();   */
+        // Booleanif { 1 = Flip piece once ||  0      = Flip twice
+        if pack[0] !=0 { self.corner[a].flip(); } else { self.corner[a].flip_twice(); }
+        if pack[1] !=0 { self.corner[b].flip(); } else { self.corner[b].flip_twice(); }
+        if pack[2] !=0 { self.corner[c].flip(); } else { self.corner[c].flip_twice(); }
+        if pack[3] !=0 { self.corner[d].flip(); } else { self.corner[d].flip_twice(); }
     }
     //Private. Swap 4 Pieces, given a list of 8 indexes
     fn quad_swap_pieces(&mut self, pack: [usize;8]) {
@@ -233,11 +228,11 @@ pub mod face {
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
         todo!(); /*
-        Piece* pieceA = getFacePiece(a);
-        Piece* pieceB = getFacePiece(b);
+        let Piece* pieceA = get_face_piece(a);
+        let Piece* pieceB = get_face_piece(b);
         pieceA->swapdata(pieceB->data); */
     }
-    fn get_face_piece(&mut self, i: usize) {
+    fn get_face_piece(&mut self, _i: usize) {
         todo!(); /*
         if (std::is_same<T, Edge>::value)
             return edge[i];
@@ -381,11 +376,63 @@ pub mod face {
     
     /**
      * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
-    * \param direction turn direction: -1 for Right, +1 for left (seems/is backwards). */
+     * \param  direction  turn direction: -1 for Right, +1 for left (seems/is backwards). */
     fn rotate(&mut self, direction: usize) {
         assert!(direction == Clockwise as usize || direction == CounterClockwise as usize);
         self.rotating = true;
         self.turn_dir = direction;
+    }
+
+    /**
+     * \brief OpenGL Display function. Calling this makes the faces rotate,the only real move.
+     * \return  true  if we full-spun, to tell the parent function that rotating=false also.
+     */
+    fn render(&mut self) -> bool {
+        let turnspeed = 32;
+        //Start Rotating
+        if self.rotating {
+            //glPushMatrix();
+            self.angle += (self.turn_dir * turnspeed) as f32;
+            //Slow down to half-speed once its 75% complete
+            //  (56/72 is ~77.7% but use 56 because % mod 8 == 0)
+            if self.angle >= 56. || self.angle <= -56. {
+                self.angle -= (self.turn_dir * (turnspeed/2)) as f32;
+            }
+            //Rotate axis by angle
+            //glRotated(self.angle, self.axis[0], self.axis[1], self.axis[2]);
+        }
+        else {
+            self.angle = 0.;
+        }
+
+        //Render parts:
+        for center in &mut self.center {
+            center.render();
+        }
+        for edge in &mut self.edge {
+            edge.render();
+        }
+        for corner in &mut self.corner {
+            corner.render();
+        }
+
+        if self.angle > 0.0 {
+            //glPopMatrix();
+            //Color Black
+            //glColor3d(0, 0, 0);
+            //Draw a black pentagon to block out view from see-thru hollow insides
+            //makeGLpolygon(self._vertex, 1.0 , 5);
+        }
+        //Done animating, clean up and commit
+        // 72 is one fifth of 360 circle
+        if self.angle >= 72. || self.angle <= -72. {
+            self.angle = 0.;
+            self.rotating = false;
+            //returns True if successful
+            return self.place_parts(self.turn_dir);
+            //NOTE: ^^ internal structure of pieces is calculated last
+        }
+        return false;
     }
 
   }
