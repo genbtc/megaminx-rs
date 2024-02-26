@@ -6,9 +6,9 @@ pub mod corner {
   use crate::Vertex3; 
   //Corner functions
   pub trait Corner {
-      fn init(&mut self, piecenum: i8, do_axes: bool);
-      fn init_data(&mut self, piecenum: i8, corner_vertex_base: [Vertex3; 7]);
-      fn create_axis(&mut self, piecenum: i32, index: usize);
+      fn init(&mut self, piecenum: usize, do_axes: bool);
+      fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
+      fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
   }
@@ -22,10 +22,10 @@ pub mod corner {
      * \param n the number of the Corner piece (piecenum)
      * \param do_axes True by default. First Time Initialization Only
      */
-    fn init(&mut self, piecenum: i8, do_axes: bool) {
+    fn init(&mut self, piecenum: usize, do_axes: bool) {
         if do_axes {
             for i in 0..7  {
-                self.create_axis(piecenum as i32, i);
+                self.create_axis(piecenum, i);
             }
         }
         //TODO:
@@ -37,7 +37,7 @@ pub mod corner {
      * \brief Inits the piece with a pre-existing Vertex Array
      * \param corner_vertex_base the starting points to be memcpy'ed in
      */
-    fn init_data(&mut self, piecenum: i8, corner_vertex_base: [Vertex3; 7]) {
+    fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]) {
         self._vertex = corner_vertex_base;
         self.init(piecenum, true)
     }
@@ -47,7 +47,7 @@ pub mod corner {
      * \param n - the number of the piece (piecenum)
      * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
-    fn create_axis(&mut self, piecenum: i32, index: usize) {
+    fn create_axis(&mut self, piecenum: usize, index: usize) {
         let mut pack: Piecepack = Piecepack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
         2..=5 => {

@@ -4,8 +4,8 @@ pub mod center {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   pub trait Center {
-      fn init(&mut self, piecenum: i8);
-      fn create_axis(&mut self, piecenum: i32, index: usize);
+      fn init(&mut self, piecenum: usize);
+      fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
   }
@@ -18,9 +18,9 @@ pub mod center {
      * \note  (calls createAxis and initColor)
      * \param n the number of the piece (piecenum)
      */
-    fn init(&mut self, piecenum: i8) {
+    fn init(&mut self, piecenum: usize) {
         for i in 0..5  {
-            self.create_axis(piecenum as i32, i);
+            self.create_axis(piecenum, i);
         }
         //TODO: self.initColor(n + 1);  //from Piece
     }
@@ -31,7 +31,7 @@ pub mod center {
      * \param n - the number of the piece (piecenum)
      * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
-    fn create_axis(&mut self, piecenum: i32, index: usize) {
+    fn create_axis(&mut self, piecenum: usize, index: usize) {
         match piecenum + 1 {
         2..=6 => {
             self.CenterSide1(index, Piecepack { axis1: 'z', axis2: 'x', multi: ((piecenum-1) * 2 % 10) }); },

@@ -1,7 +1,6 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube                                                                                                                                                                          
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
-#![allow(unused_variables)]
 #![allow(dead_code)]
 pub mod piece {
 
@@ -26,10 +25,10 @@ pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 #[derive(Copy, Clone, Default)]
 pub struct PieceData {
     pub _color: [Vertex3; 3],
-    pub _colorNum: [i8; 3],
+    pub _colorNum: [usize; 3],
     pub _colorName: [&'static str; 3],
-    pub pieceNum: i8,
-    pub flipStatus: i8,
+    pub pieceNum: usize,
+    pub flipStatus: usize,
     pub hotPieceMoving: bool,
 }
 //Pack struct to rotateVertex
@@ -37,7 +36,7 @@ pub struct PieceData {
 pub struct Piecepack {
     pub axis1: char,
     pub axis2: char,
-    pub multi: i32
+    pub multi: usize
 }
 //Main Piece Object
 #[derive(Copy, Clone, Default)]
@@ -46,24 +45,23 @@ pub struct Piece {
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
     pub _vertex: [Vertex3; 7],
     //Keeps the default number in the piece. do not swap.
-    pub defaultPieceNum: i8,
+    pub defaultPieceNum: usize,
     //Center has 1, Edge has 2, Corner has 3
-    pub numSides: i8,
+    pub numSides: usize,
     //Data Struct (can swap out)
     pub data: PieceData,
 }
 //Initialize constructor
 impl Piece {
-    pub fn new(defaultPieceNum: i8) -> Self {
+    pub fn new(defaultPieceNum: usize) -> Self {
       Self {
         _vertex: Default::default(),
         numSides: 0,
         defaultPieceNum: defaultPieceNum,
         data: Default::default(),
       }
-    }    
+    }
 }
-
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
 macro_rules! dodesize { () => {   100f32   }; }
@@ -85,10 +83,10 @@ macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //6
 
 //Math & init functions:
 pub trait PieceMath {
-    fn cornerInit(&mut self) -> &[Vertex3; 7] ;
-    fn edgeInit(&mut self) -> &[Vertex3; 7] ;
-    fn centerInit(&mut self) -> &[Vertex3; 7] ;
-    fn faceInit(&mut self) -> &[Vertex3; 7] ;
+    fn cornerInit(&mut self) -> &[Vertex3; 7];
+    fn edgeInit(&mut self) -> &[Vertex3; 7];
+    fn centerInit(&mut self) -> &[Vertex3; 7];
+    fn faceInit(&mut self) -> &[Vertex3; 7];
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
     fn axis1multi(&mut self, index: usize, pack: Piecepack);
     fn CenterSide1(&mut self, index: usize, pack: Piecepack);
@@ -265,5 +263,6 @@ impl PieceMath for Piece {
         self.rotateVertexXYZ(index, pack.axis2, pi!());
         self.axis1multi(index, pack);
     }
-  }
+}
+
 }

@@ -3,14 +3,16 @@ pub mod edge {
   use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
-  use crate::Vertex3; 
+    use crate::Vertex3; 
   //Edge functions
   pub trait Edge {
-      fn init(&mut self, piecenum: i8, do_axes: bool);
-      fn init_data(&mut self, piecenum: i8, edge_vertex_base: [Vertex3; 7]);
-      fn create_axis(&mut self, piecenum: i32, index: usize);
+      fn init(&mut self, piecenum: usize, do_axes: bool);
+      fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]);
+      fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
+      fn flip(&mut self);
+      fn flip_twice(&mut self);
   }
   impl Edge for Piece {
     fn new(&mut self) {
@@ -22,10 +24,10 @@ pub mod edge {
      * \param n the number of the Edge piece (piecenum)
      * \param doAxes True by default. First Time Initialization Only
      */
-    fn init(&mut self, piecenum: i8, do_axes: bool) {
+    fn init(&mut self, piecenum: usize, do_axes: bool) {
         if do_axes {
             for i in 0..6 {
-                self.create_axis(piecenum as i32, i);
+                self.create_axis(piecenum, i);
             }
         }
         //TODO:
@@ -37,7 +39,7 @@ pub mod edge {
      * \brief Inits the piece with a pre-existing Vertex Array
      * \param edgeVertexBase the starting points to be memcpy'ed in
      */
-    fn init_data(&mut self, piecenum: i8, edge_vertex_base: [Vertex3; 7]) {
+    fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]) {
         self._vertex = edge_vertex_base;
         self.init(piecenum, false);
     }
@@ -47,7 +49,7 @@ pub mod edge {
      * \param n - the number of the piece (piecenum)
      * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
-    fn create_axis(&mut self, piecenum: i32, index: usize) {
+    fn create_axis(&mut self, piecenum: usize, index: usize) {
         let pack: Piecepack = Piecepack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
         1..=5 => {
@@ -70,6 +72,29 @@ pub mod edge {
      */
     fn render(&mut self) {
         todo!();
+    }
+
+    //Didnt remain visible in piece.rs                           
+    fn flip(&mut self) {
+        //todo!();
+        println!("This is actually doing something now");
+        self._vertex[2][1] = 100f32;
+        /*                                                                                                        
+        leftRotate<double>(data._color[0], 3, numSides * 3);                                                                            
+        leftRotate<int>(data._colorNum, 1, numSides);                                                                                   
+        leftRotate<const char*>(data._colorName, 1, numSides);                                                                          
+        const bool isCorner = (numSides == 3);                                                                                          
+        if ((isCorner && data.flipStatus < 2) || (!isCorner && data.flipStatus == 0))                                                   
+            data.flipStatus++;                                                                                                          
+        else                                                                                                                            
+            data.flipStatus = 0;
+        */
+    }
+    //Does two flips. Thats it.
+    fn flip_twice(&mut self) {
+        self.flip();
+        self.flip();
+    }    
 /*
     //Edge Side One - Color Fill
     glColor3dv(data._color[0]);
@@ -101,6 +126,5 @@ pub mod edge {
     }
     glEnd();
 */
-    }
   }
 }
