@@ -23,8 +23,9 @@ pub mod megaminx {
         edges: Vec<Box<dyn Edge>>,
     pub g_current_face: Box<Face>,
   }
-  /*Initialize constructor */
+  
   impl Megaminx {
+      /*Initializing new() constructor */
       pub fn new() -> Self {
       Self {
         invisible: false,
@@ -37,17 +38,14 @@ pub mod megaminx {
         g_current_face: Default::default(),
       }
     }
-  }
-  
-  impl Megaminx {
     /**
      * \brief Megaminx main simple constructor for init.
      * \note   Setup, Solve Puzzle (aka Reset), Render
      */
     pub fn init_reset(&mut self) {
-        println!("initing Megaminx!");
+        println!("Initializing Megaminx!");
         //(re)/initialize Struct w/ defaults
-        self.g_current_face = Box::<Face>::new(Default::default());
+        self.g_current_face = Default::default();
         self.rotating_face_index = 0;
         self.is_rotating = false;
         self.invisible = false;
@@ -56,8 +54,22 @@ pub mod megaminx {
         self.init_corner_pieces();
         self.init_center_pieces();
         self.init_face_pieces();
-        //self.render_all_pieces();
+        //self._render_all_pieces();
     }
+    /**                                                                                                                                     
+     * \brief Default Render ALL the pieces (unconditionally)                                                                               
+     */
+    fn _render_all_pieces(&mut self) {
+      for center in &mut self.centers {
+          center.render();
+      }
+      for edge in &mut self.edges {
+          edge.render();
+      }
+      for corner in &mut self.corners {
+          corner.render();
+      }
+    }    
   }
 
   //Megaminx Init Pieces Setup
@@ -66,7 +78,6 @@ pub mod megaminx {
     fn init_corner_pieces(&mut self);
     fn init_center_pieces(&mut self);
     fn init_face_pieces(&mut self);
-    fn render_all_pieces(&mut self);
   }
   impl MegaminxInitFunctions for Megaminx {
 
@@ -125,26 +136,10 @@ pub mod megaminx {
         assert_eq!(self.faces.len(), NUM_FACES);        
     }
 
-    /**                                                                                                                                     
-     * \brief Default Render ALL the pieces (unconditionally)                                                                               
-     */
-    fn render_all_pieces(&mut self) {
-        for center in &mut self.centers {
-            center.render();
-        }
-        for edge in &mut self.edges {
-            edge.render();
-        }
-        for corner in &mut self.corners {
-            corner.render();
-        }
-    }    
   }
 
   //Control Functions
   pub trait MegaminxMoveFunctions {
-    //fn render_all_pieces();
-    fn render();
     fn undo();
     fn undo_double();
     fn undo_quad();

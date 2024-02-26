@@ -4,6 +4,8 @@
 pub mod face {
   use crate::piece::piece::VERTEXZERO;
   use crate::piece::piece::PieceData;
+  use crate::piece::piece::PieceMath;
+  use crate::piece::piece::Piece;
   use crate::center::center::Center;
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;  
@@ -21,9 +23,9 @@ pub mod face {
     default_piece_num: usize,
     data: PieceData,
     //Boxed References to Trait Objects
-    pub center: Vec<Box<dyn Center>>,
-    corner: Vec<Box<dyn Corner>>,
-    edge: Vec<Box<dyn Edge>>,
+    pub center: Vec<Box<Piece>>,
+    corner: Vec<Box<Piece>>,
+    edge: Vec<Box<Piece>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
   }
@@ -47,7 +49,7 @@ pub mod face {
     fn getnum(&self) -> usize { 
       return self.this_num;
     }        
-    fn new(&mut self){
+    fn new(&mut self) {
       return Default::default();
     }
    /**
@@ -86,7 +88,7 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self, _center: &Vec<Box <dyn Center>>) {
-        println!("face.attach_center() to {}", self.this_num);
+        //println!("face.attach_center() to {}", self.this_num);
         self.init(self.this_num);
         self.create_axis(self.this_num, self.this_num);
         //assert!(self.this_num == self.center.len() - 1);
@@ -406,14 +408,26 @@ pub mod face {
         }
 
         //Render parts:
-        for center in &mut self.center {
-            center.render();
+        //for &center in &mut self.center.iter() {
+//          (center as Box<dyn Center>).render();
+            //cannot borrow `*self` as mutable more than once at a time
+        //}
+        for _edge in &mut self.edge {
+            //edge.render();
         }
-        for edge in &mut self.edge {
-            edge.render();
-        }
-        for corner in &mut self.corner {
-            corner.render();
+        for _corner in &mut self.corner {
+            //corner.render();
+            // ^^^^^^ multiple `render` found
+
+            //crate::center::center::Center::render(&mut corner);
+            /*error[E0277]: the trait bound `&mut Box<Piece>: center::center::Center` is not satisfied
+            --> src/face.rs:420:51
+             |             crate::center::center::Center::render(&mut corner);
+             |             ------------------------------------- ^^^^^^^^^^^ the trait `center::center::Center` is not implemented for `&mut Box<Piece>`
+             |             required by a bound introduced by this call
+             = help: the following other types implement trait `center::center::Center`:
+                       Face
+                       Piece */           
         }
 
         if self.angle > 0.0 {

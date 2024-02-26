@@ -11,8 +11,6 @@ pub mod edge {
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
       fn new(&mut self);
-      fn flip(&mut self);
-      fn flip_twice(&mut self);
   }
   impl Edge for Piece {
     fn new(&mut self) {
@@ -74,27 +72,6 @@ pub mod edge {
         todo!();
     }
 
-    //Didnt remain visible in piece.rs                           
-    fn flip(&mut self) {
-        //todo!();
-        println!("This is actually doing something now");
-        self._vertex[2][1] = 100f32;
-        /*                                                                                                        
-        leftRotate<double>(data._color[0], 3, numSides * 3);                                                                            
-        leftRotate<int>(data._colorNum, 1, numSides);                                                                                   
-        leftRotate<const char*>(data._colorName, 1, numSides);                                                                          
-        const bool isCorner = (numSides == 3);                                                                                          
-        if ((isCorner && data.flipStatus < 2) || (!isCorner && data.flipStatus == 0))                                                   
-            data.flipStatus++;                                                                                                          
-        else                                                                                                                            
-            data.flipStatus = 0;
-        */
-    }
-    //Does two flips. Thats it.
-    fn flip_twice(&mut self) {
-        self.flip();
-        self.flip();
-    }
 /*
     //Edge Side One - Color Fill
     glColor3dv(data._color[0]);

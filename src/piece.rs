@@ -99,11 +99,13 @@ pub trait PieceMath {
     fn EdgeGrp4(&mut self, index: usize, pack: Piecepack);
     fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
     fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
+    fn flip(&mut self);
+    fn flip_twice(&mut self);    
 }
 //Attach these Math functions to Piece object
 impl PieceMath for Piece {
     fn cornerInit(&mut self) -> &[Vertex3; 7] {
-        println!("cornerInit({})", self.defaultPieceNum);
+        //println!("cornerInit({})", self.defaultPieceNum);
         self.numSides = 3;
         for i in 0..7 {
             self._vertex[i][2] = -inssphererad!();
@@ -142,7 +144,7 @@ impl PieceMath for Piece {
     }
     //Creates the common starting vertexes for all pieces that are EDGES
     fn edgeInit(&mut self) -> &[Vertex3; 7] {
-        println!("edgeInit({})", self.defaultPieceNum);
+        //println!("edgeInit({})", self.defaultPieceNum);
         self.numSides = 2;
         for i in 0..6 {
             self._vertex[i][2] = -inssphererad!();
@@ -173,7 +175,7 @@ impl PieceMath for Piece {
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
     fn centerInit(&mut self) -> &[Vertex3; 7] {
-        println!("centerInit({})", self.defaultPieceNum);
+        //println!("centerInit({})", self.defaultPieceNum);
         self.numSides = 1;
         for i in 0..5 {
             self._vertex[i][0] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).cos() * twofifths!();
@@ -184,7 +186,7 @@ impl PieceMath for Piece {
     }    
     //Creates the common starting vertexes for all pieces that are FACES
     fn faceInit(&mut self) -> &[Vertex3; 7] {
-        println!("faceInit({})", self.defaultPieceNum);
+        //println!("faceInit({})", self.defaultPieceNum);
         self.numSides = 0;
         for i in 0..5 {
             //This puts it on the back face
@@ -266,6 +268,28 @@ impl PieceMath for Piece {
         self.rotateVertexXYZ(index, pack.axis2, pi!());
         self.axis1multi(index, pack);
     }
+
+    //Didnt remain visible in piece.rs                           
+    fn flip(&mut self) {
+        //todo!();
+        println!("This is actually doing something now");
+        self._vertex[2][1] = 100f32;
+        /*                                                                                                        
+        leftRotate<double>(data._color[0], 3, numSides * 3);                                                                            
+        leftRotate<int>(data._colorNum, 1, numSides);                                                                                   
+        leftRotate<const char*>(data._colorName, 1, numSides);                                                                          
+        const bool isCorner = (numSides == 3);                                                                                          
+        if ((isCorner && data.flipStatus < 2) || (!isCorner && data.flipStatus == 0))                                                   
+            data.flipStatus++;                                                                                                          
+        else                                                                                                                            
+            data.flipStatus = 0;
+        */
+    }
+    //Does two flips. Thats it.
+    fn flip_twice(&mut self) {
+        self.flip();
+        self.flip();
+    }    
 }
 
 }
