@@ -64,24 +64,6 @@ pub fn main() -> Result<(), String> {
 //MEGAMINX INIT WORKS FINALLY ^^^^^^    
     let mut centerpiece: Piece = Piece::new(1);
     centerpiece.centerInit();
-//Array Mutate
-    for i in 0..5 {
-      for j in 0..2 {
-        centerpiece._vertex[i][j] = centerpiece._vertex[i][j].abs();  //Clamp to >0 
-      }
-      centerpiece._vertex[i][2] = 0.0;    
-    }
-//Array Print
-    print!("Center Piece 1 Vertex Array: [ ");
-    for i in 0..5 {
-      print!("[ ");
-      for j in 0..3 {
-        print!("{}", centerpiece._vertex[i][j].to_string());
-        if j < centerpiece._vertex[i].len() - 1  { print!(", "); }
-      }
-      if i < centerpiece._vertex.len() - 1  { print!(" ], "); }
-    }
-    println!("]");
 
 //NOT YET DONE!
 

@@ -6,7 +6,7 @@ pub mod edge {
   use crate::Vertex3; 
   //Edge functions
   pub trait Edge {
-      fn init(&mut self, piecenum: usize, do_axes: bool);
+      fn init(&mut self, piecenum: usize);
       fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self);
@@ -22,11 +22,9 @@ pub mod edge {
      * \param n the number of the Edge piece (piecenum)
      * \param doAxes True by default. First Time Initialization Only
      */
-    fn init(&mut self, piecenum: usize, do_axes: bool) {
-        if do_axes {
-            for i in 0..6 {
-                self.create_axis(piecenum, i);
-            }
+    fn init(&mut self, piecenum: usize) { 
+        for i in 0..6 {
+            self.create_axis(piecenum, i);
         }
         //TODO:
         //initColor(G_EDGEPIECESCOLORS[piecenum], false);
@@ -39,7 +37,7 @@ pub mod edge {
      */
     fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]) {
         self._vertex = edge_vertex_base;
-        self.init(piecenum, false);
+        self.init(piecenum);
     }
     /**
      * \brief createAxis sets up the x,y,z Axes that the Edge pieces ride on
