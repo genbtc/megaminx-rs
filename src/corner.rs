@@ -3,7 +3,9 @@ pub mod corner {
   use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
-  use crate::Vertex3; 
+  use crate::Vertex3;
+  use crate::piece::piece::PieceColor;
+  use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   //Corner functions
   pub trait Corner {
       fn init(&mut self, piecenum: usize, do_axes: bool);
@@ -28,8 +30,7 @@ pub mod corner {
                 self.create_axis(piecenum, i);
             }
         }
-        //TODO:
-        //initColor(G_CORNERPIECESCOLORS[piecenum], true);
+        self.initColor(G_CORNERPIECESCOLORS[piecenum], true);
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
     }

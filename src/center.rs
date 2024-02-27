@@ -3,6 +3,8 @@ pub mod center {
   use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
+  use crate::piece::piece::PieceColor;
+
   pub trait Center {
       fn init(&mut self, piecenum: usize);
       fn create_axis(&mut self, piecenum: usize, index: usize);
@@ -26,7 +28,7 @@ pub mod center {
         for i in 0..5  {
             self.create_axis(piecenum, i);
         }
-        //TODO: self.initColor(n + 1);  //from Piece
+        self.initColorA(piecenum + 1);  //from Piece
     }
 
     /**

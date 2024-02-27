@@ -3,6 +3,8 @@ pub mod edge {
   use crate::piece::piece::Piecepack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
+  use crate::piece::piece::PieceColor;
+  use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   use crate::Vertex3; 
   //Edge functions
   pub trait Edge {
@@ -28,8 +30,7 @@ pub mod edge {
                 self.create_axis(piecenum, i);
             }
         }
-        //TODO:
-        //initColor(G_EDGEPIECESCOLORS[piecenum], false);
+        self.initColor(G_EDGEPIECESCOLORS[piecenum], false);
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
     }

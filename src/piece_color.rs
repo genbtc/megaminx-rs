@@ -5,7 +5,7 @@
 
 pub mod PieceColor {
     //Megaminx standard color names defined in numerical int order 
-    #[derive(Default)]
+    #[derive(Copy,Clone,Default)]
     pub enum MegaminxColor {
         #[default]
         Black,
@@ -63,10 +63,11 @@ pub mod PieceColor {
     pub const NUM_EDGES:   usize = 30;
 
     //scaffolding Struct, a shell for a piece, holds 1-3 Colors for a Center/Edge/Corner definition
+    #[derive(Copy,Clone,Default)]
     pub struct ColorPiece(pub MegaminxColor,pub MegaminxColor,pub MegaminxColor);
 
     //Defines the 30 Edge pieces (0-29) by color
-    static G_EDGEPIECESCOLORS: [ColorPiece; NUM_EDGES] = [
+    pub static G_EDGEPIECESCOLORS: [ColorPiece; NUM_EDGES] = [
         // 0 - 4
         ColorPiece( White, DarkBlue,  Black),
         ColorPiece( White, Red,       Black),
@@ -106,7 +107,7 @@ pub mod PieceColor {
     ];
 
     //Defines the 20 Corner Pieces (0-19) by color
-    static G_CORNERPIECESCOLORS: [ColorPiece; NUM_CORNERS] = [
+    pub static G_CORNERPIECESCOLORS: [ColorPiece; NUM_CORNERS] = [
         // 0 - 4
         ColorPiece( White, Red, DarkBlue),
         ColorPiece( White, DarkGreen, Red),
@@ -134,7 +135,7 @@ pub mod PieceColor {
     ];
 
     //scaffolding struct that holds relative position/direction color info, for g_faceNeighbors below
-    struct ColorDirection {
+    pub struct ColorDirection {
         //order: Start from front face, then 9-oclock and going CW right around and down
         front: MegaminxColor,
         left: MegaminxColor,
@@ -145,11 +146,11 @@ pub mod PieceColor {
         bottom: MegaminxColor
     }
     //TupleStruct (TODO: Combine?)
-    struct ColorDirs([MegaminxColor; 7]);
+    pub struct ColorDirs([MegaminxColor; 7]);
 
     //Defines which faces are touching each other. Entire relational color map.
     // For Human Algo Rotate., used by RotateAlgo, ParseAlgorithmID and param to ParseAlgorithmString
-    static G_FACENEIGHBORS: [ColorDirs; MAX_COLOR_STATES] = [
+    pub static G_FACENEIGHBORS: [ColorDirs; MAX_COLOR_STATES] = [
         //initializeThe0SlotToBlackInvalid
         ColorDirs([ Black, Black, Black, Black, Black, Black, Black ]),
         //Bottom/White1-6
@@ -170,11 +171,11 @@ pub mod PieceColor {
 
     //Determine which direction those faces need to rotate to land the Edge on the white
     #[derive(Default)]
-    struct RotationDirs(i8,i8,i8,i8,i8);
+    pub struct RotationDirs(i8,i8,i8,i8,i8);
 
     //Decides which direction, up or down, for the pieces to passively float to their original home
     //Spatial awareness vision introspection
-    static G_DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
+    pub static G_DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
         RotationDirs( 0, 0, 0, 0, 0 ),
         RotationDirs( 0, 0, 0, 0, 0 ),
         RotationDirs( -1, -1, 1, 1, -1 ),  //e2&3 swapped @ D.Blue
@@ -195,7 +196,7 @@ pub mod PieceColor {
     //                                instead of the color[0] index. ( [marked by 0's])
     //( [Which half of the edge would the solved face be on])
     //these bits must be set, equal to the color data index, to consider as solved
-    static G_EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
+    pub static G_EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
         RotationDirs( 0, 0, 0, 0, 0 ),
         RotationDirs( 0, 0, 0, 0, 0 ),
         RotationDirs( 1, 0, 1, 0, 0 ),

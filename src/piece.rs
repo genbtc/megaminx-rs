@@ -376,6 +376,18 @@ impl PieceColor for Piece {
                 self.data.color.colorNum[1] == color ||
                 self.data.color.colorNum[2] == color;
     }
+   
+    //Function to Reverse the c-Array.
+    //template <typename T>
+    //void arrayReverse(T arr[], int r, int n)
+
+    //Function to Left rotate a C-array by r positions, n length
+    //template <typename T>
+    //void leftRotate(T arr[], int r, int n)
+
+    //Function to Right rotate a C-array by r positions, n length
+    //template <typename T>
+    //void rightRotate(T arr[], int r, int n)
 
 }
 
