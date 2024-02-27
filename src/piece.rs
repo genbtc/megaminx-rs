@@ -352,7 +352,7 @@ impl PieceColor for Piece {
         self.numSides = 3;
     }
     //Uses the two arrays g_cornerPiecesColors and g_edgePiecesColors to populate.
-    fn initColor(&mut self, color: ColorPiece, corner: bool /*false*/) {
+    fn initColor(&mut self, color: ColorPiece, corner: bool ) {
         self.initColorIndex(0, color.0 as usize);
         self.initColorIndex(1, color.1 as usize);
         if corner {

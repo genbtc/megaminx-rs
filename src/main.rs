@@ -8,6 +8,7 @@ use sdl2::video::WindowBuilder;
 use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;
+use glium::uniform;
 use sdl2::gfx::primitives::DrawRenderer;
 mod megaminx;
 mod center;
@@ -21,8 +22,6 @@ use crate::piece::piece::PieceMath;
 use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
 use crate::megaminx::megaminx::Megaminx;
-//use crate::center::center::Center;
-//use crate::face::face::Face;
 use crate::face::face::FaceFunctions;
 
 pub fn main() -> Result<(), String> {
@@ -53,8 +52,8 @@ pub fn main() -> Result<(), String> {
     megaminx.init_reset();
     let faces = megaminx.faces;
     for face in faces {
-        let num = face.getnum();
-        println!("facenum {}", num);
+        let _num = face.getnum();
+        //println!("facenum {}", num);
         let centers = face.center;
         for _center in centers {
             //center.init(num);
@@ -67,12 +66,14 @@ pub fn main() -> Result<(), String> {
 
 //NOT YET DONE!
 
-    let _shape = vec![
-        Vertex { position: [ -0.4, -0.9, 0.0 ] },
-        Vertex { position: [ 0.0,  0.9, 0.0 ] },
-        Vertex { position: [ 0.8, -0.5, 0.0 ] }
+    let mut _shape = vec![  //offkilter triangle
+        Vertex { position: [ -0.2, 0.1, 1.0 ] },
+        Vertex { position: [ 0.0,  0.9, 1.0 ] },
+        Vertex { position: [ 0.8, 0.0, 1.0 ] }
     ];
-    let _pentagon = vec![
+    let _pentagon = vec![ //not working, not visible, 
+    //(3D coord points too large for [0,1) x/y grid)
+    //TODO: Implement glium orthographic projection matrix to scale
         Vertex { position: centerpiece.vertex[0] },
         Vertex { position: centerpiece.vertex[1] },
         Vertex { position: centerpiece.vertex[2] },
@@ -80,30 +81,71 @@ pub fn main() -> Result<(), String> {
         Vertex { position: centerpiece.vertex[4] },
         Vertex { position: centerpiece.vertex[0] }
     ];
+    let mut triangle = vec![
+        Vertex { position: [ -0.5, -0.5, 1.0 ] }, 
+        Vertex { position: [ 0.0, 0.0, 1.0 ] },
+        Vertex { position: [ 0.5, -0.5, 1.0 ] },
+    ];
+    triangle.append(&mut _shape);
     //Glium GL VBO
     let vertex_buffer = glium::VertexBuffer::new(&display, &_pentagon).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);  //LineLoop isnt Fill'ed
 
+
+    let matrix = [
+        [0.01, 0.0, 0.0, 0.0],
+        [0.0, 0.01, 0.0, 0.0],
+        [0.0, 0.0, 0.01, 0.0],
+        [0.0, 0.0, 1.0, 1.0f32]
+    ];
+    let perspective = {
+        let (width, height) = (640,640);
+        let aspect_ratio = height as f32 / width as f32;
+
+        let fov: f32 = 3.141592 / 3.0;
+        let zfar = 1024.0;
+        let znear = 0.1;
+
+        let f = 1.0 / (fov / 2.0).tan();
+
+        [
+            [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
+            [         0.0         ,     f ,              0.0              ,   0.0],
+            [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
+            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
+        ]
+    };
     let vertex_shader_src = r#"
-        #version 140
+        #version 150
         in vec3 position;
+        uniform mat4 perspective;
+        uniform mat4 matrix;
         void main() {
-            gl_Position = vec4(position, 1.0);
-        }
+            gl_Position =  matrix *  vec4(position, 1.0);
+        }        
     "#;
     let fragment_shader_src = r#"
         #version 140
         out vec4 color;
         void main() {
-            color = vec4(0.2, 0.6, 0.2, 0.4); //Green
+            color = vec4(0.2, 0.6, 0.2, 1.0); //Green
         }
     "#;
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+    let params = glium::DrawParameters {
+        depth: glium::Depth {
+            test: glium::draw_parameters::DepthTest::IfLess,
+            write: true,
+            .. Default::default()
+        },
+        .. Default::default()
+    };
 
     let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 0.1); // Blue background
-    target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    //target.clear_color(0.0, 0.0, 1.0, 0.1); // Blue background
+    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
+    target.draw(&vertex_buffer, &indices, &program, &uniform! { matrix: matrix, perspective: perspective }, &params).unwrap();
     target.finish().unwrap();
 
     //attempt to draw vertex from pieces using canvas. not correct coordinate space

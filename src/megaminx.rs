@@ -83,12 +83,12 @@ pub mod megaminx {
     fn init_edge_pieces(&mut self) {
         //store a list of the basic starting Edge vertexes
         for i in 0..NUM_EDGES {
-            println!("initing edge: {}", i);
+            //println!("initing edge: {}", i);
             let mut edgepiece: Piece = Piece::new(i);
             let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
             Edge::init_data(&mut edgepiece, i, edge_vertex_list);
             self.edges.push(Box::new(edgepiece));
-            self.print_vector(&edgepiece);
+            //self.print_vector(&edgepiece);
         }
         assert_eq!(self.edges.len(), NUM_EDGES);        
     }
@@ -97,12 +97,12 @@ pub mod megaminx {
     fn init_corner_pieces(&mut self) {
         //store a list of the basic starting Corner vertexes
         for i in 0..NUM_CORNERS {
-            println!("initing corner: {}", i);
+            //println!("initing corner: {}", i);
             let mut cornerpiece: Piece = Piece::new(i);
             let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
             Corner::init_data(&mut cornerpiece, i, corner_vertex_list);
             self.corners.push(Box::new(cornerpiece));
-            self.print_vector(&cornerpiece);
+            //self.print_vector(&cornerpiece);
         }
         assert_eq!(self.corners.len(), NUM_CORNERS);        
     }
@@ -110,12 +110,12 @@ pub mod megaminx {
     /** \brief Init the Centers, attach them to Faces. (numFaces = 12) */
     fn init_center_pieces(&mut self) {
         for i in 0..NUM_FACES {
-            println!("initing center: {}", i);
+            //println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i);
             let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
             Center::init(&mut centerpiece, i);//, center_vertex_list);
             self.centers.push(Box::new(centerpiece));
-            self.print_vector(&centerpiece);
+            //self.print_vector(&centerpiece);
         }
         assert_eq!(self.centers.len(), NUM_FACES);        
     }
