@@ -4,7 +4,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 pub mod piece {
-    use crate::piece_color::PieceColor::{ColorPack,ColorPiece, G_COLORRGBS};
+use crate::piece_color::PieceColor::{ColorPack,ColorPiece, G_COLORRGBS};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
@@ -26,10 +26,10 @@ pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 //Color Block
 #[derive(Copy, Clone, Default)]
 pub struct ColorData {
-   colorNum: [usize; 3],
-   colorName: [&'static str; 3],
-   colorRGB: [Vertex3; 3],
-   //data: ColorPack, //  this field does not implement `std::marker::Copy`
+    pub colorNum: [usize; 3],
+    pub colorName: [&'static str; 3],
+    pub colorRGB: [Vertex3; 3],
+    pub pack: ColorPack,
 }
 // Piece Block
 #[derive(Copy, Clone, Default)]
@@ -51,7 +51,7 @@ pub struct Piecepack {
 #[derive(Copy, Clone, Default)]
 pub struct Piece {
     // Piece struct
-    //Coords for GL vertex (up to 7, not all used) * max possible sides 3
+    //Coords for GL vertex*3 (up to 7, not all used)
     pub vertex: [Vertex3; 7],
     //Keeps the default number in the piece. do not swap.
     pub defaultPieceNum: usize,
@@ -283,7 +283,10 @@ impl PieceMath for Piece {
     fn flip(&mut self) {
         println!("This Flips the colors but isnt implemented yet");
         self.vertex[2][1] = 100f32;
-        todo!(); //TODO: find replacement Rotate functions for these colorstructs
+        self.data.color.colorRGB[0].rotate_left(3);
+        self.data.color.colorNum.rotate_left(1);
+        self.data.color.colorName.rotate_left(1);
+         //TODO: find replacement Rotate functions for these colorstructs
         /*
         leftRotate<double>(self.data._color[0], 3, self.numSides * 3);
         leftRotate<int>(self.data._colorNum, 1, self.numSides);
@@ -326,6 +329,7 @@ impl PieceColor for Piece {
         self.data.color.colorRGB[i][2] = c.b;
         self.data.color.colorName[i] = c.name;
         self.data.color.colorNum[i] = c.i;
+        self.data.color.pack = c; //NEW
         self.data.flipStatus = 0;
     }
     //interface function for setter
