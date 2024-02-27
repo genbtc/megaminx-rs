@@ -26,15 +26,16 @@ use crate::face::face::FaceFunctions;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
+    let (width,height) = (640,640);
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
-    let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", 640, 640);
+    let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", width, height);
     let  display: SDL2Facade = binding.build_glium().unwrap();
     let  window_b: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = window_b
                     .into_canvas()
                     .accelerated()
-                    .build().unwrap();
+                    .build().unwrap();                
     //Canvas Draw Examples:
     //Black Diagonal 2D Line
     let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
@@ -47,8 +48,8 @@ pub fn main() -> Result<(), String> {
     //Red Filled Triangle
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
-//WORK IN PROGRESS:
-    let mut megaminx = Megaminx::new(); // function or associated item `new` not found for this struct
+//Megaminx.rs = WORK IN PROGRESS:
+    let mut megaminx: Megaminx = Megaminx::new();
     megaminx.init_reset();
     let faces = megaminx.faces;
     for face in faces {
@@ -60,61 +61,44 @@ pub fn main() -> Result<(), String> {
             //center._vertex[0][0];
         }
     }
-//MEGAMINX INIT WORKS FINALLY ^^^^^^    
-    let mut centerpiece: Piece = Piece::new(1);
+//MEGAMINX INIT WORKS FINALLY ^^^^^^ 
+    let mut centerpiece: Piece = Piece::new(2);
     centerpiece.centerInit();
 
-//NOT YET DONE!
-
-    let mut _shape = vec![  //offkilter triangle
-        Vertex { position: [ -0.2, 0.1, 1.0 ] },
-        Vertex { position: [ 0.0,  0.9, 1.0 ] },
-        Vertex { position: [ 0.8, 0.0, 1.0 ] }
-    ];
-    let _pentagon = vec![ //not working, not visible, 
-    //(3D coord points too large for [0,1) x/y grid)
-    //TODO: Implement glium orthographic projection matrix to scale
+    let pentagon = vec![
         Vertex { position: centerpiece.vertex[0] },
         Vertex { position: centerpiece.vertex[1] },
-        Vertex { position: centerpiece.vertex[2] },
+        Vertex { position: centerpiece.vertex[2] }, //tri1
         Vertex { position: centerpiece.vertex[3] },
         Vertex { position: centerpiece.vertex[4] },
-        Vertex { position: centerpiece.vertex[0] }
+        Vertex { position: centerpiece.vertex[0] }, //tri2
+        Vertex { position: centerpiece.vertex[0] },
+        Vertex { position: centerpiece.vertex[2] },
+        Vertex { position: centerpiece.vertex[3] }, //tri3
     ];
-    let mut triangle = vec![
-        Vertex { position: [ -0.5, -0.5, 1.0 ] }, 
-        Vertex { position: [ 0.0, 0.0, 1.0 ] },
-        Vertex { position: [ 0.5, -0.5, 1.0 ] },
-    ];
-    triangle.append(&mut _shape);
+
     //Glium GL VBO
-    let vertex_buffer = glium::VertexBuffer::new(&display, &_pentagon).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);  //LineLoop isnt Fill'ed
+    let vertex_buffer = glium::VertexBuffer::new(&display, &pentagon).unwrap();
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
-
-    let matrix = [
+    //Orthographic Projection Matrix
+    let matrix: [[f32; 4]; 4] = [
         [0.01, 0.0, 0.0, 0.0],
         [0.0, 0.01, 0.0, 0.0],
         [0.0, 0.0, 0.01, 0.0],
         [0.0, 0.0, 1.0, 1.0f32]
-    ];
-    let perspective = {
-        let (width, height) = (640,640);
+    ]; //Perspective, Zoom & Camera FOV Matrix
+    let perspective: [[f32; 4]; 4] = {
         let aspect_ratio = height as f32 / width as f32;
-
         let fov: f32 = 3.141592 / 3.0;
         let zfar = 1024.0;
         let znear = 0.1;
-
         let f = 1.0 / (fov / 2.0).tan();
-
-        [
-            [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
+        [   [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
             [         0.0         ,     f ,              0.0              ,   0.0],
             [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
-            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
-        ]
-    };
+            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],     ]
+    }; //COMMENTED OUT TO GET BASIC PENTAGON WORKING
     let vertex_shader_src = r#"
         #version 150
         in vec3 position;
