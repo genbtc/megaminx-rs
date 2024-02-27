@@ -2,7 +2,9 @@
 #![allow(non_upper_case_globals)]
 #![allow(dead_code)]
 pub mod face {
+  use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
+  use crate::Vertex3;
   use crate::piece::piece::PieceData;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::Piece;
@@ -14,7 +16,7 @@ pub mod face {
   #[derive(Default)]
   pub struct Face {
     this_num: usize,
-    turn_dir: usize,
+    turn_dir: TurnDir,
     rotating: bool,
     angle: f32,
     axis: [f32;3],
@@ -28,13 +30,17 @@ pub mod face {
     edge: Vec<Box<Piece>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
+    center_vertex_list: [Vertex3; 7],
+    edge_vertex_list:   [Vertex3; 7],
+    corner_vertex_list: [Vertex3; 7],
   }
   /*Initialize constructor */
   impl Face {
     pub fn new(num: usize) -> Self {
       Self {
-        this_num: num, turn_dir: 0, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: num, data: Default::default(),
+        this_num: num, turn_dir: TurnDir::None, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: num, data: Default::default(),
         center: Default::default(), corner: Default::default(), edge: Default::default(),
+        center_vertex_list: VERTEXDATAZERO, edge_vertex_list: VERTEXDATAZERO, corner_vertex_list: VERTEXDATAZERO,
       }
     }
   }  
@@ -64,7 +70,10 @@ pub mod face {
               Center::create_axis(self, piecenum, i);
             }
         }
-        //TODO: initColor(G_FACEPIECESCOLORS[piecenum], true);
+        //self.initColor(piecenum + 1);  //from Piece
+//        |              ^^^^^^^^^ method not found in `&mut Face`
+//        = help: items from traits can only be used if the trait is implemented and in scope
+//      note: `piece::piece::PieceColor` defines an item `initColor`, perhaps you need to implement it        
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
@@ -72,7 +81,7 @@ pub mod face {
         self.init(piecenum);
     }
     fn render(&mut self) {
-        self.place_parts(self.this_num);
+        self.place_parts(self.turn_dir);
     }
   }
 
@@ -111,8 +120,10 @@ pub mod face {
     }
   }
 
-  enum TurnDir { Clockwise = -1, None = 0, CounterClockwise = 1 }
-  use TurnDir::{Clockwise, CounterClockwise};
+
+  #[derive(Copy, Clone, Default, PartialEq)]
+  enum TurnDir { Clockwise = -1, #[default] None = 0, CounterClockwise }
+  use TurnDir::{ Clockwise, CounterClockwise };
 
   //Named Flip Direction lists:
   static FlipInwards:     [usize;4] = [ 0, 1, 1, 0 ];
@@ -182,7 +193,7 @@ pub mod face {
   static CW11E: [usize;8] = CW7E;
 
   trait FacePlaceFunctions {
-    fn place_parts(&mut self, dir: usize) -> bool;
+    fn place_parts(&mut self, dir: TurnDir) -> bool;
     fn two_edges_flip(&mut self, a: usize, b: usize);
     fn flip_corners(&mut self, a: usize, b: usize, c: usize, d: usize, pack: [usize;4]);
     fn quad_swap_pieces(&mut self, pack: [usize;8]);
@@ -190,7 +201,7 @@ pub mod face {
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
     fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece>;
-    fn rotate(&mut self, direction: usize);
+    fn rotate(&mut self, direction: TurnDir);
     fn render(&mut self) -> bool;
   }
   /**
@@ -257,9 +268,9 @@ pub mod face {
     *  \param dir Each case is for each of the 12 faces,
     *   in order to get it to switch colors after it rotates.
     *   called from render() */
-    fn place_parts(&mut self, dir: usize) -> bool {
-      assert!(dir == CounterClockwise as usize || dir == Clockwise as usize);
-      if dir == CounterClockwise as usize { // 1 = CCW = Left Turn = Counter-ClockWise
+    fn place_parts(&mut self, dir: TurnDir) -> bool {
+      assert!(dir == CounterClockwise || dir == Clockwise);
+      if dir == CounterClockwise { // 1 = CCW = Left Turn = Counter-ClockWise
           match self.this_num {
           0 => { //WHITE
               self.quad_swap_edges(CCW0E);
@@ -389,8 +400,8 @@ pub mod face {
     /**
      * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
      * \param  direction  turn direction: -1 for Right, +1 for left (seems/is backwards). */
-    fn rotate(&mut self, direction: usize) {
-        assert!(direction == Clockwise as usize || direction == CounterClockwise as usize);
+    fn rotate(&mut self, direction: TurnDir) {
+        assert!(direction == Clockwise || direction == CounterClockwise);
         self.rotating = true;
         self.turn_dir = direction;
     }
@@ -404,11 +415,11 @@ pub mod face {
         //Start Rotating
         if self.rotating {
             //glPushMatrix();
-            self.angle += (self.turn_dir * turnspeed) as f32;
+            self.angle += (self.turn_dir as i8 * turnspeed) as f32;
             //Slow down to half-speed once its 75% complete
             //  (56/72 is ~77.7% but use 56 because % mod 8 == 0)
             if self.angle >= 56. || self.angle <= -56. {
-                self.angle -= (self.turn_dir * (turnspeed/2)) as f32;
+                self.angle -= (self.turn_dir as i8 * (turnspeed/2)) as f32;
             }
             //Rotate axis by angle
             //glRotated(self.angle, self.axis[0], self.axis[1], self.axis[2]);
@@ -452,6 +463,7 @@ pub mod face {
         if self.angle >= 72. || self.angle <= -72. {
             self.angle = 0.;
             self.rotating = false;
+            self.turn_dir = TurnDir::None; //NEW
             //returns True if successful
             return self.place_parts(self.turn_dir);
             //NOTE: ^^ internal structure of pieces is calculated last
