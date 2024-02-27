@@ -139,9 +139,10 @@ pub mod megaminx {
         }
         assert_eq!(self.faces.len(), NUM_FACES);        
     }
+
     fn print_vector(&mut self, piece: &Piece) {
       //Array Print
-      print!("{}Piece _ Vertex Array: [ ", piece.defaultPieceNum);
+      print!("Piece {} Vertex Array: [ ", piece.defaultPieceNum);
       for i in 0..5 {
         print!("[ ");
         for j in 0..3 {

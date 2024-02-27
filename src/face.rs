@@ -189,7 +189,8 @@ pub mod face {
     fn quad_swap_edges(&mut self, pack: [usize;8]) ;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
-    fn get_face_piece(&mut self, i: usize);
+    fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece>;
+    fn get_face_pieceData(&mut self, i: usize) -> &PieceData;
     fn rotate(&mut self, direction: usize);
     fn render(&mut self) -> bool;
   }
@@ -229,12 +230,10 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
-        todo!(); /*
-        let Piece* pieceA = get_face_piece(a);
-        let Piece* pieceB = get_face_piece(b);
-        pieceA->swapdata(pieceB->data); */
+        self.get_face_piece(a).swapdata(&self.get_face_pieceData(b));
     }
-    fn get_face_piece(&mut self, _i: usize) {
+    fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece> {
+        return &mut(self.center[i]);
         todo!(); /*
         if (std::is_same<T, Edge>::value)
             return edge[i];
@@ -242,6 +241,16 @@ pub mod face {
             return corner[i];
         return center; */
     }
+    fn get_face_pieceData(&mut self, i: usize) -> &PieceData {
+        return &self.center[i].data;
+        todo!(); /*
+        if (std::is_same<T, Edge>::value)
+            return edge[i];
+        else if (std::is_same<T, Corner>::value)
+            return corner[i];
+        return center; */
+    }
+
     /**
      * \brief Colorizing function. Intricate series of flips/swaps.
     *  \param dir Each case is for each of the 12 faces,

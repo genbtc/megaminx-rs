@@ -100,7 +100,8 @@ pub trait PieceMath {
     fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
     fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
     fn flip(&mut self);
-    fn flip_twice(&mut self);    
+    fn flip_twice(&mut self);
+    fn swapdata(&mut self, data: &PieceData);
 }
 //Attach these Math functions to Piece object
 impl PieceMath for Piece {
@@ -290,6 +291,9 @@ impl PieceMath for Piece {
         self.flip();
         self.flip();
     }    
+    fn swapdata(&mut self, data: &PieceData) {
+        todo!();
+    }
 }
 
 }
