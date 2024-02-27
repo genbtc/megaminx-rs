@@ -6,7 +6,7 @@
 pub mod PieceColor {
     //Megaminx standard color names defined in numerical int order 
     #[derive(Default)]
-    enum MegaminxColor {
+    pub enum MegaminxColor {
         #[default]
         Black,
         White,
@@ -27,7 +27,7 @@ pub mod PieceColor {
     const MAX_COLOR_STATES: usize = MaxColorStates as usize;
 
     //scaffolding Struct, a shell for a color, for G_COLORRGBS
-    #[derive(Default)]
+    #[derive(Copy,Clone,Default)]
     pub struct ColorPack {
         pub i: usize,
         pub r: f32,
@@ -42,7 +42,7 @@ pub mod PieceColor {
     }
 
     //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
-    static G_COLORRGBS: [ColorPack; MAX_COLOR_STATES] = [
+    pub static G_COLORRGBS: [ColorPack; MAX_COLOR_STATES] = [
         ColorPack{ i:0, r:0.0, g:0.0, b:0.0, name:"BLACK" },
         ColorPack{ i:1, r:1.0, g:1.0, b:1.0, name:"WHITE" },
         ColorPack{ i:2, r:0.0, g:0.0, b:1.0, name:"DARK_BLUE" },
@@ -63,7 +63,7 @@ pub mod PieceColor {
     pub const NUM_EDGES:   usize = 30;
 
     //scaffolding Struct, a shell for a piece, holds 1-3 Colors for a Center/Edge/Corner definition
-    struct ColorPiece(MegaminxColor, MegaminxColor, MegaminxColor);
+    pub struct ColorPiece(pub MegaminxColor,pub MegaminxColor,pub MegaminxColor);
 
     //Defines the 30 Edge pieces (0-29) by color
     static G_EDGEPIECESCOLORS: [ColorPiece; NUM_EDGES] = [

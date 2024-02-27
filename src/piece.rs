@@ -4,7 +4,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 pub mod piece {
-    use crate::piece_color::PieceColor::ColorPack;
+    use crate::piece_color::PieceColor::{ColorPack,ColorPiece, G_COLORRGBS};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
@@ -308,8 +308,16 @@ impl PieceMath for Piece {
         std::mem::swap(&mut self.data, data);
     }
 }
+//Piece Color Implementations
 pub trait PieceColor {
     fn setColor(&mut self, i: usize, c: ColorPack);
+    fn initColorIndex(&mut self, idx: usize, k: usize);
+    fn initColorA(&mut self, a: usize);
+    fn initColorAB(&mut self, a: usize, b: usize);
+    fn initColorABC(&mut self, a: usize, b: usize, c: usize);
+    fn initColor(&mut self, color: ColorPiece, corner: bool);
+    fn matchesColor(&mut self, color: usize) -> bool;
+    
 }
 impl PieceColor for Piece {
     fn setColor(&mut self, i: usize, c: ColorPack) {
@@ -320,6 +328,55 @@ impl PieceColor for Piece {
         self.data.color.colorNum[i] = c.i;
         self.data.flipStatus = 0;
     }
+    //interface function for setter
+    fn initColorIndex(&mut self, idx: usize, k: usize) {
+        let thecolor: ColorPack = G_COLORRGBS[k];
+        self.setColor(idx, thecolor);
+    }
+    //store Center color
+    fn initColorA(&mut self, a: usize) {
+        self.initColorIndex(0, a);
+        self.numSides = 1;
+    }
+    //store Edge colors
+    //[[deprecated]]
+    fn initColorAB(&mut self, a: usize, b: usize) {
+        self.initColorIndex(0, a);
+        self.initColorIndex(1, b);
+        //set non-existant 3rd side of edge to 0=Black
+        // aka not undefined so we can re-use corner.
+        self.initColorIndex(2, 0);
+        self.numSides = 2;
+    }
+    //store Corner colors
+    //[[deprecated]]
+    fn initColorABC(&mut self, a: usize, b: usize, c: usize) {
+        self.initColorIndex(0, a);
+        self.initColorIndex(1, b);
+        self.initColorIndex(2, c);
+        self.numSides = 3;
+    }
+    //Uses the two arrays g_cornerPiecesColors and g_edgePiecesColors to populate.
+    fn initColor(&mut self, color: ColorPiece, corner: bool /*false*/) {
+        self.initColorIndex(0, color.0 as usize);
+        self.initColorIndex(1, color.1 as usize);
+        if corner {
+            self.initColorIndex(2, color.2 as usize);
+            self.numSides = 3;
+        }
+        else { //edge
+            self.initColorIndex(2, 0);   //set 3rd side to black.
+            self.numSides = 2;
+        }
+    }
+    //check if color-num (int) matches any colors
+    // currently stored in struct data (3 sided)
+    fn matchesColor(&mut self, color: usize) -> bool {
+        return  self.data.color.colorNum[0] == color ||
+                self.data.color.colorNum[1] == color ||
+                self.data.color.colorNum[2] == color;
+    }
+
 }
 
 }
