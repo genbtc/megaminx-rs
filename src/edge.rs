@@ -38,7 +38,7 @@ pub mod edge {
      * \param edgeVertexBase the starting points to be memcpy'ed in
      */
     fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]) {
-        self._vertex = edge_vertex_base;
+        self.vertex = edge_vertex_base;
         self.init(piecenum, true);
     }
     /**

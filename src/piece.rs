@@ -2,10 +2,12 @@
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
 #![allow(dead_code)]
+#![allow(unused_imports)]
 pub mod piece {
+    use crate::piece_color::PieceColor::ColorPack;
 
 //Vertex 3 Position Definitions
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct VertexPosition {
     pub position: [f32; 3],
 }
@@ -21,17 +23,24 @@ pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
 pub const VERTEXDATAZERO: [Vertex3; 7] = [VERTEXZERO; 7];
 pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 
-// Piece data-members we can swap out all at once
+//Color Block
+#[derive(Copy, Clone, Default)]
+pub struct ColorData {
+   colorNum: [usize; 3],
+   colorName: [&'static str; 3],
+   color: [Vertex3; 3],
+   //data: ColorPack, //  this field does not implement `std::marker::Copy`
+}
+// Piece Block
 #[derive(Copy, Clone, Default)]
 pub struct PieceData {
-    pub _color: [Vertex3; 3],
-    pub _colorNum: [usize; 3],
-    pub _colorName: [&'static str; 3],
     pub pieceNum: usize,
     pub flipStatus: usize,
     pub hotPieceMoving: bool,
-}
-//Pack struct to rotateVertex
+    pub color: ColorData,
+} //data-members - we can swap out all at once.
+
+//Piece Pack struct to rotateVertexXYZ
 #[derive(Copy, Clone, Default)]
 pub struct Piecepack {
     pub axis1: char,
@@ -43,7 +52,7 @@ pub struct Piecepack {
 pub struct Piece {
     // Piece struct
     //Coords for GL vertex (up to 7, not all used) * max possible sides 3
-    pub _vertex: [Vertex3; 7],
+    pub vertex: [Vertex3; 7],
     //Keeps the default number in the piece. do not swap.
     pub defaultPieceNum: usize,
     //Center has 1, Edge has 2, Corner has 3
@@ -55,7 +64,7 @@ pub struct Piece {
 impl Piece {
     pub fn new(defaultPieceNum: usize) -> Self {
       Self {
-        _vertex: Default::default(),
+        vertex: Default::default(),
         numSides: 0,
         defaultPieceNum: defaultPieceNum,
         data: Default::default(),
@@ -109,81 +118,81 @@ impl PieceMath for Piece {
         //println!("cornerInit({})", self.defaultPieceNum);
         self.numSides = 3;
         for i in 0..7 {
-            self._vertex[i][2] = -inssphererad!();
+            self.vertex[i][2] = -inssphererad!();
         }
 
-        self._vertex[0][0] = cospim35!() * twofifths!(); //inside corner (aka outside center)
-        self._vertex[0][1] = sinpim35!() * twofifths!();
+        self.vertex[0][0] = cospim35!() * twofifths!(); //inside corner (aka outside center)
+        self.vertex[0][1] = sinpim35!() * twofifths!();
 
-        self._vertex[1][0] = cospim35!() + edgefifth!() * twofifths!(); //corner inside edge a
-        self._vertex[1][1] = sinpim35!();
+        self.vertex[1][0] = cospim35!() + edgefifth!() * twofifths!(); //corner inside edge a
+        self.vertex[1][1] = sinpim35!();
 
-        self._vertex[2][0] = cospim35!();     //outside corner
-        self._vertex[2][1] = sinpim35!();
+        self.vertex[2][0] = cospim35!();     //outside corner
+        self.vertex[2][1] = sinpim35!();
 
-        self._vertex[3][0] = cospim15!() - edgefifth!() * twofifths!(); //corner inside edge b
-        self._vertex[3][1] = sinpim35!();
+        self.vertex[3][0] = cospim15!() - edgefifth!() * twofifths!(); //corner inside edge b
+        self.vertex[3][1] = sinpim35!();
         self.rotateVertexXYZ(3, 'z', pim(2.));
 
-        self._vertex[4][0] = cospim15!() * twofifths!(); //brother = 0 or 6
-        self._vertex[4][1] = sinpim35!() * twofifths!();
+        self.vertex[4][0] = cospim15!() * twofifths!(); //brother = 0 or 6
+        self.vertex[4][1] = sinpim35!() * twofifths!();
         self.rotateVertexXYZ(4, 'z', pim(-3.));
         self.rotateVertexXYZ(4, 'x', pi!() - sideangle!());
         self.rotateVertexXYZ(4, 'z', pim(2.));
 
-        self._vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 or 1
-        self._vertex[5][1] = sinpim35!();
+        self.vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 or 1
+        self.vertex[5][1] = sinpim35!();
         self.rotateVertexXYZ(5, 'z', pim(-3.));
         self.rotateVertexXYZ(5, 'x', pi!() - sideangle!());
         self.rotateVertexXYZ(5, 'z', pim(2.));
 
-        self._vertex[6][0] = cospim15!() * twofifths!(); //brother = 0 or 4
-        self._vertex[6][1] = sinpim35!() * twofifths!();
+        self.vertex[6][0] = cospim15!() * twofifths!(); //brother = 0 or 4
+        self.vertex[6][1] = sinpim35!() * twofifths!();
         self.rotateVertexXYZ(6, 'z', pim(-5.));
         self.rotateVertexXYZ(6, 'x', pi!() - sideangle!());
-        return &self._vertex;
+        return &self.vertex;
     }
     //Creates the common starting vertexes for all pieces that are EDGES
     fn edgeInit(&mut self) -> &[Vertex3; 7] {
         //println!("edgeInit({})", self.defaultPieceNum);
         self.numSides = 2;
         for i in 0..6 {
-            self._vertex[i][2] = -inssphererad!();
+            self.vertex[i][2] = -inssphererad!();
         }
 
-        self._vertex[0][0] = cospim35!() * twofifths!();
-        self._vertex[0][1] = sinpim35!() * twofifths!();
+        self.vertex[0][0] = cospim35!() * twofifths!();
+        self.vertex[0][1] = sinpim35!() * twofifths!();
 
-        self._vertex[1][0] = cospim15!() * twofifths!();
-        self._vertex[1][1] = sinpim35!() * twofifths!();
+        self.vertex[1][0] = cospim15!() * twofifths!();
+        self.vertex[1][1] = sinpim35!() * twofifths!();
 
-        self._vertex[2][0] = cospim15!() - edgefifth!() * twofifths!();
-        self._vertex[2][1] = sinpim35!();
+        self.vertex[2][0] = cospim15!() - edgefifth!() * twofifths!();
+        self.vertex[2][1] = sinpim35!();
 
-        self._vertex[3][0] = cospim35!() + edgefifth!() * twofifths!();
-        self._vertex[3][1] = sinpim35!();
+        self.vertex[3][0] = cospim35!() + edgefifth!() * twofifths!();
+        self.vertex[3][1] = sinpim35!();
 
-        self._vertex[4][0] = self._vertex[1][0];
-        self._vertex[4][1] = self._vertex[1][1];
+        self.vertex[4][0] = self.vertex[1][0];
+        self.vertex[4][1] = self.vertex[1][1];
         self.rotateVertexXYZ(4, 'z', pi!());
         self.rotateVertexXYZ(4, 'x', pi!() - sideangle!());
 
-        self._vertex[5][0] = self._vertex[0][0];
-        self._vertex[5][1] = self._vertex[0][1];
+        self.vertex[5][0] = self.vertex[0][0];
+        self.vertex[5][1] = self.vertex[0][1];
         self.rotateVertexXYZ(5, 'z', pi!());
         self.rotateVertexXYZ(5, 'x', pi!() - sideangle!());
-        return &self._vertex;
+        return &self.vertex;
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
     fn centerInit(&mut self) -> &[Vertex3; 7] {
         //println!("centerInit({})", self.defaultPieceNum);
         self.numSides = 1;
         for i in 0..5 {
-            self._vertex[i][0] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).cos() * twofifths!();
-            self._vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
-            self._vertex[i][2] = -inssphererad!();
+            self.vertex[i][0] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).cos() * twofifths!();
+            self.vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
+            self.vertex[i][2] = -inssphererad!();
         }
-        return &self._vertex;
+        return &self.vertex;
     }    
     //Creates the common starting vertexes for all pieces that are FACES
     fn faceInit(&mut self) -> &[Vertex3; 7] {
@@ -191,14 +200,14 @@ impl PieceMath for Piece {
         self.numSides = 0;
         for i in 0..5 {
             //This puts it on the back face
-            self._vertex[i][0] = cospim35!() + edgefifth!() * twofifths!();
-            self._vertex[i][1] = -sinpim35!();
-            self._vertex[i][2] = -inssphererad!();
+            self.vertex[i][0] = cospim35!() + edgefifth!() * twofifths!();
+            self.vertex[i][1] = -sinpim35!();
+            self.vertex[i][2] = -inssphererad!();
             self.rotateVertexXYZ(i, 'z', pim(2.));
             self.rotateVertexXYZ(i, 'x', pi!() - sideangle!());
             self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
-        return &self._vertex;
+        return &self.vertex;
     }
 
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
@@ -210,13 +219,13 @@ impl PieceMath for Piece {
             'z' => vyIndex=1,
             _ => println!("Axis must be in x, y, z"),
         }
-        let vx: f32 = self._vertex[index][vxIndex];
-        let vy: f32 = self._vertex[index][vyIndex];
+        let vx: f32 = self.vertex[index][vxIndex];
+        let vy: f32 = self.vertex[index][vyIndex];
         let r: f32 = (vx * vx + vy * vy).sqrt();
         let mut a: f32 = if vy > 0. { (vx / r).acos() } else { 2. * pi!() - (vx / r).acos() };
         a += angle;
-        self._vertex[index][vxIndex] = r * a.cos();
-        self._vertex[index][vyIndex] = r * a.sin();
+        self.vertex[index][vxIndex] = r * a.cos();
+        self.vertex[index][vyIndex] = r * a.sin();
     }   
 //Vertex Transformation Functions
     //main transform: used in almost every other algo
@@ -273,17 +282,21 @@ impl PieceMath for Piece {
     //Didnt remain visible in piece.rs                           
     fn flip(&mut self) {
         println!("This Flips the colors but isnt implemented yet");
-        self._vertex[2][1] = 100f32;
-        todo!();
-        /*                                                                                                        
-        leftRotate<double>(data._color[0], 3, numSides * 3);                                                                            
-        leftRotate<int>(data._colorNum, 1, numSides);                                                                                   
-        leftRotate<const char*>(data._colorName, 1, numSides);                                                                          
-        const bool isCorner = (numSides == 3);                                                                                          
-        if ((isCorner && data.flipStatus < 2) || (!isCorner && data.flipStatus == 0))                                                   
-            data.flipStatus++;                                                                                                          
-        else                                                                                                                            
-            data.flipStatus = 0;
+        self.vertex[2][1] = 100f32;
+        todo!(); //TODO: find replacement Rotate functions for these colorstructs
+        /*
+        leftRotate<double>(self.data._color[0], 3, self.numSides * 3);
+        leftRotate<int>(self.data._colorNum, 1, self.numSides);
+        leftRotate<const char*>(self.data._colorName, 1, self.numSides);
+
+        let isCorner: bool = self.numSides == 3;
+        if ((isCorner && self.data.flipStatus < 2) ||
+           (!isCorner && self.data.flipStatus == 0)) {
+            self.data.flipStatus += 1;
+        }
+        else {
+            self.data.flipStatus = 0;
+        }
         */
     }
     //Does two flips. Thats it.

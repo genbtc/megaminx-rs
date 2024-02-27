@@ -38,7 +38,7 @@ pub mod corner {
      * \param corner_vertex_base the starting points to be memcpy'ed in
      */
     fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]) {
-        self._vertex = corner_vertex_base;
+        self.vertex = corner_vertex_base;
         self.init(piecenum, true)
     }
     /**

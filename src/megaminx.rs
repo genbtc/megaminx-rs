@@ -8,10 +8,7 @@ pub mod megaminx {
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
   use crate::piece::piece::Vertex3;
-
-  const NUM_FACES: usize = 12;
-  const NUM_CORNERS: usize = 20;
-  const NUM_EDGES: usize = 30;
+  use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
 
   pub struct Megaminx { 
     pub invisible: bool,
@@ -146,10 +143,10 @@ pub mod megaminx {
       for i in 0..5 {
         print!("[ ");
         for j in 0..3 {
-          print!("{}", piece._vertex[i][j].to_string());
-          if j < piece._vertex[i].len() - 1  { print!(", "); }
+          print!("{}", piece.vertex[i][j].to_string());
+          if j < piece.vertex[i].len() - 1  { print!(", "); }
         }
-        if i < piece._vertex.len() - 1  { print!(" ], "); }
+        if i < piece.vertex.len() - 1  { print!(" ], "); }
       }
       println!("]");    
     }

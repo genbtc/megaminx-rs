@@ -3,7 +3,7 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
-mod PieceColor {
+pub mod PieceColor {
     //Megaminx standard color names defined in numerical int order 
     #[derive(Default)]
     enum MegaminxColor {
@@ -28,7 +28,7 @@ mod PieceColor {
 
     //scaffolding Struct, a shell for a color, for G_COLORRGBS
     #[derive(Default)]
-    struct ColorPack {
+    pub struct ColorPack {
         i: u16,
         r: f32,
         g: f32,
@@ -39,6 +39,11 @@ mod PieceColor {
         fn getRGB(&self) -> (f32,f32,f32) {
            return (self.r, self.g, self.b);
         }
+        fn setRGB(&mut self, r: f32, g: f32, b: f32) {
+            self.r;
+            self.g;
+            self.b;
+         }        
     }
 
     //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
@@ -58,9 +63,9 @@ mod PieceColor {
         ColorPack{ i:12, r:1.0, g:0.9, b:0.65, name:"BEIGE" },
     ];
 
-    const NUM_FACES:   usize = 12;
-    const NUM_CORNERS: usize = 20;
-    const NUM_EDGES:   usize = 30;
+    pub const NUM_FACES:   usize = 12;
+    pub const NUM_CORNERS: usize = 20;
+    pub const NUM_EDGES:   usize = 30;
 
     //scaffolding Struct, a shell for a piece, holds 1-3 Colors for a Center/Edge/Corner definition
     struct ColorPiece(MegaminxColor, MegaminxColor, MegaminxColor);

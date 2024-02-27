@@ -73,12 +73,12 @@ pub fn main() -> Result<(), String> {
         Vertex { position: [ 0.8, -0.5, 0.0 ] }
     ];
     let _pentagon = vec![
-        Vertex { position: centerpiece._vertex[0] },
-        Vertex { position: centerpiece._vertex[1] },
-        Vertex { position: centerpiece._vertex[2] },
-        Vertex { position: centerpiece._vertex[3] },
-        Vertex { position: centerpiece._vertex[4] },
-        Vertex { position: centerpiece._vertex[0] }
+        Vertex { position: centerpiece.vertex[0] },
+        Vertex { position: centerpiece.vertex[1] },
+        Vertex { position: centerpiece.vertex[2] },
+        Vertex { position: centerpiece.vertex[3] },
+        Vertex { position: centerpiece.vertex[4] },
+        Vertex { position: centerpiece.vertex[0] }
     ];
     //Glium GL VBO
     let vertex_buffer = glium::VertexBuffer::new(&display, &_pentagon).unwrap();
@@ -107,8 +107,8 @@ pub fn main() -> Result<(), String> {
     target.finish().unwrap();
 
     //attempt to draw vertex from pieces using canvas. not correct coordinate space
-    let _ = canvas.thick_line(centerpiece._vertex[0][0].round() as i16, centerpiece._vertex[0][1].round() as i16,
-                              centerpiece._vertex[2][0].round() as i16, centerpiece._vertex[2][1].round() as i16, 4, Color::RGB(0, 0, 0));
+    let _ = canvas.thick_line(centerpiece.vertex[0][0].round() as i16, centerpiece.vertex[0][1].round() as i16,
+                              centerpiece.vertex[2][0].round() as i16, centerpiece.vertex[2][1].round() as i16, 4, Color::RGB(0, 0, 0));
 
     //Main Event Loop
     let mut i = 0;
