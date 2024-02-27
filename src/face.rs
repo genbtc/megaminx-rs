@@ -115,12 +115,12 @@ pub mod face {
   use TurnDir::{Clockwise, CounterClockwise};
 
   //Named Flip Direction lists:
-  static FlipInwards: [usize;4] =     [ 0, 1, 1, 0 ];
-  static FlipOutwards: [usize;4] =    [ 1, 0, 0, 1 ];
-  static FlipBackwards: [usize;4] =   [ 0, 0, 1, 1 ];
-  static FlipForwards: [usize;4]   =  [ 1, 1, 0, 0 ];
+  static FlipInwards:     [usize;4] = [ 0, 1, 1, 0 ];
+  static FlipOutwards:    [usize;4] = [ 1, 0, 0, 1 ];
+  static FlipBackwards:   [usize;4] = [ 0, 0, 1, 1 ];
+  static FlipForwards:    [usize;4] = [ 1, 1, 0, 0 ];
   static FlipBackwardAlt: [usize;4] = [ 0, 1, 0, 1 ];
-  static FlipForwardAlt: [usize;4]  = [ 1, 0, 1, 0 ];
+  static FlipForwardAlt:  [usize;4] = [ 1, 0, 1, 0 ];
 
   //These are invoked when Face::placeParts() is ran, when it's rotating.
   //Called from Face::render(), only when something is moved, NEVER on startup.
@@ -190,7 +190,6 @@ pub mod face {
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
     fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece>;
-    fn get_face_pieceData(&mut self, i: usize) -> &PieceData;
     fn rotate(&mut self, direction: usize);
     fn render(&mut self) -> bool;
   }
@@ -230,20 +229,22 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
-        self.get_face_piece(a).swapdata(&self.get_face_pieceData(b));
+        //let pieceA: &mut Box<Piece> = self.get_face_piece(a);
+        //let pieceB: &mut Box<Piece> = self.get_face_piece(b);
+        //pieceA.swapdata(&pieceB.data);
+        let mut edge_data_a = &self.edge[a].data;
+        let mut edge_data_b = &self.edge[b].data;
+        std::mem::swap(&mut edge_data_a, &mut edge_data_b);
+//        &self.edge[a].swapdata(&mut self.edge[b].data);
+//      |          ---------    --------      ^^^^^^^^^ second mutable borrow occurs here
+//      |          |            |
+//      |          |            first borrow later used by call
+//      |          first mutable borrow occurs here        
     }
     fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece> {
-        return &mut(self.center[i]);
-        todo!(); /*
-        if (std::is_same<T, Edge>::value)
-            return edge[i];
-        else if (std::is_same<T, Corner>::value)
-            return corner[i];
-        return center; */
-    }
-    fn get_face_pieceData(&mut self, i: usize) -> &PieceData {
-        return &self.center[i].data;
-        todo!(); /*
+        return &mut self.center[i];
+        //todo!(); 
+        /*
         if (std::is_same<T, Edge>::value)
             return edge[i];
         else if (std::is_same<T, Corner>::value)

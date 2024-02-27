@@ -101,7 +101,7 @@ pub trait PieceMath {
     fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
     fn flip(&mut self);
     fn flip_twice(&mut self);
-    fn swapdata(&mut self, data: &PieceData);
+    fn swapdata(&mut self, data: &mut PieceData);
 }
 //Attach these Math functions to Piece object
 impl PieceMath for Piece {
@@ -272,9 +272,9 @@ impl PieceMath for Piece {
 
     //Didnt remain visible in piece.rs                           
     fn flip(&mut self) {
-        //todo!();
-        println!("This is actually doing something now");
+        println!("This Flips the colors but isnt implemented yet");
         self._vertex[2][1] = 100f32;
+        todo!();
         /*                                                                                                        
         leftRotate<double>(data._color[0], 3, numSides * 3);                                                                            
         leftRotate<int>(data._colorNum, 1, numSides);                                                                                   
@@ -291,8 +291,8 @@ impl PieceMath for Piece {
         self.flip();
         self.flip();
     }    
-    fn swapdata(&mut self, data: &PieceData) {
-        todo!();
+    fn swapdata(&mut self, data: &mut PieceData) {
+        std::mem::swap(&mut self.data, data);
     }
 }
 
