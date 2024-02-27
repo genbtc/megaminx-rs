@@ -279,28 +279,19 @@ impl PieceMath for Piece {
         self.axis1multi(index, pack);
     }
 
-    //Didnt remain visible in piece.rs                           
+    //Changes colors. Flip/rotate/switches colors for current piece
     fn flip(&mut self) {
-        println!("This Flips the colors but isnt implemented yet");
-        self.vertex[2][1] = 100f32;
         self.data.color.colorRGB[0].rotate_left(3);
         self.data.color.colorNum.rotate_left(1);
         self.data.color.colorName.rotate_left(1);
-         //TODO: find replacement Rotate functions for these colorstructs
-        /*
-        leftRotate<double>(self.data._color[0], 3, self.numSides * 3);
-        leftRotate<int>(self.data._colorNum, 1, self.numSides);
-        leftRotate<const char*>(self.data._colorName, 1, self.numSides);
-
         let isCorner: bool = self.numSides == 3;
-        if ((isCorner && self.data.flipStatus < 2) ||
-           (!isCorner && self.data.flipStatus == 0)) {
+        if (isCorner && self.data.flipStatus < 2) ||
+          (!isCorner && self.data.flipStatus == 0) {
             self.data.flipStatus += 1;
         }
         else {
             self.data.flipStatus = 0;
         }
-        */
     }
     //Does two flips. Thats it.
     fn flip_twice(&mut self) {
@@ -384,14 +375,6 @@ impl PieceColor for Piece {
     //Function to Reverse the c-Array.
     //template <typename T>
     //void arrayReverse(T arr[], int r, int n)
-
-    //Function to Left rotate a C-array by r positions, n length
-    //template <typename T>
-    //void leftRotate(T arr[], int r, int n)
-
-    //Function to Right rotate a C-array by r positions, n length
-    //template <typename T>
-    //void rightRotate(T arr[], int r, int n)
 
 }
 
