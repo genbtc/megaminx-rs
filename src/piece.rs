@@ -28,7 +28,7 @@ pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 pub struct ColorData {
    colorNum: [usize; 3],
    colorName: [&'static str; 3],
-   color: [Vertex3; 3],
+   colorRGB: [Vertex3; 3],
    //data: ColorPack, //  this field does not implement `std::marker::Copy`
 }
 // Piece Block
@@ -306,6 +306,19 @@ impl PieceMath for Piece {
     }    
     fn swapdata(&mut self, data: &mut PieceData) {
         std::mem::swap(&mut self.data, data);
+    }
+}
+pub trait PieceColor {
+    fn setColor(&mut self, i: usize, c: ColorPack);
+}
+impl PieceColor for Piece {
+    fn setColor(&mut self, i: usize, c: ColorPack) {
+        self.data.color.colorRGB[i][0] = c.r;
+        self.data.color.colorRGB[i][1] = c.g;
+        self.data.color.colorRGB[i][2] = c.b;
+        self.data.color.colorName[i] = c.name;
+        self.data.color.colorNum[i] = c.i;
+        self.data.flipStatus = 0;
     }
 }
 

@@ -29,21 +29,16 @@ pub mod PieceColor {
     //scaffolding Struct, a shell for a color, for G_COLORRGBS
     #[derive(Default)]
     pub struct ColorPack {
-        i: u16,
-        r: f32,
-        g: f32,
-        b: f32,
-        name: &'static str
+        pub i: usize,
+        pub r: f32,
+        pub g: f32,
+        pub b: f32,
+        pub name: &'static str
     }
     impl ColorPack {
         fn getRGB(&self) -> (f32,f32,f32) {
            return (self.r, self.g, self.b);
         }
-        fn setRGB(&mut self, r: f32, g: f32, b: f32) {
-            self.r;
-            self.g;
-            self.b;
-         }        
     }
 
     //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
@@ -175,24 +170,24 @@ pub mod PieceColor {
 
     //Determine which direction those faces need to rotate to land the Edge on the white
     #[derive(Default)]
-    struct RotationDirs([i16; 5]);
+    struct RotationDirs(i8,i8,i8,i8,i8);
 
     //Decides which direction, up or down, for the pieces to passively float to their original home
     //Spatial awareness vision introspection
     static G_DIRTOWHITEFACE: [RotationDirs; MAX_COLOR_STATES] = [
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ -1, -1, 1, 1, -1 ]),  //e2&3 swapped @ D.Blue
-        RotationDirs( [ -1, 1, -1, 1, -1 ]),
-        RotationDirs( [ -1, 1, -1, 1, -1 ]),
-        RotationDirs( [ -1, 1, -1, 1, -1 ]),
-        RotationDirs( [ -1, 1, -1, 1, -1 ]),
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ -1, 1, 1, -1, -1 ]),
-        RotationDirs( [ -1, 1, 1, -1, -1 ]),
-        RotationDirs( [ -1, 1, 1, -1, -1 ]),
-        RotationDirs( [ -1, 1, -1, 1, -1 ]), //e3&4 swapped @ Pink
-        RotationDirs( [ -1, 1, 1, -1, -1 ])
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( -1, -1, 1, 1, -1 ),  //e2&3 swapped @ D.Blue
+        RotationDirs( -1, 1, -1, 1, -1 ),
+        RotationDirs( -1, 1, -1, 1, -1 ),
+        RotationDirs( -1, 1, -1, 1, -1 ),
+        RotationDirs( -1, 1, -1, 1, -1 ),
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( -1, 1, 1, -1, -1 ),
+        RotationDirs( -1, 1, 1, -1, -1 ),
+        RotationDirs( -1, 1, 1, -1, -1 ),
+        RotationDirs( -1, 1, -1, 1, -1 ), //e3&4 swapped @ Pink
+        RotationDirs( -1, 1, 1, -1, -1 )
     ];
 
     //edge self-solve bitmap ( [introspection])
@@ -201,18 +196,18 @@ pub mod PieceColor {
     //( [Which half of the edge would the solved face be on])
     //these bits must be set, equal to the color data index, to consider as solved
     static G_EDGESOLVEFACEBITMAP: [RotationDirs; MAX_COLOR_STATES] = [
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ 1, 0, 1, 0, 0 ]),
-        RotationDirs( [ 1, 1, 0, 0, 0 ]),
-        RotationDirs( [ 1, 1, 0, 0, 0 ]),
-        RotationDirs( [ 1, 1, 0, 0, 0 ]),
-        RotationDirs( [ 1, 1, 0, 0, 0 ]),
-        RotationDirs( [ 0, 0, 0, 0, 0 ]),
-        RotationDirs( [ 1, 1, 1, 0, 1 ]),
-        RotationDirs( [ 1, 1, 1, 0, 1 ]),
-        RotationDirs( [ 1, 1, 1, 0, 1 ]),
-        RotationDirs( [ 1, 1, 0, 1, 1 ]),
-        RotationDirs( [ 1, 1, 1, 0, 1 ])
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( 1, 0, 1, 0, 0 ),
+        RotationDirs( 1, 1, 0, 0, 0 ),
+        RotationDirs( 1, 1, 0, 0, 0 ),
+        RotationDirs( 1, 1, 0, 0, 0 ),
+        RotationDirs( 1, 1, 0, 0, 0 ),
+        RotationDirs( 0, 0, 0, 0, 0 ),
+        RotationDirs( 1, 1, 1, 0, 1 ),
+        RotationDirs( 1, 1, 1, 0, 1 ),
+        RotationDirs( 1, 1, 1, 0, 1 ),
+        RotationDirs( 1, 1, 0, 1, 1 ),
+        RotationDirs( 1, 1, 1, 0, 1 )
     ];
 }
