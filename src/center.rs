@@ -15,9 +15,19 @@ pub mod center {
   impl Center for Piece {
     fn getnum(&self) -> usize { 
         return self.defaultPieceNum;
-    }    
+    }
+    /* -> Self error[E0038]: the trait `center::center::Center` cannot be made into an object
+  28 |     pub center: Vec<Box<dyn Center>>,
+     |                         ^^^^^^^^^^ `center::center::Center` cannot be made into an object
+  note: for a trait to be "object safe" it needs to allow building a vtable to allow the call to be resolvable dynamically; for more information visit <https://doc.rust-lang.org/reference/items/traits.html#object-safety>
+  8  |   pub trait Center {
+     |             ------ this trait cannot be made into an object...
+  12 |       fn new(&mut self) -> Self ;
+     |                            ^^^^ ...because method `new` references the `Self` type in its return type
+     = help: consider moving `new` to another trait */
     fn new(&mut self) {
         self.centerInit();
+        self.init(self.defaultPieceNum);
     }    
     /**
      * \brief Inits a Center piece

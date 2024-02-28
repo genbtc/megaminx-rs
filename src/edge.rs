@@ -17,6 +17,7 @@ pub mod edge {
   impl Edge for Piece {
     fn new(&mut self) {
         self.edgeInit();
+        self.init(self.defaultPieceNum, true);
     }
     /**
      * \brief Inits a Edge piece

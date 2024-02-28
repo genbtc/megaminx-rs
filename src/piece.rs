@@ -70,6 +70,9 @@ impl Piece {
         data: Default::default(),
       }
     }
+    fn swapdata(&mut self, data: &mut PieceData) {
+        std::mem::swap(&mut self.data, data);
+    }    
 }
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
@@ -110,7 +113,6 @@ pub trait PieceMath {
     fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
     fn flip(&mut self);
     fn flip_twice(&mut self);
-    fn swapdata(&mut self, data: &mut PieceData);
 }
 //Attach these Math functions to Piece object
 impl PieceMath for Piece {
@@ -298,9 +300,6 @@ impl PieceMath for Piece {
         self.flip();
         self.flip();
     }    
-    fn swapdata(&mut self, data: &mut PieceData) {
-        std::mem::swap(&mut self.data, data);
-    }
 }
 //Piece Color Implementations
 pub trait PieceColor {
@@ -371,10 +370,6 @@ impl PieceColor for Piece {
                 self.data.color.colorNum[1] == color ||
                 self.data.color.colorNum[2] == color;
     }
-   
-    //Function to Reverse the c-Array.
-    //template <typename T>
-    //void arrayReverse(T arr[], int r, int n)
 
 }
 

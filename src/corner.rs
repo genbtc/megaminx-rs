@@ -17,6 +17,7 @@ pub mod corner {
   impl Corner for Piece {
     fn new(&mut self) {
         self.cornerInit();
+        self.init(self.defaultPieceNum, true);
     }
     /**
      * \brief Inits a Corner piece

@@ -87,40 +87,52 @@ pub mod face {
 
 
   pub trait FaceFunctions {
-    fn getnum(&self) -> usize;
+    fn num(&self) -> usize;
     fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>);     //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces(&self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_corner_pieces(&mut self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&mut self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
   impl FaceFunctions for Face {
-    fn getnum(&self) -> usize { 
+    fn num(&self) -> usize { 
         return self.this_num;
     }
     fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
-        println!("face.attach_center() to {}", self.this_num);
+        //println!("face.attach_center() to {}", self.this_num);
+        //self.initColor(piecenum + 1);  //from Piece, unavailhere.
         self.init(self.this_num);
-        self.create_axis(self.this_num, self.this_num);
+        //self.create_axis(self.this_num, self.this_num);
         if self.center.len() == 0 {
             Center::init(&mut *centers[self.this_num], self.this_num);
 //            error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
 //            self.center.push(centers[self.this_num]);
 //|                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait            
-        } //else {
+        }
+     } //else {
             //assert!(self.this_num == self.center.len());
             //self.center[self.this_num].init(self.this_num);
         //}
-    }
-    fn attach_corner_pieces(&self, _corners: &Vec<Box<Piece>>) { /*
-      const int color = faces[face - 1].center->data._colorNum[0];
+
+        //    self.center.push(Box::new(*centers[self.this_num]));
+    //    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
+    //     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
+    //     |                          required by a bound introduced by this call
+    //     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
+    // note: required by a bound in `Box::<T>::new`        
+    
+    fn attach_corner_pieces(&mut self, corners: &Vec<Box<Piece>>) { 
+        self.corner.push(Box::new(*corners[self.this_num]));
+    /* let color = faces[face - 1].center.data._colorNum[0];
       defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);
       for i in 0..5 {
           corner[i] = &dyn CornersPTR + defaultCorners[i];
-          assert(corner[i]->data.pieceNum == defaultCorners[i]);
+          assert_eq!(corner[i].data.pieceNum, defaultCorners[i]);
       }  */
-      //let color = self.center[self.this_num].data.color.colorNum[0];
+
       //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
     }
-    fn attach_edge_pieces(&self, _edges: &Vec<Box<Piece>>) {  /*
+    fn attach_edge_pieces(&mut self, edges: &Vec<Box<Piece>>) { 
+        self.edge.push(Box::new(*edges[self.this_num]));
+        /*
       defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);
       for i in 0..5 {
           edge[i] = &dyn EdgesPTR + defaultEdges[i];
@@ -209,7 +221,7 @@ pub mod face {
     fn quad_swap_edges(&mut self, pack: [usize;8]) ;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
-    fn get_face_piece(&mut self, i: usize) -> &mut Box<dyn Center>;
+    fn get_face_piece<T: PieceMath>(&mut self, n: usize, i: usize); // -> &mut Box<T>;
     fn rotate(&mut self, direction: TurnDir);
     fn render(&mut self) -> bool;
   }
@@ -264,15 +276,18 @@ pub mod face {
 //      |          |            first borrow later used by call
 //      |          first mutable borrow occurs here        
     }
-    fn get_face_piece(&mut self, i: usize) -> &mut Box<dyn Center> {
-        return &mut self.center[i];
-        //todo!(); 
-        /*
+    fn get_face_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) { //-> &mut Box<T> {
+        //match n {
+            //1 => { return &mut self.corner[i]; }
+            //expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type
+            //2 => { return &mut self.edge[i];   }
+            //3 => { return &mut self.center[0]; },
+        /* }
         if (std::is_same<T, Edge>::value)
-            return edge[i];
-        else if (std::is_same<T, Corner>::value)
-            return corner[i];
-        return center; */
+        else if (std::is_same<T, Corner>::value)    */
+        //return &mut self.center[0];
+        //return &mut Box::<T: Piece>::new(Piece::new(1));
+        //^^^^^^^^^^^^^^^^^^^ expected `&mut Box<T>`, found `&mut Box<dyn Center>
     }
 
     /**

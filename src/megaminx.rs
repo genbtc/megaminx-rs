@@ -170,6 +170,9 @@ pub mod megaminx {
     fn scramble();
   }
 
+  pub trait MegaminxFindPieces {
+    fn findPiecesOfFace(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8>;
+  }
   /* \brief Finds the colored center that is perma-attached to a face, and then
   *         iterates the entire list of pieces to find when the colors match, and outputs a list.
   * \param face Nth-face number (1-12)
@@ -179,7 +182,7 @@ pub mod megaminx {
   * \note    NOTE: Finds pieces BEFORE they are attached to a face.
   */
  //std::vector<int> Megaminx::findPiecesOfFace(int face, Piece &pieceRef, int times) const {
-  impl Megaminx {
+  impl MegaminxFindPieces for Megaminx {
   fn findPiecesOfFace(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
      let mut piece_list = Vec::<i8>::new();
      //let color = self.faces[face - 1].center[0].data.color.colorNum[0];

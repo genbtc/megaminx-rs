@@ -18,11 +18,11 @@ mod face;
 mod piece;
 mod piece_color;
 use crate::piece::piece::Piece;
-use crate::piece::piece::PieceMath;
+//use crate::piece::piece::PieceMath;
 use crate::piece::piece::Vertex;
 use crate::piece::piece::Vertex3;
 use crate::megaminx::megaminx::Megaminx;
-use crate::face::face::FaceFunctions;
+//use crate::face::face::FaceFunctions;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -48,43 +48,53 @@ pub fn main() -> Result<(), String> {
     //Red Filled Triangle
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
-    //Megaminx.rs = WORK IN PROGRESS:
+//Megaminx.rs = WORK IN PROGRESS:
     let mut megaminx: Megaminx = Megaminx::new();
     megaminx.init_reset();
-    let faces = megaminx.faces;
-    let mut _centerpiece: Piece = Default::default();
-    for face in faces {
-        let _num = face.getnum();
-        //println!("facenum {}", num);
-        let centers = face.center;
-        for _center in centers {
-//            center.centerInit();
-//                 ^^^^^^^^^^ method not found in `Box<dyn Center>`
-//          error[E0599]: no method named `centerInit` found for struct `Box<dyn center::center::Center>` in the current scope
-//            _centerpiece = *center;
-//                         ^^^^^^^ expected `Piece`, found `dyn Center`
-            _centerpiece.centerInit();
-            continue;
-            //center.init(num);
-            //center._vertex[0][0];
-        }
-        continue;
-    }
 //MEGAMINX INIT WORKS FINALLY ^^^^^^ 
-    let mut centerpiece: Piece = Piece::new(2);
-    centerpiece.centerInit();
-
-    let pentagon = vec![
-        Vertex { position: centerpiece.vertex[0] },
-        Vertex { position: centerpiece.vertex[1] },
-        Vertex { position: centerpiece.vertex[3] }, //tri1
-        Vertex { position: centerpiece.vertex[1] },
-        Vertex { position: centerpiece.vertex[2] },
-        Vertex { position: centerpiece.vertex[3] }, //tri2
-        Vertex { position: centerpiece.vertex[0] },
-        Vertex { position: centerpiece.vertex[3] },
-        Vertex { position: centerpiece.vertex[4] }, //tri3                
-    ];
+    let mut pentagon = vec![];
+    for i in 0..12 {
+        let mut centerpiece: Piece = Piece::new(i);
+        center::center::Center::new(&mut centerpiece);
+        pentagon.extend(vec![
+            Vertex { position: centerpiece.vertex[0] },
+            Vertex { position: centerpiece.vertex[1] },
+            Vertex { position: centerpiece.vertex[2] }, //tri1
+            Vertex { position: centerpiece.vertex[1] },
+            Vertex { position: centerpiece.vertex[2] },
+            Vertex { position: centerpiece.vertex[3] }, //tri2
+            Vertex { position: centerpiece.vertex[0] },
+            Vertex { position: centerpiece.vertex[3] },
+            Vertex { position: centerpiece.vertex[4] }, //tri3
+        ]);
+    }
+    for i in 0..20 {
+        let mut cornerpiece: Piece = Piece::new(i);
+        corner::corner::Corner::new(&mut cornerpiece);
+        pentagon.extend(vec![
+            Vertex { position: cornerpiece.vertex[0] },
+            Vertex { position: cornerpiece.vertex[1] },
+            Vertex { position: cornerpiece.vertex[2] }, //tri1
+            Vertex { position: cornerpiece.vertex[2] },
+            Vertex { position: cornerpiece.vertex[3] },
+            Vertex { position: cornerpiece.vertex[0] }, //tri2
+            ]
+        );
+    }
+    for i in 0..30 {
+        let mut edgepiece: Piece = Piece::new(i);
+        edge::edge::Edge::new(&mut edgepiece);
+        pentagon.extend(vec![
+            Vertex { position: edgepiece.vertex[0] },
+            Vertex { position: edgepiece.vertex[1] },
+            Vertex { position: edgepiece.vertex[2] }, //tri1
+            Vertex { position: edgepiece.vertex[2] },
+            Vertex { position: edgepiece.vertex[3] },
+            Vertex { position: edgepiece.vertex[0] }, //tri2
+            ]
+        );
+    }
+//Looks funky but renders things now.      
 
     //Glium GL VBO
     let vertex_buffer = glium::VertexBuffer::new(&display, &pentagon).unwrap();
@@ -95,8 +105,9 @@ pub fn main() -> Result<(), String> {
         [0.01, 0.0, 0.0, 0.0],
         [0.0, 0.01, 0.0, 0.0],
         [0.0, 0.0, 0.01, 0.0],
-        [0.0, 0.0, 1.0, 1.0f32]
-    ]; //Perspective, Zoom & Camera FOV Matrix
+        [0.0, 0.0, 1.0, 1.25]
+    ];
+    //Perspective, Zoom & Camera FOV Matrix (commented out for now)
     let perspective: [[f32; 4]; 4] = {
         let aspect_ratio = height as f32 / width as f32;
         let fov: f32 = 3.141592 / 3.0;
@@ -111,24 +122,23 @@ pub fn main() -> Result<(), String> {
     let vertex_shader_src = r#"
         #version 150
         in vec3 position;
-        uniform mat4 perspective;
         uniform mat4 matrix;
         void main() {
-            gl_Position =  matrix *  vec4(position, 1.0);
+            gl_Position =  matrix * 1.0 * vec4(position, 1.0);
         }        
     "#;
     let fragment_shader_src = r#"
         #version 140
         out vec4 color;
         void main() {
-            color = vec4(0.2, 0.6, 0.2, 1.0); //Green
+            color = vec4(0.2, 0.6, 0.1, 0.5); //Green
         }
     "#;
 
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
     let params = glium::DrawParameters {
         depth: glium::Depth {
-            test: glium::draw_parameters::DepthTest::IfLess,
+            test: glium::draw_parameters::DepthTest::IfLessOrEqual,
             write: true,
             .. Default::default()
         },
@@ -141,9 +151,6 @@ pub fn main() -> Result<(), String> {
     target.draw(&vertex_buffer, &indices, &program, &uniform! { matrix: matrix, perspective: perspective }, &params).unwrap();
     target.finish().unwrap();
 
-    //attempt to draw vertex from pieces using canvas. not correct coordinate space
-    let _ = canvas.thick_line(centerpiece.vertex[0][0].round() as i16, centerpiece.vertex[0][1].round() as i16,
-                              centerpiece.vertex[2][0].round() as i16, centerpiece.vertex[2][1].round() as i16, 4, Color::RGB(0, 0, 0));
 
     //Main Event Loop
     let mut i = 0;
