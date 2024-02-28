@@ -9,8 +9,8 @@ pub mod face {
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::Piece;
   use crate::center::center::Center;
-  use crate::edge::edge::Edge;
-  use crate::corner::corner::Corner;  
+  //use crate::edge::edge::Edge;
+  //use crate::corner::corner::Corner;  
 
   //Face Data
   #[derive(Default)]
@@ -441,11 +441,13 @@ pub mod face {
         }
 
         //Render parts:
-        //for &center in &mut self.center.iter() {
-//          (center as Box<dyn Center>).render();
+        for center in &mut self.center.iter_mut() {
+            center.render();
             //cannot borrow `*self` as mutable more than once at a time
-        //}
-        for _edge in &mut self.edge {
+}
+        for _edge in &mut self.edge.iter_mut() {
+            //Edge::render(&mut edge);
+            //           ^^^^^^^^^ the trait `Edge` is not implemented for `&mut Box<Piece>`
             //edge.render();
         }
         for _corner in &mut self.corner {

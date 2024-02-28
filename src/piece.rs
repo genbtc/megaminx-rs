@@ -310,7 +310,7 @@ pub trait PieceColor {
     fn initColorAB(&mut self, a: usize, b: usize);
     fn initColorABC(&mut self, a: usize, b: usize, c: usize);
     fn initColor(&mut self, color: ColorPiece, corner: bool);
-    fn matchesColor(&mut self, color: usize) -> bool;
+    fn matchesColor(&self, color: usize) -> bool;
     
 }
 impl PieceColor for Piece {
@@ -366,7 +366,7 @@ impl PieceColor for Piece {
     }
     //check if color-num (int) matches any colors
     // currently stored in struct data (3 sided)
-    fn matchesColor(&mut self, color: usize) -> bool {
+    fn matchesColor(&self, color: usize) -> bool {
         return  self.data.color.colorNum[0] == color ||
                 self.data.color.colorNum[1] == color ||
                 self.data.color.colorNum[2] == color;

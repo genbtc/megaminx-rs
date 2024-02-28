@@ -57,7 +57,7 @@ pub fn main() -> Result<(), String> {
         let _num = face.getnum();
         //println!("facenum {}", num);
         let centers = face.center;
-        for mut center in centers {
+        for _center in centers {
 //            center.centerInit();
 //                 ^^^^^^^^^^ method not found in `Box<dyn Center>`
 //          error[E0599]: no method named `centerInit` found for struct `Box<dyn center::center::Center>` in the current scope

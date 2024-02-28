@@ -1,4 +1,6 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
+#![allow(dead_code)]
+#![allow(non_snake_case)]
 pub mod megaminx {
   use crate::face::face::FaceFunctions;
   use crate::face::face::Face;
@@ -9,6 +11,7 @@ pub mod megaminx {
   use crate::corner::corner::Corner;
   use crate::piece::piece::Vertex3;
   use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
+  use crate::piece::piece::PieceColor;
 
   pub struct Megaminx { 
     pub invisible: bool,
@@ -133,7 +136,7 @@ pub mod megaminx {
         for i in 0..NUM_FACES {
             //println!("initing face: {}", i);
             let mut face: Face = Face::new(i);
-            face.attach_center(&mut self.centers);//, *center_vertex_list);
+            face.attach_center(&mut self.centers);//, *center_vertex_lis t);
             face.attach_edge_pieces(&self.edges);
             face.attach_corner_pieces(&self.corners);
             self.faces.push(Box::new(face));
@@ -166,4 +169,35 @@ pub mod megaminx {
     fn reset_queue();
     fn scramble();
   }
+
+  /* \brief Finds the colored center that is perma-attached to a face, and then
+  *         iterates the entire list of pieces to find when the colors match, and outputs a list.
+  * \param face Nth-face number (1-12)
+  * \param pieceRef Takes a reference to the [0]th member of Pointer_array of (either Corner/Edge's)
+  * \param times how many times to iterate over the ref'd array
+  * \return Returns the list of 5 positions where the starting face's pieces have ended up at.
+  * \note    NOTE: Finds pieces BEFORE they are attached to a face.
+  */
+ //std::vector<int> Megaminx::findPiecesOfFace(int face, Piece &pieceRef, int times) const {
+  impl Megaminx {
+  fn findPiecesOfFace(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
+     let mut piece_list = Vec::<i8>::new();
+     //let color = self.faces[face - 1].center[0].data.color.colorNum[0];
+     let color = 0;
+     //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
+     assert_eq!(face,color);
+      for i in 0..times  {
+         if piece_list.len() >= 5 {
+            break;
+         }
+         let result: bool = (*piece_ref).matchesColor(color);
+         if result {
+             piece_list.push(i);
+         }
+     }
+     return piece_list;
+  }
+ }
+ 
+  
 }
