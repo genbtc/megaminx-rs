@@ -108,6 +108,31 @@ pub fn main() -> Result<(), String> {
     let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
     target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { projmatrix: projmatrix, colorIn: color_1  }, &Default::default()).unwrap();
 
+
+    //Glium GL VBO 2 FILL
+    for i in 0..20 {
+        let mut cornerbuffer = vec![];
+        let mut cornerpiece: Piece = Piece::new(i);
+        corner::corner::Corner::new(&mut cornerpiece);
+        cornerbuffer.extend(vec![
+            VertexPosition { position: cornerpiece.vertex[0] },
+            VertexPosition { position: cornerpiece.vertex[1] },
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] }, //loop1
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] },
+            VertexPosition { position: cornerpiece.vertex[4] }, 
+            VertexPosition { position: cornerpiece.vertex[5] }, //Loop2
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[5] },
+            VertexPosition { position: cornerpiece.vertex[6] },
+            VertexPosition { position: cornerpiece.vertex[1] }, //loop3
+        ]);
+        let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
+        let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::TriangleFan);
+        let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
+        target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { projmatrix: projmatrix, colorIn: color_2 }, &Default::default()).unwrap();
+    }    
     //Glium GL VBO 2
     for i in 0..20 {
         let mut cornerbuffer = vec![];
@@ -129,9 +154,9 @@ pub fn main() -> Result<(), String> {
         ]);
         let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
         let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
+        let color_2: [f32; 4] = [ 0.0, 0.0, 1.0, 1.0 ];
         target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { projmatrix: projmatrix, colorIn: color_2 }, &Default::default()).unwrap();
-    }    
+    }
 
     //Glium GL VBO 3
     let mut edgebuffer = vec![];
@@ -142,16 +167,15 @@ pub fn main() -> Result<(), String> {
             VertexPosition { position: edgepiece.vertex[0] },
             VertexPosition { position: edgepiece.vertex[1] },
             VertexPosition { position: edgepiece.vertex[2] }, //Tri0
-            VertexPosition { position: edgepiece.vertex[3] },
-            VertexPosition { position: edgepiece.vertex[0] },
-            VertexPosition { position: edgepiece.vertex[1] }, //Tri0            
-            
             VertexPosition { position: edgepiece.vertex[2] },
+            VertexPosition { position: edgepiece.vertex[4] },
+            VertexPosition { position: edgepiece.vertex[5] }, //Tri1
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[1] },
+            VertexPosition { position: edgepiece.vertex[3] }, //Tri2
             VertexPosition { position: edgepiece.vertex[3] },
-            VertexPosition { position: edgepiece.vertex[4] }, //Tri1
-            VertexPosition { position: edgepiece.vertex[5] }, 
-            VertexPosition { position: edgepiece.vertex[2] }, 
-            VertexPosition { position: edgepiece.vertex[3] }, //Tri3
+            VertexPosition { position: edgepiece.vertex[4] },
+            VertexPosition { position: edgepiece.vertex[5] }, //Tri3
         ]);
         let vertex_buffer_3 = glium::VertexBuffer::new(&display, &edgebuffer).unwrap();
         let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);

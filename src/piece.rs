@@ -75,7 +75,7 @@ impl Piece {
 }
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
-macro_rules! dodesize { () => {   100f32   }; }
+macro_rules! dodesize { () => {   90f32   }; }
 //common geometric constants
 macro_rules! pi { () => {  (-1f32).acos()  }; }                     //3.1415927410125732
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
