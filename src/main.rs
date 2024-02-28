@@ -67,49 +67,19 @@ pub fn main() -> Result<(), String> {
         ]);
     }
 
-
-    let mut edgebuffer = vec![];
-    for i in 0..30 {
-        let mut edgepiece: Piece = Piece::new(i);
-        edge::edge::Edge::new(&mut edgepiece);
-        edgebuffer.extend(vec![
-            VertexPosition { position: edgepiece.vertex[0] },
-            VertexPosition { position: edgepiece.vertex[1] },
-            VertexPosition { position: edgepiece.vertex[2] }, //tri1
-            VertexPosition { position: edgepiece.vertex[3] },
-            ]
-        );
-    }
-    
-    //
-//Looks funky but renders things now.      
-
-
     //Orthographic Projection Matrix
-    let matrix: [[f32; 4]; 4] = [
+    let projmatrix: [[f32; 4]; 4] = [
         [0.01, 0.0, 0.0, 0.0],
         [0.0, 0.01, 0.0, 0.0],
         [0.0, 0.0, 0.01, 0.0],
         [0.0, 0.0, 1.0, 1.25]
     ];
-    /* Perspective, Zoom & Camera FOV Matrix (commented out for now) 
-    let perspective: [[f32; 4]; 4] = {
-        let aspect_ratio = height as f32 / width as f32;
-        let fov: f32 = 3.141592 / 3.0;
-        let zfar = 1024.0;
-        let znear = 0.1;
-        let f = 1.0 / (fov / 2.0).tan();
-        [   [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
-            [         0.0         ,     f ,              0.0              ,   0.0],
-            [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
-            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],     ] */
-    //}; //COMMENTED OUT, BASIC PENTAGON WORKING
     let vertex_shader_src = r#"
-        #version 150
+        #version 140
         in vec3 position;
-        uniform mat4 matrix;
+        uniform mat4 projmatrix;
         void main() {
-            gl_Position =  matrix * 1.0 * vec4(position, 1.0);
+            gl_Position = projmatrix * vec4(position, 1.0);
         }
     "#;
     let fragment_shader_src = r#"
@@ -117,7 +87,7 @@ pub fn main() -> Result<(), String> {
         uniform vec4 colorIn;
         out vec4 color;
         void main() {
-            color = vec4(colorIn); //Green
+            color = vec4(colorIn);
         }
     "#;
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
@@ -132,10 +102,11 @@ pub fn main() -> Result<(), String> {
     let mut target = display.draw();
     target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);    // Blue background & Depth Buffer Reset (to 1.0 Z)
 
-    //Glium GL VBO
+    //Glium GL VBO 1
     let vertex_buffer_1 = glium::VertexBuffer::new(&display, &pentagon).unwrap();
     let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
     let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
+    target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { projmatrix: projmatrix, colorIn: color_1  }, &Default::default()).unwrap();
 
     //Glium GL VBO 2
     for i in 0..20 {
@@ -155,25 +126,41 @@ pub fn main() -> Result<(), String> {
             VertexPosition { position: cornerpiece.vertex[5] },
             VertexPosition { position: cornerpiece.vertex[6] },
             VertexPosition { position: cornerpiece.vertex[1] }, //loop3
-            ]
-        );
+        ]);
         let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
         let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
         let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
-        target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { matrix: matrix, colorIn: color_2 /*, perspective: perspective */}, &Default::default()).unwrap();
+        target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { projmatrix: projmatrix, colorIn: color_2 }, &Default::default()).unwrap();
     }    
 
     //Glium GL VBO 3
-    let vertex_buffer_3 = glium::VertexBuffer::new(&display, &edgebuffer).unwrap();
-    let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TriangleFan);
+    let mut edgebuffer = vec![];
+    for i in 0..30 {
+        let mut edgepiece: Piece = Piece::new(i);
+        edge::edge::Edge::new(&mut edgepiece);
+        edgebuffer.extend(vec![
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[1] },
+            VertexPosition { position: edgepiece.vertex[2] }, //Tri0
+            VertexPosition { position: edgepiece.vertex[3] },
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[1] }, //Tri0            
+            
+            VertexPosition { position: edgepiece.vertex[2] },
+            VertexPosition { position: edgepiece.vertex[3] },
+            VertexPosition { position: edgepiece.vertex[4] }, //Tri1
+            VertexPosition { position: edgepiece.vertex[5] }, 
+            VertexPosition { position: edgepiece.vertex[2] }, 
+            VertexPosition { position: edgepiece.vertex[3] }, //Tri3
+        ]);
+        let vertex_buffer_3 = glium::VertexBuffer::new(&display, &edgebuffer).unwrap();
+        let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+        let color_3: [f32; 4] = [ 0.8, 0.8, 0.8, 1.0 ]; 
+        target.draw(&vertex_buffer_3, &indices_tri_3, &program, &uniform! { projmatrix: projmatrix, colorIn: color_3 }, &Default::default()).unwrap();
+    }   
     
-    
-    target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { matrix: matrix, colorIn: color_1 /*, perspective: perspective */}, &Default::default()).unwrap();
-    
-    
-    //target.draw(&vertex_buffer_3, &indices_tri_3, &program, &uniform! { matrix: matrix /*, perspective: perspective */}, &Default::default()).unwrap();
+    //Glium end GL
     target.finish().unwrap();
-
 
     //Main Event Loop
     let mut i: u8 = 0;
