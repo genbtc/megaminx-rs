@@ -67,26 +67,6 @@ pub fn main() -> Result<(), String> {
         ]);
     }
 
-    let mut cornerbuffer = vec![];
-    for i in 0..20 {
-        let mut cornerpiece: Piece = Piece::new(i);
-        corner::corner::Corner::new(&mut cornerpiece);
-        cornerbuffer.extend(vec![
-            VertexPosition { position: cornerpiece.vertex[0] },
-            VertexPosition { position: cornerpiece.vertex[1] },
-            VertexPosition { position: cornerpiece.vertex[2] },
-            VertexPosition { position: cornerpiece.vertex[3] }, //loop1
-            VertexPosition { position: cornerpiece.vertex[2] },
-            VertexPosition { position: cornerpiece.vertex[3] },
-            VertexPosition { position: cornerpiece.vertex[4] }, 
-            VertexPosition { position: cornerpiece.vertex[5] }, //Loop2
-            VertexPosition { position: cornerpiece.vertex[2] },
-            VertexPosition { position: cornerpiece.vertex[5] },
-            VertexPosition { position: cornerpiece.vertex[6] },
-            VertexPosition { position: cornerpiece.vertex[1] }, //loop3            
-            ]
-        );
-    }
 
     let mut edgebuffer = vec![];
     for i in 0..30 {
@@ -149,6 +129,8 @@ pub fn main() -> Result<(), String> {
         },
         .. Default::default()
     }; COMMENTED OUT - NOT ACTUALLY NEEDED YET */
+    let mut target = display.draw();
+    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);    // Blue background & Depth Buffer Reset (to 1.0 Z)
 
     //Glium GL VBO
     let vertex_buffer_1 = glium::VertexBuffer::new(&display, &pentagon).unwrap();
@@ -156,20 +138,39 @@ pub fn main() -> Result<(), String> {
     let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
 
     //Glium GL VBO 2
-    let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
-    let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LinesList);
-    let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
+    for i in 0..20 {
+        let mut cornerbuffer = vec![];
+        let mut cornerpiece: Piece = Piece::new(i);
+        corner::corner::Corner::new(&mut cornerpiece);
+        cornerbuffer.extend(vec![
+            VertexPosition { position: cornerpiece.vertex[0] },
+            VertexPosition { position: cornerpiece.vertex[1] },
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] }, //loop1
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] },
+            VertexPosition { position: cornerpiece.vertex[4] }, 
+            VertexPosition { position: cornerpiece.vertex[5] }, //Loop2
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[5] },
+            VertexPosition { position: cornerpiece.vertex[6] },
+            VertexPosition { position: cornerpiece.vertex[1] }, //loop3
+            ]
+        );
+        let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
+        let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
+        let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
+        target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { matrix: matrix, colorIn: color_2 /*, perspective: perspective */}, &Default::default()).unwrap();
+    }    
 
     //Glium GL VBO 3
     let vertex_buffer_3 = glium::VertexBuffer::new(&display, &edgebuffer).unwrap();
-    let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::LinesList);
+    let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TriangleFan);
     
-
-    let mut target = display.draw();
-    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);    // Blue background & Depth Buffer Reset (to 1.0 Z)
+    
     target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { matrix: matrix, colorIn: color_1 /*, perspective: perspective */}, &Default::default()).unwrap();
     
-    target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { matrix: matrix, colorIn: color_2 /*, perspective: perspective */}, &Default::default()).unwrap();
+    
     //target.draw(&vertex_buffer_3, &indices_tri_3, &program, &uniform! { matrix: matrix /*, perspective: perspective */}, &Default::default()).unwrap();
     target.finish().unwrap();
 
