@@ -18,11 +18,9 @@ mod face;
 mod piece;
 mod piece_color;
 use crate::piece::piece::Piece;
-//use crate::piece::piece::PieceMath;
-use crate::piece::piece::Vertex;
+use crate::piece::piece::VertexPosition;
 use crate::piece::piece::Vertex3;
 use crate::megaminx::megaminx::Megaminx;
-//use crate::face::face::FaceFunctions;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -57,43 +55,45 @@ pub fn main() -> Result<(), String> {
         let mut centerpiece: Piece = Piece::new(i);
         center::center::Center::new(&mut centerpiece);
         pentagon.extend(vec![
-            Vertex { position: centerpiece.vertex[0] },
-            Vertex { position: centerpiece.vertex[1] },
-            Vertex { position: centerpiece.vertex[2] }, //tri1
-            Vertex { position: centerpiece.vertex[1] },
-            Vertex { position: centerpiece.vertex[2] },
-            Vertex { position: centerpiece.vertex[3] }, //tri2
-            Vertex { position: centerpiece.vertex[0] },
-            Vertex { position: centerpiece.vertex[3] },
-            Vertex { position: centerpiece.vertex[4] }, //tri3
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[1] },
+            VertexPosition { position: centerpiece.vertex[2] }, //tri1
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[2] },
+            VertexPosition { position: centerpiece.vertex[3] }, //tri2
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[3] },
+            VertexPosition { position: centerpiece.vertex[4] }, //tri3
         ]);
-    }
+    } 
     for i in 0..20 {
         let mut cornerpiece: Piece = Piece::new(i);
         corner::corner::Corner::new(&mut cornerpiece);
         pentagon.extend(vec![
-            Vertex { position: cornerpiece.vertex[0] },
-            Vertex { position: cornerpiece.vertex[1] },
-            Vertex { position: cornerpiece.vertex[2] }, //tri1
-            Vertex { position: cornerpiece.vertex[2] },
-            Vertex { position: cornerpiece.vertex[3] },
-            Vertex { position: cornerpiece.vertex[0] }, //tri2
+            VertexPosition { position: cornerpiece.vertex[0] },
+            VertexPosition { position: cornerpiece.vertex[1] },
+            VertexPosition { position: cornerpiece.vertex[2] }, //tri1
+            VertexPosition { position: cornerpiece.vertex[0] },
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] }, //tri2
             ]
         );
-    }
+    } 
     for i in 0..30 {
         let mut edgepiece: Piece = Piece::new(i);
         edge::edge::Edge::new(&mut edgepiece);
         pentagon.extend(vec![
-            Vertex { position: edgepiece.vertex[0] },
-            Vertex { position: edgepiece.vertex[1] },
-            Vertex { position: edgepiece.vertex[2] }, //tri1
-            Vertex { position: edgepiece.vertex[2] },
-            Vertex { position: edgepiece.vertex[3] },
-            Vertex { position: edgepiece.vertex[0] }, //tri2
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[1] },
+            VertexPosition { position: edgepiece.vertex[2] }, //tri1
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[2] },
+            VertexPosition { position: edgepiece.vertex[3] }, //tri2
             ]
         );
     }
+    //*/
+    //
 //Looks funky but renders things now.      
 
     //Glium GL VBO
@@ -107,7 +107,7 @@ pub fn main() -> Result<(), String> {
         [0.0, 0.0, 0.01, 0.0],
         [0.0, 0.0, 1.0, 1.25]
     ];
-    //Perspective, Zoom & Camera FOV Matrix (commented out for now)
+    /* Perspective, Zoom & Camera FOV Matrix (commented out for now) 
     let perspective: [[f32; 4]; 4] = {
         let aspect_ratio = height as f32 / width as f32;
         let fov: f32 = 3.141592 / 3.0;
@@ -117,15 +117,15 @@ pub fn main() -> Result<(), String> {
         [   [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
             [         0.0         ,     f ,              0.0              ,   0.0],
             [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
-            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],     ]
-    }; //COMMENTED OUT TO GET BASIC PENTAGON WORKING
+            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],     ] */
+    //}; //COMMENTED OUT, BASIC PENTAGON WORKING
     let vertex_shader_src = r#"
         #version 150
         in vec3 position;
         uniform mat4 matrix;
         void main() {
             gl_Position =  matrix * 1.0 * vec4(position, 1.0);
-        }        
+        }
     "#;
     let fragment_shader_src = r#"
         #version 140
@@ -134,33 +134,31 @@ pub fn main() -> Result<(), String> {
             color = vec4(0.2, 0.6, 0.1, 0.5); //Green
         }
     "#;
-
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
-    let params = glium::DrawParameters {
+/*    let params = glium::DrawParameters {
         depth: glium::Depth {
             test: glium::draw_parameters::DepthTest::IfLessOrEqual,
             write: true,
             .. Default::default()
         },
         .. Default::default()
-    };
+    }; COMMENTED OUT - NOT ACTUALLY NEEDED YET */
 
     let mut target = display.draw();
-    //target.clear_color(0.0, 0.0, 1.0, 0.1); // Blue background
-    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
-    target.draw(&vertex_buffer, &indices, &program, &uniform! { matrix: matrix, perspective: perspective }, &params).unwrap();
+    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);    // Blue background & Depth Buffer Reset (to 1.0 Z)
+    target.draw(&vertex_buffer, &indices, &program, &uniform! { matrix: matrix /*, perspective: perspective */}, &Default::default()).unwrap();
     target.finish().unwrap();
 
 
     //Main Event Loop
-    let mut i = 0;
+    let mut i: u8 = 0;
     let mut event_pump = sdl_context.event_pump()?;
     'mainevent: loop {
         //color var cycles
         i = (i + 1) % 255;
         //Color Changing Square
         canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
-        let _ = canvas.fill_rect(Rect::new(36, 36, 80, 80));
+        let _ = canvas.fill_rect(Rect::new(22, 22, 98, 98));
 
         canvas.present();
 

@@ -13,7 +13,6 @@ pub struct VertexPosition {
 }
 use glium::implement_vertex;
 implement_vertex!(VertexPosition, position);
-pub use VertexPosition as Vertex;
 
 //Regular Vertex 3 Array
 pub type Vertex3 = [f32; 3];

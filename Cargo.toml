@@ -1,6 +1,6 @@
 [package]
 name = "megaminx"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["genr8eofl <genBTC@gmx.com>"]
 
@@ -11,4 +11,3 @@ features = ["gfx"]
 [dependencies]
 gl = "0.14.0"
 glium = "0.34.0"
-#glm = "0.2.3"
