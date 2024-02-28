@@ -25,9 +25,9 @@ pub mod face {
     default_piece_num: usize,
     data: PieceData,
     //Boxed References to Trait Objects
-    pub center: Vec<Box<Piece>>,
-    corner: Vec<Box<Piece>>,
-    edge: Vec<Box<Piece>>,
+    pub center: Vec<Box<dyn Center>>,
+    pub corner: Vec<Box<Piece>>,
+    pub edge: Vec<Box<Piece>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
     center_vertex_list: [Vertex3; 7],
@@ -88,30 +88,39 @@ pub mod face {
 
   pub trait FaceFunctions {
     fn getnum(&self) -> usize;
-    fn attach_center(&mut self, _center: &Vec<Box <dyn Center>>);     //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces(&self, _corners: &Vec<Box <dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&self, _edges: &Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>);     //(Center* c, double* centerVertexBase);
+    fn attach_corner_pieces(&self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
   impl FaceFunctions for Face {
     fn getnum(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, _center: &Vec<Box <dyn Center>>) {
-        //println!("face.attach_center() to {}", self.this_num);
+    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
+        println!("face.attach_center() to {}", self.this_num);
         self.init(self.this_num);
         self.create_axis(self.this_num, self.this_num);
-        //assert!(self.this_num == self.center.len() - 1);
-        //self.center[self.this_num].init(self.this_num);
+        if self.center.len() == 0 {
+            Center::init(&mut *centers[self.this_num], self.this_num);
+//            error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
+//            self.center.push(centers[self.this_num]);
+//|                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait            
+        } //else {
+            //assert!(self.this_num == self.center.len());
+            //self.center[self.this_num].init(self.this_num);
+        //}
     }
-    fn attach_corner_pieces(&self, _corners: &Vec<Box <dyn Corner>>) { /*
+    fn attach_corner_pieces(&self, _corners: &Vec<Box<Piece>>) { /*
       const int color = faces[face - 1].center->data._colorNum[0];
       defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);
       for i in 0..5 {
           corner[i] = &dyn CornersPTR + defaultCorners[i];
           assert(corner[i]->data.pieceNum == defaultCorners[i]);
       }  */
+      //let color = self.center[self.this_num].data.color.colorNum[0];
+      //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
     }
-    fn attach_edge_pieces(&self, _edges: &Vec<Box <dyn Edge>>) {  /*
+    fn attach_edge_pieces(&self, _edges: &Vec<Box<Piece>>) {  /*
       defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);
       for i in 0..5 {
           edge[i] = &dyn EdgesPTR + defaultEdges[i];
@@ -200,7 +209,7 @@ pub mod face {
     fn quad_swap_edges(&mut self, pack: [usize;8]) ;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
-    fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece>;
+    fn get_face_piece(&mut self, i: usize) -> &mut Box<dyn Center>;
     fn rotate(&mut self, direction: TurnDir);
     fn render(&mut self) -> bool;
   }
@@ -240,19 +249,22 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
-        //let pieceA: &mut Box<Piece> = self.get_face_piece(a);
-        //let pieceB: &mut Box<Piece> = self.get_face_piece(b);
-        //pieceA.swapdata(&pieceB.data);
         let mut edge_data_a = &self.edge[a].data;
         let mut edge_data_b = &self.edge[b].data;
         std::mem::swap(&mut edge_data_a, &mut edge_data_b);
+        // ABOVE WORKS BUT BELOW DOES NOT
+        //std::mem::swap(&mut self.edge[a].data, &mut self.edge[b].data);
+//        |         --------------      ---------               ^^^^^^^^^ second mutable borrow occurs here
+//        |         |                   ^ first mutable borrow occurs here
+//        |         first borrow later used by call
+//  This definitely does not work.
 //        &self.edge[a].swapdata(&mut self.edge[b].data);
 //      |          ---------    --------      ^^^^^^^^^ second mutable borrow occurs here
 //      |          |            |
 //      |          |            first borrow later used by call
 //      |          first mutable borrow occurs here        
     }
-    fn get_face_piece(&mut self, i: usize) -> &mut Box<Piece> {
+    fn get_face_piece(&mut self, i: usize) -> &mut Box<dyn Center> {
         return &mut self.center[i];
         //todo!(); 
         /*

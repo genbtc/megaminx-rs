@@ -16,8 +16,8 @@ pub mod megaminx {
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
         centers: Vec<Box<dyn Center>>,
-        corners: Vec<Box<dyn Corner>>,
-        edges: Vec<Box<dyn Edge>>,
+        corners: Vec<Box<Piece>>,
+        edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,
   }
   
@@ -60,11 +60,15 @@ pub mod megaminx {
       for center in &mut self.centers {
           center.render();
       }
-      for edge in &mut self.edges {
-          edge.render();
+      for _edge in &self.edges {
+        //_edge.render();
+        //error[E0034]: multiple applicable items in scope
+          //Edge::render(&mut *edge);
+//          |           ------------ ^^^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
+//          |           required by a bound introduced by this call          
       }
-      for corner in &mut self.corners {
-          corner.render();
+      for _corner in &self.corners {
+//          Corner::render(&mut *corner);
       }
     }    
   }
@@ -128,11 +132,11 @@ pub mod megaminx {
     fn init_face_pieces(&mut self) {
         for i in 0..NUM_FACES {
             //println!("initing face: {}", i);
-            let mut facepiece: Face = Face::new(i);
-            facepiece.attach_center(&self.centers);//, *center_vertex_list);
-            facepiece.attach_edge_pieces(&self.edges);
-            facepiece.attach_corner_pieces(&self.corners);
-            self.faces.push(Box::new(facepiece));
+            let mut face: Face = Face::new(i);
+            face.attach_center(&mut self.centers);//, *center_vertex_list);
+            face.attach_edge_pieces(&self.edges);
+            face.attach_corner_pieces(&self.corners);
+            self.faces.push(Box::new(face));
         }
         assert_eq!(self.faces.len(), NUM_FACES);        
     }

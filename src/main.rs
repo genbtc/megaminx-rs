@@ -48,18 +48,27 @@ pub fn main() -> Result<(), String> {
     //Red Filled Triangle
     let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
 
-//Megaminx.rs = WORK IN PROGRESS:
+    //Megaminx.rs = WORK IN PROGRESS:
     let mut megaminx: Megaminx = Megaminx::new();
     megaminx.init_reset();
     let faces = megaminx.faces;
+    let mut _centerpiece: Piece = Default::default();
     for face in faces {
         let _num = face.getnum();
         //println!("facenum {}", num);
         let centers = face.center;
-        for _center in centers {
+        for mut center in centers {
+//            center.centerInit();
+//                 ^^^^^^^^^^ method not found in `Box<dyn Center>`
+//          error[E0599]: no method named `centerInit` found for struct `Box<dyn center::center::Center>` in the current scope
+//            _centerpiece = *center;
+//                         ^^^^^^^ expected `Piece`, found `dyn Center`
+            _centerpiece.centerInit();
+            continue;
             //center.init(num);
             //center._vertex[0][0];
         }
+        continue;
     }
 //MEGAMINX INIT WORKS FINALLY ^^^^^^ 
     let mut centerpiece: Piece = Piece::new(2);
@@ -68,13 +77,13 @@ pub fn main() -> Result<(), String> {
     let pentagon = vec![
         Vertex { position: centerpiece.vertex[0] },
         Vertex { position: centerpiece.vertex[1] },
-        Vertex { position: centerpiece.vertex[2] }, //tri1
-        Vertex { position: centerpiece.vertex[3] },
-        Vertex { position: centerpiece.vertex[4] },
-        Vertex { position: centerpiece.vertex[0] }, //tri2
-        Vertex { position: centerpiece.vertex[0] },
+        Vertex { position: centerpiece.vertex[3] }, //tri1
+        Vertex { position: centerpiece.vertex[1] },
         Vertex { position: centerpiece.vertex[2] },
-        Vertex { position: centerpiece.vertex[3] }, //tri3
+        Vertex { position: centerpiece.vertex[3] }, //tri2
+        Vertex { position: centerpiece.vertex[0] },
+        Vertex { position: centerpiece.vertex[3] },
+        Vertex { position: centerpiece.vertex[4] }, //tri3                
     ];
 
     //Glium GL VBO
