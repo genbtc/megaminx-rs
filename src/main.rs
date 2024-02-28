@@ -3,13 +3,13 @@
 extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
-use sdl2::rect::{Rect, Point};
+use sdl2::rect::Rect;//Point};
 use sdl2::video::WindowBuilder;
 use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
 use glium::Surface;
 use glium::uniform;
-use sdl2::gfx::primitives::DrawRenderer;
+//use sdl2::gfx::primitives::DrawRenderer;
 mod megaminx;
 mod center;
 mod edge;
@@ -33,8 +33,8 @@ pub fn main() -> Result<(), String> {
     let mut canvas: Canvas<Window> = window_b
                     .into_canvas()
                     .accelerated()
-                    .build().unwrap();                
-    //Canvas Draw Examples:
+                    .build().unwrap();
+    /*/Canvas Draw Examples: 
     //Black Diagonal 2D Line
     let _ = canvas.draw_line(Point::new(0, 0), Point::new(600, 600));
     //Black Diagonal 2D Thick Line (opposite)
@@ -44,7 +44,7 @@ pub fn main() -> Result<(), String> {
     //Green anti-aliased Circle
     let _ = canvas.aa_circle(70, 70, 70, Color::GREEN);
     //Red Filled Triangle
-    let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED);
+    let _ = canvas.filled_trigon(600, 600, 600, 640, 640, 600, Color::RED); */
 
 //Megaminx.rs = WORK IN PROGRESS:
     let mut megaminx: Megaminx = Megaminx::new();
@@ -65,40 +65,45 @@ pub fn main() -> Result<(), String> {
             VertexPosition { position: centerpiece.vertex[3] },
             VertexPosition { position: centerpiece.vertex[4] }, //tri3
         ]);
-    } 
+    }
+
+    let mut cornerbuffer = vec![];
     for i in 0..20 {
         let mut cornerpiece: Piece = Piece::new(i);
         corner::corner::Corner::new(&mut cornerpiece);
-        pentagon.extend(vec![
+        cornerbuffer.extend(vec![
             VertexPosition { position: cornerpiece.vertex[0] },
             VertexPosition { position: cornerpiece.vertex[1] },
-            VertexPosition { position: cornerpiece.vertex[2] }, //tri1
-            VertexPosition { position: cornerpiece.vertex[0] },
             VertexPosition { position: cornerpiece.vertex[2] },
-            VertexPosition { position: cornerpiece.vertex[3] }, //tri2
-            ]
-        );
-    } 
-    for i in 0..30 {
-        let mut edgepiece: Piece = Piece::new(i);
-        edge::edge::Edge::new(&mut edgepiece);
-        pentagon.extend(vec![
-            VertexPosition { position: edgepiece.vertex[0] },
-            VertexPosition { position: edgepiece.vertex[1] },
-            VertexPosition { position: edgepiece.vertex[2] }, //tri1
-            VertexPosition { position: edgepiece.vertex[0] },
-            VertexPosition { position: edgepiece.vertex[2] },
-            VertexPosition { position: edgepiece.vertex[3] }, //tri2
+            VertexPosition { position: cornerpiece.vertex[3] }, //loop1
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[3] },
+            VertexPosition { position: cornerpiece.vertex[4] }, 
+            VertexPosition { position: cornerpiece.vertex[5] }, //Loop2
+            VertexPosition { position: cornerpiece.vertex[2] },
+            VertexPosition { position: cornerpiece.vertex[5] },
+            VertexPosition { position: cornerpiece.vertex[6] },
+            VertexPosition { position: cornerpiece.vertex[1] }, //loop3            
             ]
         );
     }
-    //*/
+
+    let mut edgebuffer = vec![];
+    for i in 0..30 {
+        let mut edgepiece: Piece = Piece::new(i);
+        edge::edge::Edge::new(&mut edgepiece);
+        edgebuffer.extend(vec![
+            VertexPosition { position: edgepiece.vertex[0] },
+            VertexPosition { position: edgepiece.vertex[1] },
+            VertexPosition { position: edgepiece.vertex[2] }, //tri1
+            VertexPosition { position: edgepiece.vertex[3] },
+            ]
+        );
+    }
+    
     //
 //Looks funky but renders things now.      
 
-    //Glium GL VBO
-    let vertex_buffer = glium::VertexBuffer::new(&display, &pentagon).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     //Orthographic Projection Matrix
     let matrix: [[f32; 4]; 4] = [
@@ -129,9 +134,10 @@ pub fn main() -> Result<(), String> {
     "#;
     let fragment_shader_src = r#"
         #version 140
+        uniform vec4 colorIn;
         out vec4 color;
         void main() {
-            color = vec4(0.2, 0.6, 0.1, 0.5); //Green
+            color = vec4(colorIn); //Green
         }
     "#;
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
@@ -144,9 +150,27 @@ pub fn main() -> Result<(), String> {
         .. Default::default()
     }; COMMENTED OUT - NOT ACTUALLY NEEDED YET */
 
+    //Glium GL VBO
+    let vertex_buffer_1 = glium::VertexBuffer::new(&display, &pentagon).unwrap();
+    let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+    let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
+
+    //Glium GL VBO 2
+    let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
+    let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LinesList);
+    let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
+
+    //Glium GL VBO 3
+    let vertex_buffer_3 = glium::VertexBuffer::new(&display, &edgebuffer).unwrap();
+    let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::LinesList);
+    
+
     let mut target = display.draw();
     target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);    // Blue background & Depth Buffer Reset (to 1.0 Z)
-    target.draw(&vertex_buffer, &indices, &program, &uniform! { matrix: matrix /*, perspective: perspective */}, &Default::default()).unwrap();
+    target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { matrix: matrix, colorIn: color_1 /*, perspective: perspective */}, &Default::default()).unwrap();
+    
+    target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { matrix: matrix, colorIn: color_2 /*, perspective: perspective */}, &Default::default()).unwrap();
+    //target.draw(&vertex_buffer_3, &indices_tri_3, &program, &uniform! { matrix: matrix /*, perspective: perspective */}, &Default::default()).unwrap();
     target.finish().unwrap();
 
 
@@ -158,7 +182,7 @@ pub fn main() -> Result<(), String> {
         i = (i + 1) % 255;
         //Color Changing Square
         canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
-        let _ = canvas.fill_rect(Rect::new(22, 22, 98, 98));
+        let _ = canvas.fill_rect(Rect::new(0, 0, 20, 20));
 
         canvas.present();
 
