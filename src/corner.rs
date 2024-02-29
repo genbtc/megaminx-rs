@@ -1,18 +1,21 @@
 //2024 megaminx-rs corner.rs , by genr8eofl - LICENSED APGL3
 pub mod corner {
-  use crate::piece::piece::Piecepack;
+  use crate::piece::piece::PieceInit;
+  use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
-  use crate::Vertex3;
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
+  use crate::Vertex3;
+  use crate::VertexPosition;
   //Corner functions
   pub trait Corner {
+      fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
-      fn render(&mut self);
-      fn new(&mut self);   
+      fn render(&self) -> Vec<VertexPosition>;
+      fn render_lines(&self) -> Vec<VertexPosition>;
   }
   impl Corner for Piece {
     fn new(&mut self) {
@@ -47,10 +50,9 @@ pub mod corner {
      * \brief createAxis sets up the x,y,z Axes that the Corner pieces ride on
      * \note (called by init on startup)
      * \param n - the number of the piece (piecenum)
-     * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
     fn create_axis(&mut self, piecenum: usize, index: usize) {
-        let mut pack: Piecepack = Piecepack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
+        let mut pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
         1=> { },
         2..=5 => {
@@ -69,10 +71,26 @@ pub mod corner {
     /**
      * \brief Render Corner Node (CONST)
      */
-    fn render(&mut self) {
-        todo!();
-/*
-   glColor3dv(data._color[0]);
+    fn render(&self) -> Vec<VertexPosition> {
+        let mut cornerbuffer = vec![];
+        cornerbuffer.extend(vec![
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[1] },
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] }, //loop1
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[4] }, 
+            VertexPosition { position: self.vertex[5] }, //Loop2
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[5] },
+            VertexPosition { position: self.vertex[6] },
+            VertexPosition { position: self.vertex[1] }, //loop3
+        ]);
+        return cornerbuffer;
+    }
+    /*
+    glColor3dv(data._color[0]);
     glBegin(GL_POLYGON);
     for i in 0..4 {
         glVertex3dv(_vertex[i]);
@@ -90,7 +108,28 @@ pub mod corner {
     glVertex3dv(_vertex[5]);
     glVertex3dv(_vertex[6]);
     glVertex3dv(_vertex[1]);
-    glEnd();
+    glEnd();        
+    }
+    */
+    fn render_lines(&self) -> Vec<VertexPosition> {
+        let mut cornerbuffer_lines = vec![];
+        cornerbuffer_lines.extend(vec![
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[1] },
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] }, //loop1
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[4] }, 
+            VertexPosition { position: self.vertex[5] }, //Loop2
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[5] },
+            VertexPosition { position: self.vertex[6] },
+            VertexPosition { position: self.vertex[1] }, //loop3
+        ]);
+        return cornerbuffer_lines;
+    }
+    /*
     glLineWidth(3);
     (data.hotPieceMoving) ?  glColor3d(.4, 1, 0) : glColor3d(0, 0, 0);
     //    makeGLpentagon(_vertex, 1.005, GL_LINE_LOOP);
@@ -107,7 +146,6 @@ pub mod corner {
     glVertex3d(_vertex[2][0] * 1.005, _vertex[2][1] * 1.005, _vertex[2][2] * 1.005);
     glVertex3d(_vertex[5][0] * 1.005, _vertex[5][1] * 1.005, _vertex[5][2] * 1.005);
     glEnd();
-*/
-    }
+    */
   }
 }

@@ -1,9 +1,13 @@
 // Megaminx-rs/piece_color.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
-#![allow(unused_variables)]
 #![allow(dead_code)]
-
 pub mod PieceColor {
+    use crate::piece::piece::Vertex3;
+
+    pub const NUM_FACES:   usize = 12;
+    pub const NUM_CORNERS: usize = 20;
+    pub const NUM_EDGES:   usize = 30;
+
     //Megaminx standard color names defined in numerical int order 
     #[derive(Copy,Clone,Default)]
     pub enum MegaminxColor {
@@ -22,11 +26,11 @@ pub mod PieceColor {
         Pink,
         Beige,
         MaxColorStates
-    } // Make available to use
+    } // Make short name available to use (unqualified)
     use MegaminxColor::*;
     const MAX_COLOR_STATES: usize = MaxColorStates as usize;
 
-    //scaffolding Struct, a shell for a color, for G_COLORRGBS
+    //Color Pack - scaffolding Struct
     #[derive(Copy,Clone,Default)]
     pub struct ColorPack {
         pub i: usize,
@@ -35,10 +39,19 @@ pub mod PieceColor {
         pub b: f32,
         pub name: &'static str
     }
+    // a shell for a color, for G_COLORRGBS
     impl ColorPack {
         fn getRGB(&self) -> (f32,f32,f32) {
            return (self.r, self.g, self.b);
         }
+    }
+    //Color Block
+    #[derive(Copy, Clone, Default)]
+    pub struct ColorData {
+        pub colorNum: [usize; 3],
+        pub colorName: [&'static str; 3],
+        pub colorRGB: [Vertex3; 3],
+        pub pack: ColorPack,
     }
 
     //Main list of the index 12 colors in R,G,B form (0-255) = (0.0 - 1.0), Name string for Enum
@@ -57,10 +70,6 @@ pub mod PieceColor {
         ColorPack{ i:11, r:0.9, g:0.4, b:1.0, name:"PINK" },
         ColorPack{ i:12, r:1.0, g:0.9, b:0.65, name:"BEIGE" },
     ];
-
-    pub const NUM_FACES:   usize = 12;
-    pub const NUM_CORNERS: usize = 20;
-    pub const NUM_EDGES:   usize = 30;
 
     //scaffolding Struct, a shell for a piece, holds 1-3 Colors for a Center/Edge/Corner definition
     #[derive(Copy,Clone,Default)]

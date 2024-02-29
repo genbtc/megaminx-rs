@@ -4,54 +4,40 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 pub mod piece {
-use crate::piece_color::PieceColor::{ColorPack,ColorPiece, G_COLORRGBS};
+use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
 pub struct VertexPosition {
     pub position: [f32; 3],
-}
+}   // (for glium)
 use glium::implement_vertex;
 implement_vertex!(VertexPosition, position);
 
-//Regular Vertex 3 Array
+//typedef for Regular Vertex 3 and ; 7
 pub type Vertex3 = [f32; 3];
+pub type Vertex3x7 = [Vertex3; 7];
 
-//Default initializer data
+//Default initializer data for vertex
 pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
-pub const VERTEXDATAZERO: [Vertex3; 7] = [VERTEXZERO; 7];
+pub const VERTEXDATAZERO: Vertex3x7 = [VERTEXZERO; 7];
 pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 
-//Color Block
-#[derive(Copy, Clone, Default)]
-pub struct ColorData {
-    pub colorNum: [usize; 3],
-    pub colorName: [&'static str; 3],
-    pub colorRGB: [Vertex3; 3],
-    pub pack: ColorPack,
-}
-// Piece Block
+//Piece Block
 #[derive(Copy, Clone, Default)]
 pub struct PieceData {
     pub pieceNum: usize,
     pub flipStatus: usize,
     pub hotPieceMoving: bool,
     pub color: ColorData,
-} //data-members - we can swap out all at once.
+}  //data-members - (can swap out all at once)
 
-//Piece Pack struct to rotateVertexXYZ
-#[derive(Copy, Clone, Default)]
-pub struct Piecepack {
-    pub axis1: char,
-    pub axis2: char,
-    pub multi: usize
-}
-//Main Piece Object
+//Piece Object (main)
 #[derive(Copy, Clone, Default)]
 pub struct Piece {
     // Piece struct
     //Coords for GL vertex*3 (up to 7, not all used)
-    pub vertex: [Vertex3; 7],
+    pub vertex: Vertex3x7,
     //Keeps the default number in the piece. do not swap.
     pub defaultPieceNum: usize,
     //Center has 1, Edge has 2, Corner has 3
@@ -65,20 +51,20 @@ impl Piece {
       Self {
         vertex: Default::default(),
         numSides: 0,
-        defaultPieceNum: defaultPieceNum,
+        defaultPieceNum,
         data: Default::default(),
       }
     }
     fn swapdata(&mut self, data: &mut PieceData) {
         std::mem::swap(&mut self.data, data);
     }
-    fn getpos(&self) -> [Vertex3; 7] {
+    fn getpos(&self) -> Vertex3x7 {
         self.vertex
     }
 }
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
-macro_rules! dodesize { () => {   90f32   }; }
+macro_rules! dodesize { () => {   67f32   }; }
 //common geometric constants
 macro_rules! pi { () => {  (-1f32).acos()  }; }                     //3.1415927410125732
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
@@ -95,30 +81,38 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
-//Math & init functions:
-pub trait PieceMath {
-    fn cornerInit(&mut self) -> &[Vertex3; 7];
-    fn edgeInit(&mut self) -> &[Vertex3; 7];
-    fn centerInit(&mut self) -> &[Vertex3; 7];
-    fn faceInit(&mut self) -> &[Vertex3; 7];
+//Piece Pack struct to rotateVertexXYZ
+#[derive(Copy, Clone, Default)]
+pub struct PiecePack {
+    pub axis1: char,
+    pub axis2: char,
+    pub multi: usize
+}
+//Math & init Piece functions:
+pub trait PieceInit {
+    fn cornerInit(&mut self) -> &Vertex3x7;
+    fn edgeInit(&mut self) -> &Vertex3x7;
+    fn centerInit(&mut self) -> &Vertex3x7;
+    fn faceInit(&mut self) -> &Vertex3x7;
+}
+pub trait PieceMath {    
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
-    fn axis1multi(&mut self, index: usize, pack: Piecepack);
-    fn CenterSide1(&mut self, index: usize, pack: Piecepack);
-    fn CenterCenter(&mut self, index: usize, pack: Piecepack);
-    fn CenterSide2(&mut self, index: usize, pack: Piecepack);
-    fn CornerGrp3(&mut self, index: usize, pack: Piecepack);
-    fn CornerGrp4(&mut self, index: usize, pack: Piecepack);
-    fn EdgeGrp2(&mut self, index: usize, pack: Piecepack);
-    fn EdgeGrp3(&mut self, index: usize, pack: Piecepack);
-    fn EdgeGrp4(&mut self, index: usize, pack: Piecepack);
-    fn EdgeGrp5(&mut self, index: usize, pack: Piecepack);
-    fn EdgeGrp6(&mut self, index: usize, pack: Piecepack);
+    fn axis1multi(&mut self, index: usize, pack: PiecePack);
+    fn CenterSide1(&mut self, index: usize, pack: PiecePack);
+    fn CenterCenter(&mut self, index: usize, pack: PiecePack);
+    fn CenterSide2(&mut self, index: usize, pack: PiecePack);
+    fn CornerGrp3(&mut self, index: usize, pack: PiecePack);
+    fn CornerGrp4(&mut self, index: usize, pack: PiecePack);
+    fn EdgeGrp2(&mut self, index: usize, pack: PiecePack);
+    fn EdgeGrp3(&mut self, index: usize, pack: PiecePack);
+    fn EdgeGrp4(&mut self, index: usize, pack: PiecePack);
+    fn EdgeGrp5(&mut self, index: usize, pack: PiecePack);
+    fn EdgeGrp6(&mut self, index: usize, pack: PiecePack);
     fn flip(&mut self);
     fn flip_twice(&mut self);
 }
-//Attach these Math functions to Piece object
-impl PieceMath for Piece {
-    fn cornerInit(&mut self) -> &[Vertex3; 7] {
+impl PieceInit for Piece {
+    fn cornerInit(&mut self) -> &Vertex3x7 {
         //println!("cornerInit({})", self.defaultPieceNum);
         self.numSides = 3;
         for i in 0..7 {
@@ -157,7 +151,7 @@ impl PieceMath for Piece {
         &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are EDGES
-    fn edgeInit(&mut self) -> &[Vertex3; 7] {
+    fn edgeInit(&mut self) -> &Vertex3x7 {
         //println!("edgeInit({})", self.defaultPieceNum);
         self.numSides = 2;
         for i in 0..6 {
@@ -188,7 +182,7 @@ impl PieceMath for Piece {
         &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
-    fn centerInit(&mut self) -> &[Vertex3; 7] {
+    fn centerInit(&mut self) -> &Vertex3x7 {
         //println!("centerInit({})", self.defaultPieceNum);
         self.numSides = 1;
         for i in 0..5 {
@@ -199,7 +193,7 @@ impl PieceMath for Piece {
         &self.vertex
     }    
     //Creates the common starting vertexes for all pieces that are FACES
-    fn faceInit(&mut self) -> &[Vertex3; 7] {
+    fn faceInit(&mut self) -> &Vertex3x7 {
         //println!("faceInit({})", self.defaultPieceNum);
         self.numSides = 0;
         for i in 0..5 {
@@ -213,7 +207,9 @@ impl PieceMath for Piece {
         }
         &self.vertex
     }
-
+}
+//Attach these Math traits to Piece object
+impl PieceMath for Piece {
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
         let mut vxIndex: usize = 0;
         let mut vyIndex: usize = 0;
@@ -233,52 +229,52 @@ impl PieceMath for Piece {
     }   
 //Vertex Transformation Functions
     //main transform: used in almost every other algo
-    fn axis1multi(&mut self, index: usize, pack: Piecepack) {
+    fn axis1multi(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(pack.multi as f32));
     }
-    fn CenterSide1(&mut self, index: usize, pack: Piecepack) {
+    fn CenterSide1(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(1.));
         self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
         self.axis1multi(index, pack);
     }
-    fn CenterCenter(&mut self, index: usize, pack: Piecepack) {
+    fn CenterCenter(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pi!());
     }
-    fn CenterSide2(&mut self, index: usize, pack: Piecepack) {
+    fn CenterSide2(&mut self, index: usize, pack: PiecePack) {
         self.CenterCenter(index, pack);
         self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
         self.rotateVertexXYZ(index,  'z', pim(pack.multi as f32));
         //This is always z, because axis1/2 are usually y/x and
         //is re-used by face, where it is Z.
     }
-    fn CornerGrp3(&mut self, index: usize, pack: Piecepack) {
+    fn CornerGrp3(&mut self, index: usize, pack: PiecePack) {
         self.CenterSide1(index, pack);
         self.rotateVertexXYZ(index, pack.axis2, pi!());
     }
-    fn CornerGrp4(&mut self, index: usize, pack: Piecepack) {
+    fn CornerGrp4(&mut self, index: usize, pack: PiecePack) {
         self.CenterCenter(index, pack);
         self.rotateVertexXYZ(index, pack.axis2, pim(pack.multi as f32));
     }
-    fn EdgeGrp2(&mut self, index: usize, pack: Piecepack) {
+    fn EdgeGrp2(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(3.));
         self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
         self.axis1multi(index, pack);
     }
-    fn EdgeGrp3(&mut self, index: usize, pack: Piecepack) {
+    fn EdgeGrp3(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(6.));
         self.EdgeGrp2(index, pack);
     }
-    fn EdgeGrp4(&mut self, index: usize, pack: Piecepack) {
+    fn EdgeGrp4(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(8.));
         self.EdgeGrp2(index, pack);
     }
-    fn EdgeGrp5(&mut self, index: usize, mut pack: Piecepack) {
+    fn EdgeGrp5(&mut self, index: usize, mut pack: PiecePack) {
         pack.multi += 1;
         self.rotateVertexXYZ(index, pack.axis1, pim(2.));
         self.rotateVertexXYZ(index, pack.axis2, sideangle!());
         self.axis1multi(index, pack);
     }
-    fn EdgeGrp6(&mut self, index: usize, pack: Piecepack) {
+    fn EdgeGrp6(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis2, pi!());
         self.axis1multi(index, pack);
     }
@@ -308,11 +304,12 @@ pub trait PieceColor {
     fn setColor(&mut self, i: usize, c: ColorPack);
     fn initColorIndex(&mut self, idx: usize, k: usize);
     fn initColorA(&mut self, a: usize);
+    #[deprecated(since="0.1.9", note="prefer initColor")]
     fn initColorAB(&mut self, a: usize, b: usize);
+    #[deprecated(since="0.1.9", note="prefer initColor")]
     fn initColorABC(&mut self, a: usize, b: usize, c: usize);
     fn initColor(&mut self, color: ColorPiece, corner: bool);
     fn matchesColor(&self, color: usize) -> bool;
-    
 }
 impl PieceColor for Piece {
     fn setColor(&mut self, i: usize, c: ColorPack) {
@@ -335,7 +332,7 @@ impl PieceColor for Piece {
         self.numSides = 1;
     }
     //store Edge colors
-    //[[deprecated]]
+    //#[deprecated(since="0.1.9", note="prefer initColor")]
     fn initColorAB(&mut self, a: usize, b: usize) {
         self.initColorIndex(0, a);
         self.initColorIndex(1, b);
@@ -345,7 +342,7 @@ impl PieceColor for Piece {
         self.numSides = 2;
     }
     //store Corner colors
-    //[[deprecated]]
+    //#[deprecated(since="0.1.9", note="prefer initColor")]
     fn initColorABC(&mut self, a: usize, b: usize, c: usize) {
         self.initColorIndex(0, a);
         self.initColorIndex(1, b);

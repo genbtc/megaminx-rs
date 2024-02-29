@@ -1,10 +1,12 @@
 //2024 megaminx-rs center.rs , by genr8eofl - LICENSED APGL3
 pub mod center {
-  use crate::piece::piece::Piecepack;
+  use crate::piece::piece::PieceInit;
+  use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
-
+  use crate::VertexPosition;
+  //Center functions
   pub trait Center {
       fn init(&mut self, piecenum: usize);
       fn create_axis(&mut self, piecenum: usize, index: usize);
@@ -16,15 +18,7 @@ pub mod center {
     fn getnum(&self) -> usize { 
         return self.defaultPieceNum;
     }
-    /* -> Self error[E0038]: the trait `center::center::Center` cannot be made into an object
-  28 |     pub center: Vec<Box<dyn Center>>,
-     |                         ^^^^^^^^^^ `center::center::Center` cannot be made into an object
-  note: for a trait to be "object safe" it needs to allow building a vtable to allow the call to be resolvable dynamically; for more information visit <https://doc.rust-lang.org/reference/items/traits.html#object-safety>
-  8  |   pub trait Center {
-     |             ------ this trait cannot be made into an object...
-  12 |       fn new(&mut self) -> Self ;
-     |                            ^^^^ ...because method `new` references the `Self` type in its return type
-     = help: consider moving `new` to another trait */
+    // try return -> Self = error[E0038]: the trait `center::center::Center` cannot be made into an object ...because method `new` references the `Self` type in its return type
     fn new(&mut self) {
         self.centerInit();
         self.init(self.defaultPieceNum);
@@ -45,16 +39,15 @@ pub mod center {
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
      * \note (called by init on startup)
      * \param n - the number of the piece (piecenum)
-     * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
     fn create_axis(&mut self, piecenum: usize, index: usize) {
         match piecenum + 1 {
         2..=6 => {
-            self.CenterSide1(index, Piecepack { axis1: 'z', axis2: 'x', multi: ((piecenum-1) * 2 % 10) }); },
+            self.CenterSide1(index, PiecePack { axis1: 'z', axis2: 'x', multi: ((piecenum-1) * 2 % 10) }); },
         7 => {
-            self.CenterCenter(index, Piecepack { axis1: 'x', axis2: '0', multi: 0 }); },
+            self.CenterCenter(index, PiecePack { axis1: 'x', axis2: '0', multi: 0 }); },
         8..=12 => {
-            self.CenterSide2(index, Piecepack { axis1: 'y', axis2: 'x', multi: ((piecenum-2) * 2 % 10) }); },
+            self.CenterSide2(index, PiecePack { axis1: 'y', axis2: 'x', multi: ((piecenum-2) * 2 % 10) }); },
         1 => {}, 
         _ => println!("Must be within 1-12"),
         }
@@ -64,6 +57,27 @@ pub mod center {
      * \brief Render Center Node (CONST)
      */
     fn render(&mut self) {
+        let mut center_pentagon = vec![];
+        let mut pentagon_lines = vec![];
+        //Can buffer all at once
+        center_pentagon.extend(vec![
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[1] },
+            VertexPosition { position: self.vertex[2] }, //tri1
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] }, //tri2
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[4] }, //tri3
+        ]);
+        pentagon_lines.extend(vec![
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[1] },
+            VertexPosition { position: self.vertex[2] },
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[4] }, //loop1
+        ]);
 /*
         //Make a solid color pentagon
         glColor3dv(data._color[0]);

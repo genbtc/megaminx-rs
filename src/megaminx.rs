@@ -1,11 +1,9 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
-#![allow(dead_code)]
-#![allow(non_snake_case)]
 pub mod megaminx {
   use crate::face::face::FaceFunctions;
   use crate::face::face::Face;
   use crate::piece::piece::Piece;
-  use crate::piece::piece::PieceMath;
+  use crate::piece::piece::PieceInit;
   use crate::center::center::Center;
   use crate::edge::edge::Edge;
   use crate::corner::corner::Corner;
@@ -18,9 +16,9 @@ pub mod megaminx {
     pub is_rotating: bool,
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
-        centers: Vec<Box<dyn Center>>,
-        corners: Vec<Box<Piece>>,
-        edges: Vec<Box<Piece>>,
+    pub centers: Vec<Box<dyn Center>>,
+    pub corners: Vec<Box<Piece>>,
+    pub edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,
   }
   
@@ -145,9 +143,8 @@ pub mod megaminx {
     }
 
     fn print_vector(&mut self, piece: &Piece) {
-      //Array Print
       print!("Piece {} Vertex Array: [ ", piece.defaultPieceNum);
-      for i in 0..5 {
+      for i in 0..5 { //TODO!: 6,7 for edge/corner
         print!("[ ");
         for j in 0..3 {
           print!("{}", piece.vertex[i][j].to_string());
@@ -155,7 +152,7 @@ pub mod megaminx {
         }
         if i < piece.vertex.len() - 1  { print!(" ], "); }
       }
-      println!("]");    
+      println!("]");
     }
 
   }
@@ -171,7 +168,7 @@ pub mod megaminx {
   }
 
   pub trait MegaminxFindPieces {
-    fn findPiecesOfFace(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8>;
+    fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8>;
   }
   /* \brief Finds the colored center that is perma-attached to a face, and then
   *         iterates the entire list of pieces to find when the colors match, and outputs a list.
@@ -181,9 +178,9 @@ pub mod megaminx {
   * \return Returns the list of 5 positions where the starting face's pieces have ended up at.
   * \note    NOTE: Finds pieces BEFORE they are attached to a face.
   */
- //std::vector<int> Megaminx::findPiecesOfFace(int face, Piece &pieceRef, int times) const {
+ //std::vector<int> Megaminx::find_pieces_of_face(int face, Piece &pieceRef, int times) const {
   impl MegaminxFindPieces for Megaminx {
-  fn findPiecesOfFace(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
+  fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
      let mut piece_list = Vec::<i8>::new();
      //let color = self.faces[face - 1].center[0].data.color.colorNum[0];
      let color = 0;

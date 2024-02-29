@@ -1,18 +1,21 @@
 //2024 megaminx-rs edge.rs , by genr8eofl - LICENSED APGL3
 pub mod edge {
-  use crate::piece::piece::Piecepack;
+  use crate::piece::piece::PieceInit;
+  use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
-  use crate::Vertex3; 
+  use crate::Vertex3;
+  use crate::VertexPosition;
   //Edge functions
   pub trait Edge {
+      fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
-      fn render(&mut self);
-      fn new(&mut self);
+      fn render(&self) -> Vec<VertexPosition>;
+      fn render_lines(&self, n: i8) -> Vec<VertexPosition>;
   }
   impl Edge for Piece {
     fn new(&mut self) {
@@ -50,7 +53,7 @@ pub mod edge {
      * \param *target - the pre-existing Vertex Array (replaced by index into self)
      */
     fn create_axis(&mut self, piecenum: usize, index: usize) {
-        let pack: Piecepack = Piecepack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
+        let pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
         1..=5 => {
             self.axis1multi(index, pack); },
@@ -70,11 +73,24 @@ pub mod edge {
     /**
      * \brief Render Edge Node (CONST)
      */
-    fn render(&mut self) {
-        todo!();
-    }
-
-/*
+    fn render(&self) -> Vec<VertexPosition> {
+        let mut edgebuffer = vec![];
+        edgebuffer.extend(vec![
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[1] },
+            VertexPosition { position: self.vertex[2] }, //tri1
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[0] },
+            VertexPosition { position: self.vertex[2] }, //tri2
+            VertexPosition { position: self.vertex[2] }, 
+            VertexPosition { position: self.vertex[3] },
+            VertexPosition { position: self.vertex[4] }, //tri3
+            VertexPosition { position: self.vertex[5] }, 
+            VertexPosition { position: self.vertex[4] },
+            VertexPosition { position: self.vertex[2] }, //tri4
+        ]);
+        return edgebuffer;
+    /*
     //Edge Side One - Color Fill
     glColor3dv(data._color[0]);
     glBegin(GL_POLYGON);
@@ -89,6 +105,31 @@ pub mod edge {
         glVertex3dv(_vertex[i]);
     }
     glEnd();
+    */
+    }
+    fn render_lines(&self, n: i8) -> Vec<VertexPosition> {
+        let mut edge_lines = vec![];
+        match n {
+            0 => { 
+                edge_lines.extend(vec![
+                    VertexPosition { position: self.vertex[0] },
+                    VertexPosition { position: self.vertex[1] },
+                    VertexPosition { position: self.vertex[2] },
+                    VertexPosition { position: self.vertex[3] }, //loop1
+                ]);
+            },
+            1 => {
+                edge_lines.extend(vec![
+                    VertexPosition { position: self.vertex[2] },
+                    VertexPosition { position: self.vertex[3] },
+                    VertexPosition { position: self.vertex[4] },
+                    VertexPosition { position: self.vertex[5] }, //loop2
+                ]);                
+            },
+            _=> {},
+        }
+        return edge_lines;
+    /*
     glColor3d(0, 0, 0); //Black
     //Edge Side One - Black Border Line 0-4
     glLineWidth(3);
@@ -104,6 +145,7 @@ pub mod edge {
         glVertex3d(_vertex[i][0] * 1.005, _vertex[i][1] *1.005 , _vertex[i][2] *1.005);
     }
     glEnd();
-*/
+    */
+    }
   }
 }
