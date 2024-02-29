@@ -5,20 +5,23 @@ pub mod center {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
-  use crate::VertexPosition;
+  use crate::piece::piece::VertexPositionColor;
+  use crate::piece::piece::VERTEXZERO;
+  use crate::piece::piece::Vertex3;
   //Center functions
   pub trait Center {
-      fn init(&mut self, piecenum: usize);
-      fn create_axis(&mut self, piecenum: usize, index: usize);
-      fn render(&mut self);
       fn new(&mut self);
-      fn getnum(&self) -> usize; 
+      fn getnum(&self) -> usize;      
+      fn init(&mut self, piecenum: usize);
+      fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]);
+      fn create_axis(&mut self, piecenum: usize, index: usize);
+      fn render(&mut self) -> Vec<VertexPositionColor>;
+      fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
   impl Center for Piece {
     fn getnum(&self) -> usize { 
         return self.defaultPieceNum;
     }
-    // try return -> Self = error[E0038]: the trait `center::center::Center` cannot be made into an object ...because method `new` references the `Self` type in its return type
     fn new(&mut self) {
         self.centerInit();
         self.init(self.defaultPieceNum);
@@ -34,6 +37,15 @@ pub mod center {
         }
         self.initColorA(piecenum + 1);  //from Piece
     }
+    /**
+     * \brief Inits the piece with a pre-existing Vertex Array
+     * \param centerVertexBase the starting points to be memcpy'ed in
+     */
+    fn init_data(&mut self, _piecenum: usize, _center_vertex_base: [Vertex3; 7]) {
+        //COMMENTED OUT DELIBERATELY BECAUSE PIECE INIT WAS GETTING CORRUPTED WITH A SECOND INIT
+        //self.vertex = center_vertex_base;
+        //self.init(piecenum);
+    }    
 
     /**
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
@@ -54,30 +66,34 @@ pub mod center {
     }
 
     /**
-     * \brief Render Center Node (CONST)
+     * \brief Render Center Node (CONST)(mut for face)
      */
-    fn render(&mut self) {
-        let mut center_pentagon = vec![];
-        let mut pentagon_lines = vec![];
-        //Can buffer all at once
-        center_pentagon.extend(vec![
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[1] },
-            VertexPosition { position: self.vertex[2] }, //tri1
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] }, //tri2
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[4] }, //tri3
-        ]);
-        pentagon_lines.extend(vec![
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[1] },
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[4] }, //loop1
-        ]);
+    fn render(&mut self) -> Vec<VertexPositionColor> {
+        let center_pentagon = vec![
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //tri2
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[0] }, //tri3
+        ];
+        //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
+        return center_pentagon;
+    }
+    fn render_lines(&self) -> Vec<VertexPositionColor> {
+        let pentagon_lines = vec![
+            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
+            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
+            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
+            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
+            VertexPositionColor { position: self.vertex[4], color: VERTEXZERO }, //loop1
+            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
+        ]; //TODO: move & batch
+        return pentagon_lines;
+    }
 /*
         //Make a solid color pentagon
         glColor3dv(data._color[0]);
@@ -91,6 +107,5 @@ pub mod center {
             utDrawText3DFont(_vertex[4][0]*1.1,_vertex[4][1]*1.1,_vertex[4][2]*1.1, GLUT_BITMAP_HELVETICA_18, data._colorName[0]);
                                                         // 1.1x spaces it out
 */
-    }
   }
 }

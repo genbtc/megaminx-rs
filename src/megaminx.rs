@@ -117,8 +117,8 @@ pub mod megaminx {
         for i in 0..NUM_FACES {
             //println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i);
-            let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
-            Center::init(&mut centerpiece, i);//, center_vertex_list);
+            let center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
+            Center::init_data(&mut centerpiece, i, center_vertex_list);
             self.centers.push(Box::new(centerpiece));
             //self.print_vector(&centerpiece);
         }

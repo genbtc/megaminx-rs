@@ -8,6 +8,7 @@ pub mod face {
   use crate::piece::piece::PieceData;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::Piece;
+  use crate::piece::piece::VertexPositionColor;
   use crate::center::center::Center;
   //use crate::edge::edge::Edge;
   //use crate::corner::corner::Corner;  
@@ -77,14 +78,33 @@ pub mod face {
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
+    fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]) {
+        self.center_vertex_list = center_vertex_base;
+        self.init(piecenum);
+    }      
     fn create_axis(&mut self, piecenum: usize, _index: usize) {
         self.init(piecenum);
     }
-    fn render(&mut self) {
+    fn render(&mut self) -> Vec<VertexPositionColor> {
         self.place_parts(self.turn_dir);
+        //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
+        let mut center_pentagon = vec![];
+        //Can buffer all at once
+        center_pentagon.extend(vec![
+            VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] },
+        ]);
+        return center_pentagon;        
     }
+    fn render_lines(&self) -> Vec<VertexPositionColor> {
+        //ALL JUNK NEEDED TO SATISFY RETURN VALUE
+        let mut center_pentagon = vec![];
+        //Can buffer all at once
+        center_pentagon.extend(vec![
+            VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] },
+        ]);
+        return center_pentagon;
+    }    
   }
-
 
   pub trait FaceFunctions {
     fn num(&self) -> usize;
@@ -98,26 +118,22 @@ pub mod face {
     }
     fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
         //println!("face.attach_center() to {}", self.this_num);
-        //self.initColor(piecenum + 1);  //from Piece, unavailhere.
+        //self.initColor(piecenum + 1);  //from Piece, unavailable here.
         self.init(self.this_num);
         //self.create_axis(self.this_num, self.this_num);
         if self.center.len() == 0 {
             Center::init(&mut *centers[self.this_num], self.this_num);
-//            error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
-//            self.center.push(centers[self.this_num]);
-//|                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait            
         }
-     } //else {
-            //assert!(self.this_num == self.center.len());
-            //self.center[self.this_num].init(self.this_num);
-        //}
-
-        //    self.center.push(Box::new(*centers[self.this_num]));
-    //    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
-    //     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
-    //     |                          required by a bound introduced by this call
-    //     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
-    // note: required by a bound in `Box::<T>::new`        
+    }
+//            error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
+//            self.center.push(centers[self.this_num]);            
+//|                            ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait
+//            self.center.push(Box::new(*centers[self.this_num]));
+//    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
+//     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
+//     |                          required by a bound introduced by this call
+//     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
+// note: required by a bound in `Box::<T>::new`
     
     fn attach_corner_pieces(&mut self, corners: &Vec<Box<Piece>>) { 
         self.corner.push(Box::new(*corners[self.this_num]));
@@ -127,7 +143,6 @@ pub mod face {
           corner[i] = &dyn CornersPTR + defaultCorners[i];
           assert_eq!(corner[i].data.pieceNum, defaultCorners[i]);
       }  */
-
       //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
     }
     fn attach_edge_pieces(&mut self, edges: &Vec<Box<Piece>>) { 
@@ -458,26 +473,12 @@ pub mod face {
         //Render parts:
         for center in &mut self.center.iter_mut() {
             center.render();
-            //cannot borrow `*self` as mutable more than once at a time
-}
-        for _edge in &mut self.edge.iter_mut() {
-            //Edge::render(&mut edge);
-            //           ^^^^^^^^^ the trait `Edge` is not implemented for `&mut Box<Piece>`
-            //edge.render();
         }
-        for _corner in &mut self.corner {
-            //corner.render();
-            // ^^^^^^ multiple `render` found
-
-            //crate::center::center::Center::render(&mut corner);
-            /*error[E0277]: the trait bound `&mut Box<Piece>: center::center::Center` is not satisfied
-            --> src/face.rs:420:51
-             |             crate::center::center::Center::render(&mut corner);
-             |             ------------------------------------- ^^^^^^^^^^^ the trait `center::center::Center` is not implemented for `&mut Box<Piece>`
-             |             required by a bound introduced by this call
-             = help: the following other types implement trait `center::center::Center`:
-                       Face
-                       Piece */           
+        for edge in self.edge.iter_mut() {
+            edge.render();
+        }
+        for corner in self.corner.iter_mut() {
+            corner.render();
         }
 
         if self.angle > 0.0 {
