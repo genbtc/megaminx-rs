@@ -7,15 +7,16 @@ pub mod edge {
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   use crate::Vertex3;
-  use crate::VertexPosition;
+  use crate::piece::piece::VertexPositionColor;
+  use crate::piece::piece::VERTEXZERO;
   //Edge functions
   pub trait Edge {
       fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
-      fn render(&self) -> Vec<VertexPosition>;
-      fn render_lines(&self, n: i8) -> Vec<VertexPosition>;
+      fn render(&self) -> Vec<VertexPositionColor>;
+      fn render_lines(&self, n: i8) -> Vec<VertexPositionColor>;
   }
   impl Edge for Piece {
     fn new(&mut self) {
@@ -73,21 +74,21 @@ pub mod edge {
     /**
      * \brief Render Edge Node (CONST)
      */
-    fn render(&self) -> Vec<VertexPosition> {
+    fn render(&self) -> Vec<VertexPositionColor> {
         let mut edgebuffer = vec![];
         edgebuffer.extend(vec![
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[1] },
-            VertexPosition { position: self.vertex[2] }, //tri1
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[2] }, //tri2
-            VertexPosition { position: self.vertex[2] }, 
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[4] }, //tri3
-            VertexPosition { position: self.vertex[5] }, 
-            VertexPosition { position: self.vertex[4] },
-            VertexPosition { position: self.vertex[2] }, //tri4
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri2
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, 
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] }, //tri3
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, 
+            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, //tri4
         ]);
         return edgebuffer;
     /*
@@ -107,23 +108,23 @@ pub mod edge {
     glEnd();
     */
     }
-    fn render_lines(&self, n: i8) -> Vec<VertexPosition> {
+    fn render_lines(&self, n: i8) -> Vec<VertexPositionColor> {
         let mut edge_lines = vec![];
         match n {
             0 => { 
                 edge_lines.extend(vec![
-                    VertexPosition { position: self.vertex[0] },
-                    VertexPosition { position: self.vertex[1] },
-                    VertexPosition { position: self.vertex[2] },
-                    VertexPosition { position: self.vertex[3] }, //loop1
+                    VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[3], color: VERTEXZERO }, //loop1
                 ]);
             },
             1 => {
                 edge_lines.extend(vec![
-                    VertexPosition { position: self.vertex[2] },
-                    VertexPosition { position: self.vertex[3] },
-                    VertexPosition { position: self.vertex[4] },
-                    VertexPosition { position: self.vertex[5] }, //loop2
+                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[4], color: VERTEXZERO },
+                    VertexPositionColor { position: self.vertex[5], color: VERTEXZERO }, //loop2
                 ]);                
             },
             _=> {},

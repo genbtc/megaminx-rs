@@ -13,8 +13,15 @@ pub struct VertexPosition {
 }   // (for glium)
 use glium::implement_vertex;
 implement_vertex!(VertexPosition, position);
+//Vertex 3 Position/Color Definitions
+#[derive(Copy, Clone, Default)]
+pub struct VertexPositionColor {
+    pub position: [f32; 3],
+    pub color: [f32; 3],
+}   // (for glium)
+implement_vertex!(VertexPositionColor, position, color);
 
-//typedef for Regular Vertex 3 and ; 7
+//typedef for Regular Vertex 3 and 3;7
 pub type Vertex3 = [f32; 3];
 pub type Vertex3x7 = [Vertex3; 7];
 
@@ -35,7 +42,6 @@ pub struct PieceData {
 //Piece Object (main)
 #[derive(Copy, Clone, Default)]
 pub struct Piece {
-    // Piece struct
     //Coords for GL vertex*3 (up to 7, not all used)
     pub vertex: Vertex3x7,
     //Keeps the default number in the piece. do not swap.
@@ -62,9 +68,10 @@ impl Piece {
         self.vertex
     }
 }
-//CONSTANTS:
+
+//MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
-macro_rules! dodesize { () => {   67f32   }; }
+macro_rules! dodesize { () => {   67f32   }; }  //NEW: Adjusted size to 2/3rds: TODO: check
 //common geometric constants
 macro_rules! pi { () => {  (-1f32).acos()  }; }                     //3.1415927410125732
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
@@ -210,6 +217,7 @@ impl PieceInit for Piece {
 }
 //Attach these Math traits to Piece object
 impl PieceMath for Piece {
+    //Vertex Transformation Functions
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
         let mut vxIndex: usize = 0;
         let mut vyIndex: usize = 0;
@@ -227,7 +235,6 @@ impl PieceMath for Piece {
         self.vertex[index][vxIndex] = r * a.cos();
         self.vertex[index][vyIndex] = r * a.sin();
     }   
-//Vertex Transformation Functions
     //main transform: used in almost every other algo
     fn axis1multi(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(pack.multi as f32));
@@ -244,8 +251,7 @@ impl PieceMath for Piece {
         self.CenterCenter(index, pack);
         self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
         self.rotateVertexXYZ(index,  'z', pim(pack.multi as f32));
-        //This is always z, because axis1/2 are usually y/x and
-        //is re-used by face, where it is Z.
+        //note: always z, because axis1/2 are y/x. the z gets re-used by face.
     }
     fn CornerGrp3(&mut self, index: usize, pack: PiecePack) {
         self.CenterSide1(index, pack);
@@ -279,7 +285,7 @@ impl PieceMath for Piece {
         self.axis1multi(index, pack);
     }
 
-    //Changes colors. Flip/rotate/switches colors for current piece
+    //Flip - Changes colors. rotate/switches colors for current piece
     fn flip(&mut self) {
         self.data.color.colorRGB[0].rotate_left(3);
         self.data.color.colorNum.rotate_left(1);
@@ -369,7 +375,5 @@ impl PieceColor for Piece {
                self.data.color.colorNum[1] == color ||
                self.data.color.colorNum[2] == color;
     }
-
-}
-
+  }
 }

@@ -7,15 +7,16 @@ pub mod corner {
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::Vertex3;
-  use crate::VertexPosition;
+  use crate::piece::piece::VertexPositionColor;
+  use crate::piece::piece::VERTEXZERO;
   //Corner functions
   pub trait Corner {
       fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
-      fn render(&self) -> Vec<VertexPosition>;
-      fn render_lines(&self) -> Vec<VertexPosition>;
+      fn render(&self) -> Vec<VertexPositionColor>;
+      fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
   impl Corner for Piece {
     fn new(&mut self) {
@@ -71,21 +72,21 @@ pub mod corner {
     /**
      * \brief Render Corner Node (CONST)
      */
-    fn render(&self) -> Vec<VertexPosition> {
+    fn render(&self) -> Vec<VertexPositionColor> {
         let mut cornerbuffer = vec![];
         cornerbuffer.extend(vec![
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[1] },
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] }, //loop1
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[4] }, 
-            VertexPosition { position: self.vertex[5] }, //Loop2
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[5] },
-            VertexPosition { position: self.vertex[6] },
-            VertexPosition { position: self.vertex[1] }, //loop3
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //loop1
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] }, 
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, //Loop2
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[6], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] }, //loop3
         ]);
         return cornerbuffer;
     }
@@ -111,21 +112,21 @@ pub mod corner {
     glEnd();        
     }
     */
-    fn render_lines(&self) -> Vec<VertexPosition> {
+    fn render_lines(&self) -> Vec<VertexPositionColor> {
         let mut cornerbuffer_lines = vec![];
         cornerbuffer_lines.extend(vec![
-            VertexPosition { position: self.vertex[0] },
-            VertexPosition { position: self.vertex[1] },
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] }, //loop1
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[3] },
-            VertexPosition { position: self.vertex[4] }, 
-            VertexPosition { position: self.vertex[5] }, //Loop2
-            VertexPosition { position: self.vertex[2] },
-            VertexPosition { position: self.vertex[5] },
-            VertexPosition { position: self.vertex[6] },
-            VertexPosition { position: self.vertex[1] }, //loop3
+            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO  }, //loop1
+            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[4], color: VERTEXZERO  }, 
+            VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  }, //Loop2
+            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[6], color: VERTEXZERO  },
+            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  }, //loop3
         ]);
         return cornerbuffer_lines;
     }
