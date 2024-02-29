@@ -67,7 +67,7 @@ pub fn main() -> Result<(), String> {
     let vertex_shader_src_color = r#"
         #version 140
         in vec3 position, color;
-        flat out vec3 vertex_color;
+        out vec3 vertex_color;
         uniform mat4 projmatrix;
         void main() {
             vertex_color = color;
@@ -76,7 +76,7 @@ pub fn main() -> Result<(), String> {
     "#;
     let fragment_shader_src_color = r#"
         #version 140
-        flat in vec3 vertex_color;
+        in vec3 vertex_color;
         out vec4 color;
         void main() {
             color = vec4(vertex_color, 1.0);
