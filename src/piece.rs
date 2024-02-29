@@ -71,7 +71,10 @@ impl Piece {
     }
     fn swapdata(&mut self, data: &mut PieceData) {
         std::mem::swap(&mut self.data, data);
-    }    
+    }
+    fn getpos(&self) -> [Vertex3; 7] {
+        self.vertex
+    }
 }
 //CONSTANTS:
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
@@ -86,7 +89,7 @@ macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / (5f32).sqrt()).sq
 macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }         // 85.065082037033278
 //megaminx vertex math shortcuts
 macro_rules! twofifths { () => { 0.4  }; }
-fn pim(x: f32) -> f32 { return x*pi!()/5. }
+fn pim(x: f32) -> f32 { x*pi!()/5. }
 macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }         //105.14622122913930
 macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
@@ -151,7 +154,7 @@ impl PieceMath for Piece {
         self.vertex[6][1] = sinpim35!() * twofifths!();
         self.rotateVertexXYZ(6, 'z', pim(-5.));
         self.rotateVertexXYZ(6, 'x', pi!() - sideangle!());
-        return &self.vertex;
+        &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are EDGES
     fn edgeInit(&mut self) -> &[Vertex3; 7] {
@@ -182,7 +185,7 @@ impl PieceMath for Piece {
         self.vertex[5][1] = self.vertex[0][1];
         self.rotateVertexXYZ(5, 'z', pi!());
         self.rotateVertexXYZ(5, 'x', pi!() - sideangle!());
-        return &self.vertex;
+        &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
     fn centerInit(&mut self) -> &[Vertex3; 7] {
@@ -193,7 +196,7 @@ impl PieceMath for Piece {
             self.vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
             self.vertex[i][2] = -inssphererad!();
         }
-        return &self.vertex;
+        &self.vertex
     }    
     //Creates the common starting vertexes for all pieces that are FACES
     fn faceInit(&mut self) -> &[Vertex3; 7] {
@@ -208,7 +211,7 @@ impl PieceMath for Piece {
             self.rotateVertexXYZ(i, 'x', pi!() - sideangle!());
             self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
-        return &self.vertex;
+        &self.vertex
     }
 
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
@@ -365,9 +368,9 @@ impl PieceColor for Piece {
     //check if color-num (int) matches any colors
     // currently stored in struct data (3 sided)
     fn matchesColor(&self, color: usize) -> bool {
-        return  self.data.color.colorNum[0] == color ||
-                self.data.color.colorNum[1] == color ||
-                self.data.color.colorNum[2] == color;
+        return self.data.color.colorNum[0] == color ||
+               self.data.color.colorNum[1] == color ||
+               self.data.color.colorNum[2] == color;
     }
 
 }

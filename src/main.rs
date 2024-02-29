@@ -81,39 +81,7 @@ pub fn main() -> Result<(), String> {
     megaminx.init_reset();
     //MEGAMINX INIT WORKS FINALLY ^^^^^^ 
 
-    let mut center_pentagon = vec![];
-    let mut pentagon_lines = vec![];
-    for i in 0..12 {
-        let mut centerpiece: Piece = Piece::new(i);
-        center::center::Center::new(&mut centerpiece);
-        center_pentagon.extend(vec![
-            VertexPosition { position: centerpiece.vertex[0] },
-            VertexPosition { position: centerpiece.vertex[1] },
-            VertexPosition { position: centerpiece.vertex[2] }, //tri1
-            VertexPosition { position: centerpiece.vertex[0] },
-            VertexPosition { position: centerpiece.vertex[2] },
-            VertexPosition { position: centerpiece.vertex[3] }, //tri2
-            VertexPosition { position: centerpiece.vertex[0] },
-            VertexPosition { position: centerpiece.vertex[3] },
-            VertexPosition { position: centerpiece.vertex[4] }, //tri3
-        ]);
-        pentagon_lines.extend(vec![
-            VertexPosition { position: centerpiece.vertex[0] },
-            VertexPosition { position: centerpiece.vertex[1] },
-            VertexPosition { position: centerpiece.vertex[2] }, //tri1
-            VertexPosition { position: centerpiece.vertex[3] },
-            VertexPosition { position: centerpiece.vertex[4] },
-        ]);
-    }
-
-    //Glium GL VBO 1
-    let vertex_buffer_1 = glium::VertexBuffer::new(&display, &center_pentagon).unwrap();
-    let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-    let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
-    target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { projmatrix: projmatrix, colorIn: color_1  }, &depthparams).unwrap();
-
-
-    //Glium GL VBO 2 FILL
+    //Glium GL VBO 2 - CORNER - FILL
     for i in 0..20 {
         let mut cornerbuffer = vec![];
         let mut cornerbuffer_lines = vec![];
@@ -146,21 +114,21 @@ pub fn main() -> Result<(), String> {
             VertexPosition { position: cornerpiece.vertex[5] },
             VertexPosition { position: cornerpiece.vertex[6] },
             VertexPosition { position: cornerpiece.vertex[1] }, //loop3
-        ]);        
+        ]);
+        //TODO: bundle these ops:
         let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer).unwrap();
         let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::TriangleFan);
         let color_2: [f32; 4] = [ 0.6, 0.2, 0.1, 1.0 ];
         target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { projmatrix: projmatrix, colorIn: color_2 }, &depthparams).unwrap();
     
-        //Glium GL VBO 2 - LINES
+        //Glium GL VBO 2 - CORNER - LINES
         let vertex_buffer_2 = glium::VertexBuffer::new(&display, &cornerbuffer_lines).unwrap();
         let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
         let color_2: [f32; 4] = [ 0.0, 0.0, 1.0, 1.0 ];
         target.draw(&vertex_buffer_2, &indices_tri_2, &program, &uniform! { projmatrix: projmatrix, colorIn: color_2 }, &depthparams).unwrap();
     }
 
-    //Glium GL VBO 3
-
+    //Glium GL VBO 3 - EDGE
     for i in 0..30 {
         let mut edgebuffer = vec![];
         let mut edge1_lines = vec![];
@@ -203,11 +171,42 @@ pub fn main() -> Result<(), String> {
         target.draw(&vertex_buffer_3b, &indices_tri_3b, &program, &uniform! { projmatrix: projmatrix, colorIn: color_3b }, &depthparams).unwrap();
         let vertex_buffer_3c = glium::VertexBuffer::new(&display, &edge2_lines).unwrap();
         let indices_tri_3c = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        let color_3c: [f32; 4] = [ 0.0, 0.0, 0.0, 1.0 ];
-        target.draw(&vertex_buffer_3c, &indices_tri_3c, &program, &uniform! { projmatrix: projmatrix, colorIn: color_3c }, &depthparams).unwrap();                
-    }   
+        target.draw(&vertex_buffer_3c, &indices_tri_3c, &program, &uniform! { projmatrix: projmatrix, colorIn: color_3b }, &depthparams).unwrap();                
+    }
+
+    let mut center_pentagon = vec![];
+    let mut pentagon_lines = vec![];
+    //Can buffer all at once
+    for i in 0..12 {
+        let mut centerpiece: Piece = Piece::new(i);
+        center::center::Center::new(&mut centerpiece);
+        center_pentagon.extend(vec![
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[1] },
+            VertexPosition { position: centerpiece.vertex[2] }, //tri1
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[2] },
+            VertexPosition { position: centerpiece.vertex[3] }, //tri2
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[3] },
+            VertexPosition { position: centerpiece.vertex[4] }, //tri3
+        ]);
+        pentagon_lines.extend(vec![
+            VertexPosition { position: centerpiece.vertex[0] },
+            VertexPosition { position: centerpiece.vertex[1] },
+            VertexPosition { position: centerpiece.vertex[2] },
+            VertexPosition { position: centerpiece.vertex[3] },
+            VertexPosition { position: centerpiece.vertex[4] }, //loop1
+        ]);
+    }
+
+    //Glium GL VBO 1
+    let vertex_buffer_1 = glium::VertexBuffer::new(&display, &center_pentagon).unwrap();
+    let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+    let color_1: [f32; 4] = [ 0.2, 0.6, 0.1, 1.0 ];
+    target.draw(&vertex_buffer_1, &indices_tri_1, &program, &uniform! { projmatrix: projmatrix, colorIn: color_1  }, &depthparams).unwrap();
     
-    //Glium GL VBO 1 - Lines again
+    //Glium GL VBO 1 Center - Lines
     let vertex_buffer_1 = glium::VertexBuffer::new(&display, &pentagon_lines).unwrap();
     let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
     let color_4: [f32; 4] = [ 0.0, 0.0, 0.0, 1.0 ];
