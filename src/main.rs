@@ -16,15 +16,10 @@ mod corner;
 mod face;
 mod piece;
 mod piece_color;
-//use crate::piece::piece::Piece;
-//use crate::piece::piece::VertexPositionColor;
-// use crate::piece::piece::VertexPosition;
 use crate::piece::piece::Vertex3;
-//use crate::piece::piece::VERTEXZERO;
 use crate::megaminx::megaminx::Megaminx;
 use crate::corner::corner::Corner;
 use crate::edge::edge::Edge;
-//use crate::center::center::Center;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -60,11 +55,7 @@ pub fn main() -> Result<(), String> {
     //Set Blue background & Depth Buffer Reset (to 1.0 Z)
     target.clear_color_and_depth((0.0, 0.0, 0.5, 0.5), 1.0);
 
-    //Megaminx.rs = WORK IN PROGRESS:
-    let mut megaminx: Megaminx = Megaminx::new();
-    megaminx.init_reset();
-
-    //ReDefine GL Shaders for Color Input
+    //Define GL Shaders for Color Input
     let vertex_shader_src_color = r#"
         #version 140
         in vec3 position, color;
@@ -86,6 +77,10 @@ pub fn main() -> Result<(), String> {
     //Glium compile GL shaders - Color,
     let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();    
 
+    //Megaminx.rs = WORK IN PROGRESS:
+    let mut megaminx: Megaminx = Megaminx::new();
+    megaminx.init_reset();
+
     //CORNERS render
     for i in 0..20 {
         //Glium GL VBO 3 - CORNER - FILL
@@ -106,25 +101,23 @@ pub fn main() -> Result<(), String> {
         target.draw(&vertex_buffer_2, &indices_tri_2, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         //Glium GL VBO 2 - EDGE - LINES
         let vertex_buffer_2b = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
+        let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
         let indices_tri_2b = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
         target.draw(&vertex_buffer_2b, &indices_tri_2b, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();
-        let indices_tri_2c = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        target.draw(&vertex_buffer_2c, &indices_tri_2c, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
+        target.draw(&vertex_buffer_2c, &indices_tri_2b, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
     }
 
     //CENTERS - ALL render
     for i in 0..12 {
-        //Glium GL VBO 1
+        //Glium GL VBO 1 - CENTER - FILL
         let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap();
         let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
         target.draw(&vertex_buffer_1, &indices_tri_1, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        //Glium GL VBO 1 Center - Lines
+        //Glium GL VBO 1 - CENTER - LINES
         let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap();
         let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
         target.draw(&vertex_buffer_1, &indices_tri_1, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
     }
-
 
     //Glium end GL
     target.finish().unwrap();
@@ -133,11 +126,11 @@ pub fn main() -> Result<(), String> {
     let mut i: u8 = 0;
     let mut event_pump = sdl_context.event_pump()?;
     'mainevent: loop {
-        //color var cycles
+        //Color var cycles
         i = (i + 1) % 255;
         //Color Changing Square
         canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
-        let _ = canvas.fill_rect(Rect::new(0, 0, 20, 20));
+        let _ = canvas.fill_rect(Rect::new(0, 0, 25, 25));
 
         canvas.present();
 
