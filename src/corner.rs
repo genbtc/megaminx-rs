@@ -73,57 +73,30 @@ pub mod corner {
      * \brief Render Corner Node (CONST)
      */
     fn render(&self) -> Vec<VertexPositionColor> {
-        let cornerbuffer = vec![
+        vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
-
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //tri2
-
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, //tri1
-
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] }, //tri2
-            
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[6], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] }, //tri1
-
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] }, //tri2
-        ];
-        return cornerbuffer;
+        ]
     }
-    /*
-    glColor3dv(data._color[0]);
-    glBegin(GL_POLYGON);
-    for i in 0..4 {
-        glVertex3dv(_vertex[i]);
-    }
-    glEnd();
-    glColor3dv(data._color[1]);
-    glBegin(GL_POLYGON);
-    for i in 2..6 {
-        glVertex3dv(_vertex[i]);
-    }
-    glEnd();
-    glColor3dv(data._color[2]);
-    glBegin(GL_POLYGON);
-    glVertex3dv(_vertex[2]);
-    glVertex3dv(_vertex[5]);
-    glVertex3dv(_vertex[6]);
-    glVertex3dv(_vertex[1]);
-    glEnd();        
-    }
-    */
+
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        let cornerbuffer_lines = vec![
+        vec![
             VertexPositionColor { position: self.vertex[0], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
@@ -136,26 +109,7 @@ pub mod corner {
             VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[6], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  }, //loop3
-        ];
-        return cornerbuffer_lines;
+        ]
     }
-    /*
-    glLineWidth(3);
-    (data.hotPieceMoving) ?  glColor3d(.4, 1, 0) : glColor3d(0, 0, 0);
-    //    makeGLpentagon(_vertex, 1.005, GL_LINE_LOOP);
-    //Pentagon can be made manually in three chunks
-    glBegin(GL_LINE_LOOP);
-    glVertex3d(_vertex[2][0] * 1.005, _vertex[2][1] * 1.005, _vertex[2][2] * 1.005);
-    glVertex3d(_vertex[1][0] * 1.005, _vertex[1][1] * 1.005, _vertex[1][2] * 1.005);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3d(_vertex[2][0] * 1.005, _vertex[2][1] * 1.005, _vertex[2][2] * 1.005);
-    glVertex3d(_vertex[3][0] * 1.005, _vertex[3][1] * 1.005, _vertex[3][2] * 1.005);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3d(_vertex[2][0] * 1.005, _vertex[2][1] * 1.005, _vertex[2][2] * 1.005);
-    glVertex3d(_vertex[5][0] * 1.005, _vertex[5][1] * 1.005, _vertex[5][2] * 1.005);
-    glEnd();
-    */
   }
 }

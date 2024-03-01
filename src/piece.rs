@@ -2,7 +2,6 @@
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
 #![allow(dead_code)]
-#![allow(unused_imports)]
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 
@@ -310,10 +309,6 @@ pub trait PieceColor {
     fn setColor(&mut self, i: usize, c: ColorPack);
     fn initColorIndex(&mut self, idx: usize, k: usize);
     fn initColorA(&mut self, a: usize);
-    #[deprecated(since="0.1.9", note="prefer initColor")]
-    fn initColorAB(&mut self, a: usize, b: usize);
-    #[deprecated(since="0.1.9", note="prefer initColor")]
-    fn initColorABC(&mut self, a: usize, b: usize, c: usize);
     fn initColor(&mut self, color: ColorPiece, corner: bool);
     fn matchesColor(&self, color: usize) -> bool;
 }
@@ -336,24 +331,6 @@ impl PieceColor for Piece {
     fn initColorA(&mut self, a: usize) {
         self.initColorIndex(0, a);
         self.numSides = 1;
-    }
-    //store Edge colors
-    //#[deprecated(since="0.1.9", note="prefer initColor")]
-    fn initColorAB(&mut self, a: usize, b: usize) {
-        self.initColorIndex(0, a);
-        self.initColorIndex(1, b);
-        //set non-existant 3rd side of edge to 0=Black
-        // aka not undefined so we can re-use corner.
-        self.initColorIndex(2, 0);
-        self.numSides = 2;
-    }
-    //store Corner colors
-    //#[deprecated(since="0.1.9", note="prefer initColor")]
-    fn initColorABC(&mut self, a: usize, b: usize, c: usize) {
-        self.initColorIndex(0, a);
-        self.initColorIndex(1, b);
-        self.initColorIndex(2, c);
-        self.numSides = 3;
     }
     //Uses the two arrays g_cornerPiecesColors and g_edgePiecesColors to populate.
     fn initColor(&mut self, color: ColorPiece, corner: bool ) {
