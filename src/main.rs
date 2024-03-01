@@ -75,7 +75,9 @@ pub fn main() -> Result<(), String> {
         }
     "#;
     //Glium compile GL shaders - Color,
-    let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();    
+    let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();
+    let indices_triangles = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+    let indices_lineloop = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
 
     //Megaminx.rs = WORK IN PROGRESS:
     let mut megaminx: Megaminx = Megaminx::new();
@@ -85,38 +87,32 @@ pub fn main() -> Result<(), String> {
     for i in 0..20 {
         //Glium GL VBO 3 - CORNER - FILL
         let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render(&*megaminx.corners[i])).unwrap();
-        let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-        target.draw(&vertex_buffer_3, &indices_tri_3, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        target.draw(&vertex_buffer_3, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         //Glium GL VBO 3 - CORNER - LINES
         let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render_lines(&*megaminx.corners[i])).unwrap();
-        let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        target.draw(&vertex_buffer_3, &indices_tri_3, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        target.draw(&vertex_buffer_3, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
     }
 
     //EDGES render
     for i in 0..30 {
         //Glium GL VBO 2 - EDGE - FILL
         let vertex_buffer_2 = glium::VertexBuffer::new(&display, &Edge::render(&*megaminx.edges[i])).unwrap();
-        let indices_tri_2 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-        target.draw(&vertex_buffer_2, &indices_tri_2, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         //Glium GL VBO 2 - EDGE - LINES
         let vertex_buffer_2b = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
         let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
-        let indices_tri_2b = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        target.draw(&vertex_buffer_2b, &indices_tri_2b, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        target.draw(&vertex_buffer_2c, &indices_tri_2b, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
+        target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
     }
 
-    //CENTERS - ALL render
+    //CENTERS render
     for i in 0..12 {
         //Glium GL VBO 1 - CENTER - FILL
         let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap();
-        let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-        target.draw(&vertex_buffer_1, &indices_tri_1, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        target.draw(&vertex_buffer_1, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         //Glium GL VBO 1 - CENTER - LINES
         let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap();
-        let indices_tri_1 = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
-        target.draw(&vertex_buffer_1, &indices_tri_1, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
+        target.draw(&vertex_buffer_1, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
     }
 
     //Glium end GL

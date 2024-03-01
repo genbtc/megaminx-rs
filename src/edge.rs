@@ -75,8 +75,7 @@ pub mod edge {
      * \brief Render Edge Node (CONST)
      */
     fn render(&self) -> Vec<VertexPositionColor> {
-        let mut edgebuffer = vec![];
-        edgebuffer.extend(vec![
+        vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
@@ -89,64 +88,28 @@ pub mod edge {
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, 
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, //tri4
-        ]);
-        return edgebuffer;
-    /*
-    //Edge Side One - Color Fill
-    glColor3dv(data._color[0]);
-    glBegin(GL_POLYGON);
-    for i in 0..4 {
-        glVertex3dv(_vertex[i]);
-    }
-    glEnd();
-    //Edge Side Two - Color Fill
-    glColor3dv(data._color[1]);
-    glBegin(GL_POLYGON);
-    for i in 2..6 {
-        glVertex3dv(_vertex[i]);
-    }
-    glEnd();
-    */
+        ]
     }
     fn render_lines(&self, n: i8) -> Vec<VertexPositionColor> {
-        let mut edge_lines = vec![];
         match n {
             0 => { 
-                edge_lines.extend(vec![
-                    VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
+                return vec![
+                    VertexPositionColor { position: self.vertex[0], color: VERTEXZERO }, //black line
                     VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
                     VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
                     VertexPositionColor { position: self.vertex[3], color: VERTEXZERO }, //loop1
-                ]);
-            },
+                ];
+            },  //(Intersection Line is at 2/3)
             1 => {
-                edge_lines.extend(vec![
-                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
+                return vec![
+                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO }, //black line
                     VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
                     VertexPositionColor { position: self.vertex[4], color: VERTEXZERO },
                     VertexPositionColor { position: self.vertex[5], color: VERTEXZERO }, //loop2
-                ]);                
+                ];
             },
-            _=> {},
+            _=> { return Vec::<VertexPositionColor>::new() },
         }
-        return edge_lines;
-    /*
-    glColor3d(0, 0, 0); //Black
-    //Edge Side One - Black Border Line 0-4
-    glLineWidth(3);
-    glBegin(GL_LINE_LOOP);
-    for i in 0..4 {
-        glVertex3d(_vertex[i][0] * 1.005, _vertex[i][1] *1.005 , _vertex[i][2] *1.005);
-    }
-    glEnd();
-    //(Intersection Line is at 2/3)
-    //Edge Side Two - Black Border Line 2-6
-    glBegin(GL_LINE_LOOP);
-    for i in 2..6 {
-        glVertex3d(_vertex[i][0] * 1.005, _vertex[i][1] *1.005 , _vertex[i][2] *1.005);
-    }
-    glEnd();
-    */
     }
   }
 }

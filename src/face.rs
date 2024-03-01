@@ -471,7 +471,7 @@ pub mod face {
         }
 
         //Render parts:
-        for center in &mut self.center.iter_mut() {
+        for center in self.center.iter_mut() {
             center.render();
         }
         for edge in self.edge.iter_mut() {

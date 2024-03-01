@@ -69,7 +69,7 @@ pub mod center {
      * \brief Render Center Node (CONST)(mut for face)
      */
     fn render(&mut self) -> Vec<VertexPositionColor> {
-        let center_pentagon = vec![
+        vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
@@ -79,33 +79,31 @@ pub mod center {
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[0] }, //tri3
-        ];
+        ]
         //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
-        return center_pentagon;
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        let pentagon_lines = vec![
+        vec![
             VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
             VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
             VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
             VertexPositionColor { position: self.vertex[4], color: VERTEXZERO }, //loop1
             VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
-        ]; //TODO: move & batch
-        return pentagon_lines;
+        ]
     }
-/*
-        //Make a solid color pentagon
-        glColor3dv(data._color[0]);
-        makeGLpolygon(_vertex, 1.0, 5);
-        //Make a black line border around pentagon
-        glColor3d(0, 0, 0); //RGB(0,0,0) == Black
-        glLineWidth(3);     //border thickness
-        makeGLpolygon(_vertex, 1.005, 5);   //1 + 0.005 (to account for the border)
-        //label the piece with a number(string), as a floating tag on piece
-        if (openGLGlobalState.textGLCenterLabels)
-            utDrawText3DFont(_vertex[4][0]*1.1,_vertex[4][1]*1.1,_vertex[4][2]*1.1, GLUT_BITMAP_HELVETICA_18, data._colorName[0]);
-                                                        // 1.1x spaces it out
-*/
+    /*
+    //Make a solid color pentagon
+    glColor3dv(data._color[0]);
+    makeGLpolygon(_vertex, 1.0, 5);
+    //Make a black line border around pentagon
+    glColor3d(0, 0, 0); //RGB(0,0,0) == Black
+    glLineWidth(3);     //border thickness
+    makeGLpolygon(_vertex, 1.005, 5);   //1 + 0.005 (to account for the border)
+    //label the piece with a number(string), as a floating tag on piece
+    if (openGLGlobalState.textGLCenterLabels)
+        utDrawText3DFont(_vertex[4][0]*1.1,_vertex[4][1]*1.1,_vertex[4][2]*1.1, GLUT_BITMAP_HELVETICA_18, data._colorName[0]);
+                                                    // 1.1x spaces it out
+    */
   }
 }
