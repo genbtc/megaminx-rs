@@ -178,26 +178,31 @@ pub mod megaminx {
   * \return Returns the list of 5 positions where the starting face's pieces have ended up at.
   * \note    NOTE: Finds pieces BEFORE they are attached to a face.
   */
- //std::vector<int> Megaminx::find_pieces_of_face(int face, Piece &pieceRef, int times) const {
   impl MegaminxFindPieces for Megaminx {
-  fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
-     let mut piece_list = Vec::<i8>::new();
-     //let color = self.faces[face - 1].center[0].data.color.colorNum[0];
-     let color = 0;
-     //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
-     assert_eq!(face,color);
-      for i in 0..times  {
-         if piece_list.len() >= 5 {
-            break;
-         }
-         let result: bool = (*piece_ref).matchesColor(color);
-         if result {
-             piece_list.push(i);
-         }
-     }
-     return piece_list;
+    fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
+      let mut piece_list = Vec::<i8>::new();
+      let color = 0;
+      //let color = Piece::getdata((*self.faces[face - 1].center[0])).color.colorNum[0];
+//      error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
+//      error[E0599]: no method named `getdata` found for mutable reference `&mut (dyn center::center::Center + 'static)` in the current scope
+//
+//|                                                      ^^^^^^^ method not found in `&mut dyn Center`
+//      error[E0599]: no method named `getdata` found for trait object `(dyn center::center::Center + 'static)` in the current scope
+//
+//|                   -------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `&Piece`, found `dyn Center`
+//|                   arguments to this function are incorrect
+      assert_eq!(face,color);
+        for i in 0..times  {
+          if piece_list.len() >= 5 {
+              break;
+          }
+          let result: bool = (*piece_ref).matchesColor(color);
+          if result {
+              piece_list.push(i);
+          }
+      }
+      return piece_list;
+    }
   }
- }
  
-  
 }

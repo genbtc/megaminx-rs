@@ -66,6 +66,9 @@ impl Piece {
     fn getpos(&self) -> Vertex3x7 {
         self.vertex
     }
+    pub fn getdata(&self) -> PieceData {
+        self.data
+    }    
 }
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)

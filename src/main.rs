@@ -27,20 +27,14 @@ pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", width, height);
-    let  display: SDL2Facade = binding.build_glium().unwrap();
-    let  window_b: Window = unsafe { Window::from_ref(display.window().context()) };
-    let mut canvas: Canvas<Window> = window_b
-                    .into_canvas()
-                    .accelerated()
-                    .build().unwrap();
+    let     display: SDL2Facade = binding.build_glium().unwrap();
+    let window_b: Window = unsafe { Window::from_ref(display.window().context()) };
+    let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
 
-    //Orthographic Projection Matrix
-    let projmatrix: [[f32; 4]; 4] = [
-        [0.01, 0.0, 0.0, 0.0],
-        [0.0, 0.01, 0.0, 0.0],
-        [0.0, 0.0, 0.01, 0.0],
-        [0.0, 0.0, 1.0, 1.25]
-    ];
+    let mut translateX:f32=0.0;
+    let mut translateY:f32=0.0;
+    let mut translateZ:f32=0.0;
+    let mut zoom:      f32=1.25;
     //Depth DrawParameters - needed for the backface culling.
     let depthparams: glium::DrawParameters<'_> = glium::DrawParameters {
         depth: glium::Depth {
@@ -50,10 +44,6 @@ pub fn main() -> Result<(), String> {
         },
         .. Default::default()
     };
-    //Initialize GL display draw target
-    let mut target = display.draw();
-    //Set Blue background & Depth Buffer Reset (to 1.0 Z)
-    target.clear_color_and_depth((0.0, 0.0, 0.5, 0.5), 1.0);
 
     //Define GL Shaders for Color Input
     let vertex_shader_src_color = r#"
@@ -74,8 +64,6 @@ pub fn main() -> Result<(), String> {
             color = vec4(vertex_color, 1.0);
         }
     "#;
-    //Glium compile GL shaders - Color,
-    let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();
     let indices_triangles = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
     let indices_lineloop = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
 
@@ -83,40 +71,11 @@ pub fn main() -> Result<(), String> {
     let mut megaminx: Megaminx = Megaminx::new();
     megaminx.init_reset();
 
-    //CORNERS render
-    for i in 0..20 {
-        //Glium GL VBO 3 - CORNER - FILL
-        let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render(&*megaminx.corners[i])).unwrap();
-        target.draw(&vertex_buffer_3, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        //Glium GL VBO 3 - CORNER - LINES
-        let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render_lines(&*megaminx.corners[i])).unwrap();
-        target.draw(&vertex_buffer_3, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-    }
+    //Initialize GL display draw target
+    let mut target = display.draw();
+    //Set Blue background & Depth Buffer Reset (to 1.0 Z)
+    target.clear_color_and_depth((0.0, 0.0, 0.5, 0.5), 1.0);
 
-    //EDGES render
-    for i in 0..30 {
-        //Glium GL VBO 2 - EDGE - FILL
-        let vertex_buffer_2 = glium::VertexBuffer::new(&display, &Edge::render(&*megaminx.edges[i])).unwrap();
-        target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        //Glium GL VBO 2 - EDGE - LINES
-        let vertex_buffer_2b = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
-        let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
-        target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
-    }
-
-    //CENTERS render
-    for i in 0..12 {
-        //Glium GL VBO 1 - CENTER - FILL
-        let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap();
-        target.draw(&vertex_buffer_1, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-        //Glium GL VBO 1 - CENTER - LINES
-        let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap();
-        target.draw(&vertex_buffer_1, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
-    }
-
-    //Glium end GL
-    target.finish().unwrap();
 
     //Main Event Loop
     let mut i: u8 = 0;
@@ -127,12 +86,72 @@ pub fn main() -> Result<(), String> {
         //Color Changing Square
         canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
         let _ = canvas.fill_rect(Rect::new(0, 0, 25, 25));
-
         canvas.present();
+
+        //Orthographic Projection Matrix
+        let mut projmatrix: [[f32; 4]; 4] = [
+            [0.01, 0.0, 0.0, translateX],
+            [0.0, 0.01, 0.0, translateY],
+            [0.0, 0.0, 0.01, translateZ],
+            [0.0, 0.0, 1.0, zoom]
+        ];
+
+        //Glium compile GL shaders - Color,
+        let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();
+
+        //CORNERS render
+        for i in 0..20 {
+            //Glium GL VBO 3 - CORNER - FILL
+            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render(&*megaminx.corners[i])).unwrap();
+            target.draw(&vertex_buffer_3, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            //Glium GL VBO 3 - CORNER - LINES
+            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render_lines(&*megaminx.corners[i])).unwrap();
+            target.draw(&vertex_buffer_3, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+        }
+
+        //EDGES render
+        for i in 0..30 {
+            //Glium GL VBO 2 - EDGE - FILL
+            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &Edge::render(&*megaminx.edges[i])).unwrap();
+            target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            //Glium GL VBO 2 - EDGE - LINES
+            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
+            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
+            target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
+        }
+
+        //CENTERS render
+        for i in 0..12 {
+            //Glium GL VBO 1 - CENTER - FILL
+            let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap();
+            target.draw(&vertex_buffer_1, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            //Glium GL VBO 1 - CENTER - LINES
+            let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap();
+            target.draw(&vertex_buffer_1, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
+        }
+        // target.finish().unwrap();
+        // |         ---------- move occurs because `target` has type `Frame`, which does not implement the `Copy` trait
+        //      |                 ---- inside of this loop
+        //      |         ^^^^^^ -------- `target` moved due to this method call, in previous iteration of loop
+        // note: `Frame::finish` takes ownership of the receiver `self`, which moves `target`        
 
         //Keyboard Event Handler
         for event in event_pump.poll_iter() {
             match event {
+                // Event::KeyDown { keycode: Some(Keycode::F1), .. 
+                // } => {  megaminx.faces[0].place_parts();
+                //     = help: items from traits can only be used if the trait is implemented and in scope
+                //     note: `FacePlaceFunctions` defines an item `place_parts`, perhaps you need to implement it                    
+                // }
+                Event::KeyDown { keycode: Some(Keycode::F1), .. 
+                } => { zoom+=0.1; }
+                Event::KeyDown { keycode: Some(Keycode::F2), .. 
+                } => { translateX+=0.001; }
+                Event::KeyDown { keycode: Some(Keycode::F3), .. 
+                } => { translateY+=0.001; }
+                Event::KeyDown { keycode: Some(Keycode::F4), .. 
+                } => { translateZ+=0.001; }                
                 Event::Quit { .. }
                 | Event::KeyDown { keycode: Some(Keycode::Escape), .. 
                 } => {
