@@ -85,7 +85,7 @@ pub fn main() -> Result<(), String> {
     for i in 0..20 {
         //Glium GL VBO 3 - CORNER - FILL
         let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render(&*megaminx.corners[i])).unwrap();
-        let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TriangleFan);
+        let indices_tri_3 = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
         target.draw(&vertex_buffer_3, &indices_tri_3, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         //Glium GL VBO 3 - CORNER - LINES
         let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render_lines(&*megaminx.corners[i])).unwrap();

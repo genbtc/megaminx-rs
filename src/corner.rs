@@ -73,21 +73,31 @@ pub mod corner {
      * \brief Render Corner Node (CONST)
      */
     fn render(&self) -> Vec<VertexPositionColor> {
-        let mut cornerbuffer = vec![];
-        cornerbuffer.extend(vec![
+        let cornerbuffer = vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
+
+            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //loop1
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //tri2
+
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
-            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] }, 
-            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, //Loop2
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, //tri1
+
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] }, //tri2
+            
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[6], color: self.data.color.colorRGB[2] },
-            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] }, //loop3
-        ]);
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] }, //tri1
+
+            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] },
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] }, //tri2
+        ];
         return cornerbuffer;
     }
     /*
@@ -113,8 +123,7 @@ pub mod corner {
     }
     */
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        let mut cornerbuffer_lines = vec![];
-        cornerbuffer_lines.extend(vec![
+        let cornerbuffer_lines = vec![
             VertexPositionColor { position: self.vertex[0], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
@@ -127,7 +136,7 @@ pub mod corner {
             VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[6], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  }, //loop3
-        ]);
+        ];
         return cornerbuffer_lines;
     }
     /*

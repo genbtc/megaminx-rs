@@ -134,7 +134,7 @@ pub mod megaminx {
         for i in 0..NUM_FACES {
             //println!("initing face: {}", i);
             let mut face: Face = Face::new(i);
-            face.attach_center(&mut self.centers);//, *center_vertex_lis t);
+            face.attach_center(&mut self.centers);
             face.attach_edge_pieces(&self.edges);
             face.attach_corner_pieces(&self.corners);
             self.faces.push(Box::new(face));
