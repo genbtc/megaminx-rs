@@ -1,13 +1,11 @@
 //2024 megaminx-rs corner.rs , by genr8eofl - LICENSED APGL3
 pub mod corner {
   use crate::piece::piece::EdgeCornerInit;
-  use crate::piece::piece::PieceData;
   use crate::piece::piece::PieceInit;
   use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
-  use crate::piece_color::PieceColor::ColorData;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
@@ -22,16 +20,8 @@ pub mod corner {
       fn render_lines(&self) -> Vec<VertexPositionColor>;
       fn flip_twice(&mut self);    
       fn flip(&mut self);
-      fn getdata(&self) -> PieceData;
-      fn getcolor(&self) -> ColorData;
   }
   impl Corner for Piece {
-    fn getdata(&self) -> PieceData {
-        self.data
-    }
-    fn getcolor(&self) -> ColorData {
-        self.data.color
-    }
     fn new(&mut self) {
         self.cornerInit();
         Corner::init(self, self.defaultPieceNum, true);

@@ -36,6 +36,8 @@ pub struct PieceData {
     pub flipStatus: usize,
     pub hotPieceMoving: bool,
     pub color: ColorData,
+    //Shape enum - same as numSides = NEW
+    pub shape: Shape,    
 }  //data-members - (can swap out all at once)
 
 //Piece Object (main)
@@ -60,10 +62,10 @@ impl Piece {
         data: Default::default(),
       }
     }
-    fn swapdata(&mut self, data: &mut PieceData) {
+    pub fn swapdata(&mut self, data: &mut PieceData) {
         std::mem::swap(&mut self.data, data);
     }
-    fn getpos(&self) -> Vertex3x7 {
+    pub fn getpos(&self) -> Vertex3x7 {
         self.vertex
     }
     pub fn getdata(&self) -> PieceData {
@@ -73,6 +75,15 @@ impl Piece {
         self.data.color
     }
 }
+#[derive(Copy, Clone , Default, PartialEq)]
+pub enum Shape {
+    #[default]
+    EmptyPiece  = 0,
+    CenterPiece = 1,
+    EdgePiece   = 2,
+    CornerPiece = 3,
+}
+pub use Shape::*;
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
@@ -290,7 +301,7 @@ impl PieceMath for Piece {
 }
 //Piece Color Implementations
 pub trait PieceColor {
-    fn flip(&mut self);    
+    fn flipColor(&mut self);    
     fn setColor(&mut self, i: usize, c: ColorPack);
     fn initColorIndex(&mut self, idx: usize, k: usize);
     fn initColorA(&mut self, a: usize);
@@ -299,7 +310,7 @@ pub trait PieceColor {
 }
 impl PieceColor for Piece {
     //Flip - Changes colors. rotate/switches colors for current piece
-    fn flip(&mut self) {
+    fn flipColor(&mut self) {
         self.data.color.colorRGB[0].rotate_left(3);
         self.data.color.colorNum.rotate_left(1);
         self.data.color.colorName.rotate_left(1);

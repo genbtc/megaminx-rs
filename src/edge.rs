@@ -63,7 +63,6 @@ use crate::piece::piece::VertexPositionColor;
         self.data.color.colorRGB[0].rotate_left(3);
         self.data.color.colorNum.rotate_left(1);
         self.data.color.colorName.rotate_left(1);
-//        let is_corner: bool = self.numSides == 3;
         if self.data.flipStatus == 0 {
             self.data.flipStatus += 1;
         }

@@ -5,14 +5,12 @@ pub mod face {
   use crate::piece::piece::Vertex3;
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::PieceData;
-  use crate::piece::piece::PieceMath;
-  use crate::piece::piece::Piece;
   use crate::piece::piece::VertexPositionColor;
+  use crate::piece::piece::PieceData;
+  use crate::piece_color::PieceColor::ColorData;  
   use crate::center::center::Center;
   use crate::corner::corner::Corner;
   use crate::edge::edge::Edge;
-use crate::piece_color::PieceColor::ColorData;  
 
   //Face Data
   #[derive(Default)]
@@ -29,12 +27,12 @@ use crate::piece_color::PieceColor::ColorData;
     //Boxed References to Trait Objects
     pub center: Vec<Box<dyn Center>>,
     pub corner: Vec<Box<dyn Corner>>,
-    pub edge: Vec<Box<dyn Edge>>,
+    pub edge:   Vec<Box<dyn Edge>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
-    center_vertex_list: [Vertex3; 7],
-    edge_vertex_list:   [Vertex3; 7],
-    corner_vertex_list: [Vertex3; 7],
+    center_vertex_list: Vec<[Vertex3;7]>,
+    edge_vertex_list:   Vec<[Vertex3;7]>,
+    corner_vertex_list: Vec<[Vertex3;7]>,
   }
   /*Initialize constructor */
   impl Face {
@@ -42,18 +40,10 @@ use crate::piece_color::PieceColor::ColorData;
       Self {
         this_num: num, turn_dir: TurnDir::None, rotating: false, angle: 0.0, axis: VERTEXZERO, do_axes: false, default_piece_num: num, data: Default::default(),
         center: Default::default(), corner: Default::default(), edge: Default::default(),
-        center_vertex_list: VERTEXDATAZERO, edge_vertex_list: VERTEXDATAZERO, corner_vertex_list: VERTEXDATAZERO,
+        center_vertex_list: vec![VERTEXDATAZERO], edge_vertex_list: vec![VERTEXDATAZERO], corner_vertex_list: vec![VERTEXDATAZERO],
       }
     }
-  }  
-/* included from center.rs already;
-// pub trait Center {
-    fn newa(&mut self);
-    fn init(&mut self, piecenum: usize);
-    fn create_axis(&mut self, piecenum: usize, index: usize);
-    fn render(&mut self) -> Vec<VertexPositionColor>;
-    fn render_lines(&self) -> Vec<VertexPositionColor>;
-// } */
+  }
   impl Center for Face {
     fn getnum(&self) -> usize { 
         self.default_piece_num
@@ -61,7 +51,7 @@ use crate::piece_color::PieceColor::ColorData;
     fn getcolor(&self) -> ColorData {
         self.data.color
     }
-    fn new(&mut self) {
+    fn start(&mut self) {
         Default::default()
     }
    /**
@@ -76,8 +66,10 @@ use crate::piece_color::PieceColor::ColorData;
               Center::create_axis(self, piecenum, i);
             }
         }
+        //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
+        //|--------------------- ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
         //self.initColor(piecenum + 1);  //from Piece
-//        |              ^^^^^^^^^ method not found in `&mut Face`
+//        |----^^^^^^^^^ method not found in `&mut Face`
 //        = help: items from traits can only be used if the trait is implemented and in scope
 //      note: `piece::piece::PieceColor` defines an item `initColor`, perhaps you need to implement it        
         self.data.pieceNum = piecenum;
@@ -88,8 +80,7 @@ use crate::piece_color::PieceColor::ColorData;
     }
     fn render(&mut self) -> Vec<VertexPositionColor> {
         self.place_parts(self.turn_dir);
-        //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
-        vec![VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] } ]
+        self.render_lines()
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
         //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
@@ -100,10 +91,11 @@ use crate::piece_color::PieceColor::ColorData;
   pub trait FaceFunctions {
     fn num(&self) -> usize;
     fn attach_center(&mut self, centers: &mut Vec<Box<dyn Center>>);     //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);    
-    fn attach_corner_pieces(&mut self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&mut self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&mut self, _edges: &mut Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn get_edge_piece<Piece:Edge>(&mut self, n: usize, i: usize) -> &mut Box<dyn Edge>;
+    fn get_center_piece<Piece:Center>(&mut self, n: usize, i: usize) -> &mut Box<dyn Center>;
+    fn get_corner_piece<Piece:Corner>(&mut self, n: usize, i: usize) -> &mut Box<dyn Corner>;    
   }
   impl FaceFunctions for Face {
     fn num(&self) -> usize { 
@@ -111,7 +103,8 @@ use crate::piece_color::PieceColor::ColorData;
     }
     fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
         //println!("face.attach_center() to {}", self.this_num);
-        //self.initColor(piecenum + 1);  //from Piece, unavailable here.
+        //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
+        //               ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
         self.init(self.this_num);
         //self.create_axis(self.this_num, self.this_num);
         if self.center.len() == 0 {
@@ -139,8 +132,10 @@ use crate::piece_color::PieceColor::ColorData;
 //     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
 // note: required by a bound in `Box::<T>::new`
     
-    fn attach_corner_pieces(&mut self, corners: &Vec<Box<Piece>>) { 
-        self.corner.push(Box::new(*corners[self.this_num]));
+    fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>) { 
+         //self.corner.extend(vec![Box::new(*corners[0])]);
+//         error[E0507]: cannot move out of `*corners` which is behind a shared reference
+// |                            ^^^^^^^^ move occurs because `*corners` has type `Vec<Box<dyn Corner>>`, which does not implement the `Copy` trait
     /* let color = faces[face - 1].center.data._colorNum[0];
       defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);
       for i in 0..5 {
@@ -149,8 +144,18 @@ use crate::piece_color::PieceColor::ColorData;
       }  */
       //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
     }
-    fn attach_edge_pieces(&mut self, edges: &Vec<Box<Piece>>) { 
-        self.edge.push(Box::new(*edges[self.this_num]));
+    fn attach_edge_pieces(&mut self, _edges: &mut Vec<Box<dyn Edge>>) { 
+//        for edge in edges {
+            //self.edge.extend(vec![*edge]);
+            //error[E0507]: cannot move out of `*edge` which is behind a mutable reference
+            //^^^^^ move occurs because `*edge` has type `Box<dyn Edge>`, which does not implement the `Copy` trait
+            //self.edge.extend(vec![Box::new(*edge)]);
+            //                      ------ ^^^^^^^^^^^^^^^^^^^^^ expected `Box<dyn Edge>`, found `Box<Box<dyn Edge>>`
+            //self.edge.extend(vec![Box::new(**edge)]);
+            //error[E0277]: the size for values of type `dyn Edge` cannot be known at compilation time
+            //self.edge = vec![Box::new(**edge)];
+  //      }
+        
         /*
       defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);
       for i in 0..5 {
@@ -158,9 +163,15 @@ use crate::piece_color::PieceColor::ColorData;
           assert(edge[i]->data.pieceNum == defaultEdges[i]);
       }  */
     }
-    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<dyn Corner>>) {} //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<dyn Edge>>) {}     //(const Megaminx* megaminx, Edge& edgesPTR);    
-
+    fn get_edge_piece<Piece:Edge>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Edge> {
+        &mut self.edge[i]
+    }
+    fn get_center_piece<Piece:Center>(&mut self, _n: usize, _i: usize) -> &mut Box<dyn Center> {
+        &mut self.center[0]
+    }
+    fn get_corner_piece<Piece:Corner>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Corner> {
+        &mut self.corner[i]
+    }    
   }
 
 
@@ -248,9 +259,6 @@ use crate::piece_color::PieceColor::ColorData;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
     fn get_face_piece(&mut self, n: usize, i: usize);
-    fn get_edge_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Edge>;
-    fn get_center_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Center>;
-    fn get_corner_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Corner>;
     fn rotate(&mut self, direction: i8);
     fn render(&mut self) -> bool;
   }
@@ -307,15 +315,6 @@ use crate::piece_color::PieceColor::ColorData;
 //      |          |            ^ first borrow later used by call
 //      |          first mutable borrow occurs here
 //error[E0599]: no method named `swapdata` found for struct `Box<dyn Edge>` in the current scope  
-    }
-    fn get_edge_piece<T: PieceMath>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Edge> {
-        &mut self.edge[i]
-    }
-    fn get_center_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) -> &mut Box<dyn Center> {
-        &mut self.center[0]
-    }
-    fn get_corner_piece<T: PieceMath>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Corner> {
-        &mut self.corner[i]
     }
     fn get_face_piece(&mut self, _n: usize, _i: usize) {
         // match n {

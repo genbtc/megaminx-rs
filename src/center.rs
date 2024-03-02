@@ -10,7 +10,7 @@ pub mod center {
   use crate::piece::piece::VERTEXZERO;  
   //Center functions
   pub trait Center {
-      fn new(&mut self);
+      fn start(&mut self);
       fn getnum(&self) -> usize;
       fn getcolor(&self) -> ColorData;
       fn init(&mut self, piecenum: usize);
@@ -25,7 +25,7 @@ pub mod center {
     fn getcolor(&self) -> ColorData {
         self.data.color
     }
-    fn new(&mut self) {
+    fn start(&mut self) {
         self.centerInit();
         self.init(self.defaultPieceNum);
     }
