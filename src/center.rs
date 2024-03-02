@@ -7,13 +7,11 @@ pub mod center {
   use crate::piece::piece::PieceColor;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::Vertex3;
   //Center functions
   pub trait Center {
       fn new(&mut self);
       fn getnum(&self) -> usize;      
       fn init(&mut self, piecenum: usize);
-      fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
@@ -37,15 +35,6 @@ pub mod center {
         }
         self.initColorA(piecenum + 1);  //from Piece
     }
-    /**
-     * \brief Inits the piece with a pre-existing Vertex Array
-     * \param centerVertexBase the starting points to be memcpy'ed in
-     */
-    fn init_data(&mut self, _piecenum: usize, _center_vertex_base: [Vertex3; 7]) {
-        //COMMENTED OUT DELIBERATELY BECAUSE PIECE INIT WAS GETTING CORRUPTED WITH A SECOND INIT
-        //self.vertex = center_vertex_base;
-        //self.init(piecenum);
-    }    
 
     /**
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
