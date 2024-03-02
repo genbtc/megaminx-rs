@@ -7,22 +7,17 @@ pub mod center {
   use crate::piece::piece::PieceColor;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::Vertex3;
   //Center functions
   pub trait Center {
-      fn new(&mut self);
-      fn getnum(&self) -> usize;      
+      fn newa(&mut self);
       fn init(&mut self, piecenum: usize);
-      fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]);
+      //fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
   impl Center for Piece {
-    fn getnum(&self) -> usize { 
-        return self.defaultPieceNum;
-    }
-    fn new(&mut self) {
+    fn newa(&mut self) {
         self.centerInit();
         self.init(self.defaultPieceNum);
     }    
@@ -37,15 +32,15 @@ pub mod center {
         }
         self.initColorA(piecenum + 1);  //from Piece
     }
-    /**
-     * \brief Inits the piece with a pre-existing Vertex Array
-     * \param centerVertexBase the starting points to be memcpy'ed in
-     */
-    fn init_data(&mut self, _piecenum: usize, _center_vertex_base: [Vertex3; 7]) {
-        //COMMENTED OUT DELIBERATELY BECAUSE PIECE INIT WAS GETTING CORRUPTED WITH A SECOND INIT
-        //self.vertex = center_vertex_base;
-        //self.init(piecenum);
-    }    
+    // /**
+    //  * \brief Inits the piece with a pre-existing Vertex Array
+    //  * \param centerVertexBase the starting points to be memcpy'ed in
+    //  */
+    // fn init_data(&mut self, _piecenum: usize, _center_vertex_base: [Vertex3; 7]) {
+    //     //COMMENTED OUT DELIBERATELY BECAUSE PIECE INIT WAS GETTING CORRUPTED WITH A SECOND INIT
+    //     //self.vertex = center_vertex_base;
+    //     //self.init(piecenum);
+    // }    
 
     /**
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
@@ -66,10 +61,11 @@ pub mod center {
     }
 
     /**
-     * \brief Render Center Node (CONST)(mut for face)
+     * \brief Render Center Node (CONST)(mut why?=face said)
      */
     fn render(&mut self) -> Vec<VertexPositionColor> {
-        vec![
+         let tri1: (usize, usize, usize) = ( 0 , 1 , 2 );    let tri2: (usize, usize, usize) = ( 0 , 2 , 3 ); let tri3: (usize, usize, usize) = ( 0 , 3 , 4 );
+         return vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
@@ -79,26 +75,29 @@ pub mod center {
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[0] }, //tri3
-        ]
-        //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
+        ];
     }
+
+    //     let tri_array: [(usize, usize, usize); 3] = [tri1,tri2,tri3];
+    //     let mut returnvec = Vec::new();
+    //     for item in &tri_array {
+    //         returnvec.push(VertexPositionColor { position: self.vertex[item.0], color: self.data.color.colorRGB[0] });
+    //         returnvec.push(VertexPositionColor { position: self.vertex[item.1], color: self.data.color.colorRGB[0] });
+    //         returnvec.push(VertexPositionColor { position: self.vertex[item.2], color: self.data.color.colorRGB[0] });
+    //     }
+    //     return returnvec;
+    //     //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
+    // }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        vec![
-            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[4], color: VERTEXZERO }, //loop1
-            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
-        ]
+        let loop1 = [ 0 , 1 , 2 , 3 , 4 , 0 ];
+        let mut returnvec = Vec::new();
+        for l in loop1 {
+            returnvec.push(VertexPositionColor { position: self.vertex[l], color: VERTEXZERO });
+        }
+        return returnvec;
     }
     /*
     //Make a solid color pentagon
-    glColor3dv(data._color[0]);
-    makeGLpolygon(_vertex, 1.0, 5);
-    //Make a black line border around pentagon
-    glColor3d(0, 0, 0); //RGB(0,0,0) == Black
-    glLineWidth(3);     //border thickness
     makeGLpolygon(_vertex, 1.005, 5);   //1 + 0.005 (to account for the border)
     //label the piece with a number(string), as a floating tag on piece
     if (openGLGlobalState.textGLCenterLabels)

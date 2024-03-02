@@ -83,16 +83,13 @@ pub mod megaminx {
         // Full Re-render all if non-rotating or early startup
         //Conditionally Process all pieces that are NOT part of a rotating face.
         for i in 0..NUM_FACES {
-            let center = &mut self.centers;
-            center[i].render(); 
+            self.centers[i].render();
         }
         for i in 0..NUM_EDGES {
-            let edge = &self.edges;
-            Edge::render(&*edge[i]);
+            Edge::render(&*self.edges[i]);
         }
         for i in 0..NUM_CORNERS {
-            let corner = &self.corners;
-            Corner::render(&*corner[i]);
+            Corner::render(&*self.corners[i]);
         }
 
         // (starts up with rotating_face_index is -1)
@@ -102,7 +99,7 @@ pub mod megaminx {
         }
 
         //call .RENDER() and find out if successful
-        let didrender = FacePlaceFunctions::render(&mut *self.faces[self.rotating_face_index as usize]);
+        let didrender: bool = FacePlaceFunctions::render(&mut *self.faces[self.rotating_face_index as usize]);
         if didrender && self.is_rotating {
             //If yes, then Finish the Rotation & advance the Queue
             self.rotate_queue.pop_front();
@@ -153,9 +150,9 @@ pub mod megaminx {
     fn init_center_pieces(&mut self) {
         for i in 0..NUM_FACES {
             //println!("initing center: {}", i);
-            let mut centerpiece: Piece = Piece::new(i);
-            let center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
-            Center::init_data(&mut centerpiece, i, center_vertex_list);
+            let  centerpiece: Piece = Piece::new(i);
+            //let center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
+            //Center::init_data(&mut centerpiece, i, center_vertex_list);
             self.centers.push(Box::new(centerpiece));
             //self.print_vector(&centerpiece);
         }

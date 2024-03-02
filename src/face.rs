@@ -43,19 +43,17 @@ pub mod face {
       }
     }
   }  
-  //included from center.rs already;
-/*pub trait Center {
+/* included from center.rs already;
+// pub trait Center {
+    fn newa(&mut self);
     fn init(&mut self, piecenum: usize);
     fn create_axis(&mut self, piecenum: usize, index: usize);
-    fn render(&self);
-    fn new(&mut self);
-  } */
+    fn render(&mut self) -> Vec<VertexPositionColor>;
+    fn render_lines(&self) -> Vec<VertexPositionColor>;
+// } */
   impl Center for Face {
-    fn getnum(&self) -> usize { 
-      return self.this_num;
-    }        
-    fn new(&mut self) {
-      return Default::default();
+    fn newa(&mut self) {
+        return Default::default();
     }
    /**
      * \brief Inits a Face piece based on Center
@@ -76,31 +74,17 @@ pub mod face {
         self.data.pieceNum = piecenum;
         self.default_piece_num = piecenum;
     }
-    fn init_data(&mut self, piecenum: usize, center_vertex_base: [Vertex3; 7]) {
-        self.center_vertex_list = center_vertex_base;
-        self.init(piecenum);
-    }      
     fn create_axis(&mut self, piecenum: usize, _index: usize) {
         self.init(piecenum);
     }
     fn render(&mut self) -> Vec<VertexPositionColor> {
         self.place_parts(self.turn_dir);
         //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
-        let mut center_pentagon = vec![];
-        //Can buffer all at once
-        center_pentagon.extend(vec![
-            VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] },
-        ]);
-        return center_pentagon;        
+        vec![VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] } ]
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        //ALL JUNK NEEDED TO SATISFY RETURN VALUE
-        let mut center_pentagon = vec![];
-        //Can buffer all at once
-        center_pentagon.extend(vec![
-            VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] },
-        ]);
-        return center_pentagon;
+        //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
+        vec![VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] } ]
     }    
   }
 
@@ -122,12 +106,10 @@ pub mod face {
         if self.center.len() == 0 {
             Center::init(&mut *centers[self.this_num], self.this_num);
         }
-        //self.center.push(Box::new(*centers[self.this_num]));
+        //self.center.push(Box::new(&mut *centers[self.this_num]));
+        //self.center.push(Box::new(centers[self.this_num]));
+        //self.center.push(centers[self.this_num]);
     //     error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
-    //     --> src/face.rs:125:26
-    //      |
-    //  125 |         self.center.push(centers[self.this_num]);
-    //self.center.push(centers[self.this_num]);
     //      |                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
 // and
     //     error[E0277]: the trait bound `&mut (dyn center::center::Center + 'static): center::center::Center` is not satisfied
@@ -138,7 +120,7 @@ pub mod face {
     //      = note: required for the cast from `Box<&mut (dyn center::center::Center + 'static)>` to `Box<(dyn center::center::Center + 'static)>`        
 //    }
 // and
-            //self.center.push(Box::new(*centers[self.this_num]));
+        //self.center.push(Box::new(*centers[self.this_num]));
     }
 //    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
 //     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
@@ -169,7 +151,11 @@ pub mod face {
 
 
   #[derive(Copy, Clone, Default, PartialEq)]
-  pub enum TurnDir { Clockwise = -1, #[default] None = 0, CounterClockwise }
+  pub enum TurnDir { 
+    Clockwise = -1,
+    #[default] None = 0,
+    CounterClockwise = 1
+  }
   use TurnDir::{ Clockwise, CounterClockwise };
 
   //Named Flip Direction lists:
@@ -247,7 +233,7 @@ pub mod face {
     fn quad_swap_edges(&mut self, pack: [usize;8]) ;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
-    fn get_face_piece<T: PieceMath>(&mut self, n: usize, i: usize); // -> &mut Box<T>;
+    fn get_face_piece<T: PieceMath>(&mut self, n: usize, i: usize) ; //-> &mut Box<Piece>;
     fn rotate(&mut self, direction: i8);
     fn render(&mut self) -> bool;
   }
@@ -302,15 +288,15 @@ pub mod face {
 //      |          |            first borrow later used by call
 //      |          first mutable borrow occurs here        
     }
-    fn get_face_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) { //-> &mut Box<T> {
-        //match n {
-            //1 => { return &mut self.corner[i]; }
-            //expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type
-            //2 => { return &mut self.edge[i];   }
-            //3 => { return &mut self.center[0]; },
-        /* }
-        if (std::is_same<T, Edge>::value)
-        else if (std::is_same<T, Corner>::value)    */
+    fn get_face_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) { //-> &mut Box<Piece> {
+        // match n {
+        //     1 => { return &mut self.corner[i]; }
+        // //    expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type
+        //     2 => { return &mut self.edge[i];   }
+        //     3 => { return &mut self.center[0]; },
+        // }
+        /* if (std::is_same<T, Edge>::value)
+        else if (std::is_same<T, Corner>::value)  */
         //return &mut self.center[0];
         //return &mut Box::<T: Piece>::new(Piece::new(1));
         //^^^^^^^^^^^^^^^^^^^ expected `&mut Box<T>`, found `&mut Box<dyn Center>
@@ -454,12 +440,11 @@ pub mod face {
      * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
      * \param  direction  turn direction: -1 for Right, +1 for left (seems/is backwards). */
     fn rotate(&mut self, direction: i8) {
-        assert!(direction == Clockwise as i8 || direction == CounterClockwise as i8);
         self.rotating = true;
         match direction { 
-            1=> { self.turn_dir = CounterClockwise }
+             1=> { self.turn_dir = CounterClockwise }
             -1=> { self.turn_dir = Clockwise }
-            _=> { self.turn_dir = TurnDir::None }
+            _ => { self.turn_dir = TurnDir::None }
         }
     }
 
