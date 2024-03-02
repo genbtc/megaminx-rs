@@ -126,7 +126,7 @@ pub mod megaminx {
             //println!("initing edge: {}", i);
             let mut edgepiece: Piece = Piece::new(i);
             let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
-            Edge::init_data(&mut edgepiece, i, edge_vertex_list);
+            <dyn Edge>::init_data(&mut edgepiece, i, edge_vertex_list);
             self.edges.push(Box::new(edgepiece));
             //self.print_vector(&edgepiece);
         }
