@@ -72,6 +72,56 @@ pub mod megaminx {
 //          Corner::render(&mut *corner);
       }
     }    
+
+    /**
+     * \brief Main Render Logic function - (start handling rotation calls and sub-object render calls)
+     * \note Conditionally call each OpenGL .render() func (each rotating face, center, edge, corner)
+     */
+    fn render() {
+        //Skip everything if its invisible
+        if (invisible)
+            return;
+
+        //Start the face rotation Queue for multiple ops.
+        if (!rotateQueue.empty()) {
+            const auto &op = rotateQueue.front();
+            _rotatingFaceIndex = op.num;    //this is set only here
+            assert(_rotatingFaceIndex != -1);   //ensure safety
+            isRotating = true;
+            faces[_rotatingFaceIndex].rotate(op.dir);
+        }
+
+               // Full Re-render all if non-rotating or early startup
+        //Conditionally Process all pieces that are NOT part of a rotating face.
+        for (int i = 0; i < numFaces; ++i) {
+            if (&centers[i] != faces[_rotatingFaceIndex].center)
+                centers[i].render();
+        }
+        for (int i = 0, k = 0; i < numEdges; ++i) {
+            if (&edges[i] != faces[_rotatingFaceIndex].edge[k])
+                edges[i].render();
+            else
+                k++;
+        }
+        for (int i = 0, k = 0; i < numCorners; ++i) {
+            if (&corners[i] != faces[_rotatingFaceIndex].corner[k])
+                corners[i].render();
+            else
+                k++;
+        }
+
+        // (starts up with _rotatingFaceIndex is -1)
+        //rest of function can be skipped to avoid array[-1] error
+        if (_rotatingFaceIndex == -1)
+            return;
+
+        //call .RENDER() and find out if successful
+        if (faces[_rotatingFaceIndex].render() && isRotating) {
+            //If yes, then Finish the Rotation & advance the Queue
+            rotateQueue.pop();
+        }
+    }
+
   }
 
   //Megaminx Init Pieces Setup
