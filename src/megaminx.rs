@@ -1,17 +1,18 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 pub mod megaminx {
-  use crate::face::face::FacePlaceFunctions;
-  use crate::face::face::FaceFunctions;
-  use crate::face::face::Face;
-  use crate::piece::piece::NumDir;
-  use crate::piece::piece::Piece;
-  use crate::piece::piece::PieceInit;
-  use crate::center::center::Center;
+  pub use crate::piece::piece::EdgeCornerMath;
   use crate::edge::edge::Edge;
-  use crate::corner::corner::Corner;
-  use crate::piece::piece::Vertex3;
-  use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
-  use crate::piece::piece::PieceColor;
+  pub use crate::face::face::FacePlaceFunctions;
+  pub use crate::face::face::FaceFunctions;
+  pub use crate::face::face::Face;
+  pub use crate::piece::piece::NumDir;
+  pub use crate::piece::piece::Piece;
+  pub use crate::piece::piece::PieceInit;
+  pub use crate::center::center::Center;
+  pub use crate::corner::corner::Corner;
+  pub use crate::piece::piece::Vertex3;
+  pub use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
+  pub use crate::piece::piece::PieceColor;
   use std::collections::VecDeque;
 
   pub struct Megaminx { 
@@ -86,7 +87,7 @@ pub mod megaminx {
             self.centers[i].render();
         }
         for i in 0..NUM_EDGES {
-            Edge::render(&*self.edges[i]);
+            EdgeCornerMath::render(&*self.edges[i]);
         }
         for i in 0..NUM_CORNERS {
             Corner::render(&*self.corners[i]);

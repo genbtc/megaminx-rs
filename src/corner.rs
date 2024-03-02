@@ -1,16 +1,17 @@
 //2024 megaminx-rs corner.rs , by genr8eofl - LICENSED APGL3
 pub mod corner {
+  pub use crate::megaminx::megaminx::EdgeCornerMath;
   use crate::piece::piece::PieceInit;
   use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
-  use crate::piece::piece::Vertex3;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
+  use crate::piece::piece::Vertex3;
   //Corner functions
-  pub trait Corner {
+  pub trait Corner : EdgeCornerMath {
       fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
@@ -21,7 +22,7 @@ pub mod corner {
   impl Corner for Piece {
     fn new(&mut self) {
         self.cornerInit();
-        self.init(self.defaultPieceNum, true);
+        Corner::init(self, self.defaultPieceNum, true);
     }
     /**
      * \brief Inits a Corner piece
@@ -32,7 +33,7 @@ pub mod corner {
     fn init(&mut self, piecenum: usize, do_axes: bool) {
         if do_axes {
             for i in 0..7  {
-                self.create_axis(piecenum, i);
+                Corner::create_axis(self, piecenum, i);
             }
         }
         self.initColor(G_CORNERPIECESCOLORS[piecenum], true);
@@ -45,7 +46,7 @@ pub mod corner {
      */
     fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]) {
         self.vertex = corner_vertex_base;
-        self.init(piecenum, true)
+        Corner::init(self, piecenum, true)
     }
     /**
      * \brief createAxis sets up the x,y,z Axes that the Corner pieces ride on
@@ -93,6 +94,7 @@ pub mod corner {
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] }, //tri2
         ]
+        //println!("DEBUG Corner[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
     }
 
     fn render_lines(&self) -> Vec<VertexPositionColor> {

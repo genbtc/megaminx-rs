@@ -54,7 +54,7 @@ pub mod face {
   impl Center for Face {
     fn getnum(&self) -> usize { 
         return self.default_piece_num;
-    }    
+    }
     fn new(&mut self) {
         return Default::default();
     }
@@ -79,7 +79,7 @@ pub mod face {
     }
     fn create_axis(&mut self, piecenum: usize, _index: usize) {
         self.init(piecenum);
-    }   
+    }
     fn render(&mut self) -> Vec<VertexPositionColor> {
         self.place_parts(self.turn_dir);
         //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS

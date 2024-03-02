@@ -23,7 +23,7 @@ pub mod center {
     fn new(&mut self) {
         self.centerInit();
         self.init(self.defaultPieceNum);
-    }    
+    }
     /**
      * \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
