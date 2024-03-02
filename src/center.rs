@@ -5,12 +5,14 @@ pub mod center {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
+  use crate::piece_color::PieceColor::ColorData;
   use crate::piece::piece::VertexPositionColor;
-  use crate::piece::piece::VERTEXZERO;
+  use crate::piece::piece::VERTEXZERO;  
   //Center functions
   pub trait Center {
       fn new(&mut self);
-      fn getnum(&self) -> usize;      
+      fn getnum(&self) -> usize;
+      fn getcolor(&self) -> ColorData;
       fn init(&mut self, piecenum: usize);
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
@@ -19,6 +21,9 @@ pub mod center {
   impl Center for Piece {
     fn getnum(&self) -> usize { 
         return self.defaultPieceNum;
+    }
+    fn getcolor(&self) -> ColorData {
+        self.data.color
     }
     fn new(&mut self) {
         self.centerInit();

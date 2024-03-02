@@ -6,13 +6,13 @@ pub mod face {
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
   use crate::piece::piece::PieceData;
-  pub use crate::piece::piece::PieceMath;
-  pub use crate::piece::piece::PieceInit;
-  pub use crate::piece::piece::Piece;
+  use crate::piece::piece::PieceMath;
+  use crate::piece::piece::Piece;
   use crate::piece::piece::VertexPositionColor;
   use crate::center::center::Center;
-  pub use crate::corner::corner::Corner;
-  use crate::edge::edge::Edge;  
+  use crate::corner::corner::Corner;
+  use crate::edge::edge::Edge;
+use crate::piece_color::PieceColor::ColorData;  
 
   //Face Data
   #[derive(Default)]
@@ -27,9 +27,9 @@ pub mod face {
     default_piece_num: usize,
     data: PieceData,
     //Boxed References to Trait Objects
-    pub center: Vec<Box<(dyn Center + 'static)>>,
-    pub corner: Vec<Box<(dyn Corner + 'static)>>,
-    pub edge: Vec<Box<(dyn Edge + 'static)>>,
+    pub center: Vec<Box<dyn Center>>,
+    pub corner: Vec<Box<dyn Corner>>,
+    pub edge: Vec<Box<dyn Edge>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
     center_vertex_list: [Vertex3; 7],
@@ -56,10 +56,13 @@ pub mod face {
 // } */
   impl Center for Face {
     fn getnum(&self) -> usize { 
-        return self.default_piece_num;
+        self.default_piece_num
+    }
+    fn getcolor(&self) -> ColorData {
+        self.data.color
     }
     fn new(&mut self) {
-        return Default::default();
+        Default::default()
     }
    /**
      * \brief Inits a Face piece based on Center
@@ -96,9 +99,9 @@ pub mod face {
 
   pub trait FaceFunctions {
     fn num(&self) -> usize;
-    fn attach_center(&mut self, centers: &mut Vec<Box<(dyn Center + 'static)>>);     //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<(dyn Corner + 'static)>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<(dyn Edge + 'static)>>);      //(const Megaminx* megaminx, Edge& edgesPTR);    
+    fn attach_center(&mut self, centers: &mut Vec<Box<dyn Center>>);     //(Center* c, double* centerVertexBase);
+    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);    
     fn attach_corner_pieces(&mut self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
     fn attach_edge_pieces(&mut self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
@@ -106,7 +109,7 @@ pub mod face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, centers: &mut Vec<Box <(dyn Center + 'static)>>) {
+    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
         //println!("face.attach_center() to {}", self.this_num);
         //self.initColor(piecenum + 1);  //from Piece, unavailable here.
         self.init(self.this_num);
@@ -155,8 +158,8 @@ pub mod face {
           assert(edge[i]->data.pieceNum == defaultEdges[i]);
       }  */
     }
-    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<(dyn Corner + 'static)>>) {} //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<(dyn Edge + 'static)>>) {}     //(const Megaminx* megaminx, Edge& edgesPTR);    
+    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<dyn Corner>>) {} //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<dyn Edge>>) {}     //(const Megaminx* megaminx, Edge& edgesPTR);    
 
   }
 
@@ -244,7 +247,10 @@ pub mod face {
     fn quad_swap_edges(&mut self, pack: [usize;8]) ;
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
-    fn get_face_piece<T: PieceMath>(&mut self, n: usize, i: usize) ; //-> &mut Box<Piece>;
+    fn get_face_piece(&mut self, n: usize, i: usize);
+    fn get_edge_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Edge>;
+    fn get_center_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Center>;
+    fn get_corner_piece<T: PieceMath>(&mut self, n: usize, i: usize) -> &mut Box<dyn Corner>;
     fn rotate(&mut self, direction: i8);
     fn render(&mut self) -> bool;
   }
@@ -284,34 +290,56 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
+        //Has to be attached to the dyn Trait objects to read (get) the Data struct.
+        //Hopefully the mut swap still works.
         let mut edge_data_a = self.edge[a].getdata();
         let mut edge_data_b = self.edge[b].getdata();
+        //HAS to be broken into two because of mutability slicing
         std::mem::swap(&mut edge_data_a, &mut edge_data_b);
         // ABOVE WORKS BUT BELOW DOES NOT
         //std::mem::swap(&mut self.edge[a].data, &mut self.edge[b].data);
 //        |         --------------      ---------               ^^^^^^^^^ second mutable borrow occurs here
 //        |         |                   ^ first mutable borrow occurs here
 //        |         first borrow later used by call
-//  This definitely does not work.
+//  This way definitely does not work.
 //        &self.edge[a].swapdata(&mut self.edge[b].data);
 //      |          ---------    --------      ^^^^^^^^^ second mutable borrow occurs here
-//      |          |            |
-//      |          |            first borrow later used by call
-//      |          first mutable borrow occurs here        
+//      |          |            ^ first borrow later used by call
+//      |          first mutable borrow occurs here
+//error[E0599]: no method named `swapdata` found for struct `Box<dyn Edge>` in the current scope  
     }
-    fn get_face_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) { //-> &mut Box<Piece> {
+    fn get_edge_piece<T: PieceMath>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Edge> {
+        &mut self.edge[i]
+    }
+    fn get_center_piece<T: PieceMath>(&mut self, _n: usize, _i: usize) -> &mut Box<dyn Center> {
+        &mut self.center[0]
+    }
+    fn get_corner_piece<T: PieceMath>(&mut self, _n: usize, i: usize) -> &mut Box<dyn Corner> {
+        &mut self.corner[i]
+    }
+    fn get_face_piece(&mut self, _n: usize, _i: usize) {
         // match n {
-        //     1 => { return &mut self.corner[i]; }
-        // //    expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type
-        //     2 => { return &mut self.edge[i];   }
-        //     3 => { return &mut self.center[0]; },
+        //     1 => self.get_center_piece(n,i),
+        //     2 => self.get_edge_piece(n,i),
+        //     3 => self.get_corner_piece(n,i),
         // }
+    }
+    // error[E0308]: `match` arms have incompatible types
+    // --> src/face.rs:318:18
+    //  | |                  -------------------------- this is found to be of type `&mut Box<(dyn center::center::Center + 'static)>`
+    //  | |                  ^^^^^^^^^^^^^^^^^^^^^^^^ expected trait `Center`, found trait `Edge`
+    //  | |_________- `match` arms have incompatible types
+    //  = note: expected mutable reference `&mut Box<(dyn center::center::Center + 'static)>`
+    //             found mutable reference `&mut Box<dyn Edge>`
+
+    //    expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type            
+
         /* if (std::is_same<T, Edge>::value)
         else if (std::is_same<T, Corner>::value)  */
         //return &mut self.center[0];
         //return &mut Box::<T: Piece>::new(Piece::new(1));
         //^^^^^^^^^^^^^^^^^^^ expected `&mut Box<T>`, found `&mut Box<dyn Center>
-    }
+    
 
     /**
      * \brief Colorizing function. Intricate series of flips/swaps.

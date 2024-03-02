@@ -7,6 +7,7 @@ pub mod corner {
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
+  use crate::piece_color::PieceColor::ColorData;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
@@ -22,10 +23,14 @@ pub mod corner {
       fn flip_twice(&mut self);    
       fn flip(&mut self);
       fn getdata(&self) -> PieceData;
+      fn getcolor(&self) -> ColorData;
   }
   impl Corner for Piece {
     fn getdata(&self) -> PieceData {
         self.data
+    }
+    fn getcolor(&self) -> ColorData {
+        self.data.color
     }
     fn new(&mut self) {
         self.cornerInit();

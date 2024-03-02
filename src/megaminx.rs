@@ -19,9 +19,9 @@ pub mod megaminx {
     pub is_rotating: bool,
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
-    pub centers: Vec<Box<(dyn Center + 'static)>>,
-    pub corners: Vec<Box<(dyn Corner + 'static)>>,
-    pub edges:   Vec<Box<(dyn Edge + 'static)>>,
+    pub centers: Vec<Box<dyn Center>>,
+    pub corners: Vec<Box<dyn Corner>>,
+    pub edges:   Vec<Box<dyn Edge>>,
     pub g_current_face: Box<Face>,
     pub rotate_queue: VecDeque<NumDir>
   }
@@ -215,7 +215,7 @@ pub mod megaminx {
   impl MegaminxFindPieces for Megaminx {
     fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
       let mut piece_list = Vec::<i8>::new();
-      let color = 0;
+      //let color = 0;
       //let color = Piece::getdata((*self.faces[face - 1].center[0])).color.colorNum[0];
 //      error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
 //      error[E0599]: no method named `getdata` found for mutable reference `&mut (dyn center::center::Center + 'static)` in the current scope
@@ -225,6 +225,7 @@ pub mod megaminx {
 //
 //|                   -------------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `&Piece`, found `dyn Center`
 //|                   arguments to this function are incorrect
+      let color = self.faces[face - 1].center[0].getcolor().colorNum[0];
       assert_eq!(face,color);
         for i in 0..times  {
           if piece_list.len() >= 5 {

@@ -69,6 +69,9 @@ impl Piece {
     pub fn getdata(&self) -> PieceData {
         self.data
     }
+    pub fn getcolor(&self) -> ColorData {
+        self.data.color
+    }
 }
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
