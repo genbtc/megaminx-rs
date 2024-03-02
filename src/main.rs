@@ -3,7 +3,7 @@
 extern crate gl;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
-use sdl2::rect::Rect;//Point};
+use sdl2::rect::Rect;
 use sdl2::video::WindowBuilder;
 use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
@@ -16,10 +16,6 @@ mod corner;
 mod face;
 mod piece;
 mod piece_color;
-use crate::piece::piece::Vertex3;
-use crate::megaminx::megaminx::Megaminx;
-use crate::corner::corner::Corner;
-use crate::edge::edge::Edge;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -31,9 +27,9 @@ pub fn main() -> Result<(), String> {
     let window_b: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
 
-    let mut translateX:f32=0.0;
-    let mut translateY:f32=0.0;
-    let mut translateZ:f32=0.0;
+    let mut translate_x:f32=0.0;
+    let mut translate_y:f32=0.0;
+    let mut translate_z:f32=0.0;
     let mut zoom:      f32=1.25;
     //Depth DrawParameters - needed for the backface culling.
     let depthparams: glium::DrawParameters<'_> = glium::DrawParameters {
@@ -68,7 +64,7 @@ pub fn main() -> Result<(), String> {
     let indices_lineloop = glium::index::NoIndices(glium::index::PrimitiveType::LineLoop);
 
     //Megaminx.rs = WORK IN PROGRESS:
-    let mut megaminx: Megaminx = Megaminx::new();
+    let mut megaminx = megaminx::megaminx::Megaminx::new();
     megaminx.init_reset();
 
     //Initialize GL display draw target
@@ -89,10 +85,10 @@ pub fn main() -> Result<(), String> {
         canvas.present();
 
         //Orthographic Projection Matrix
-        let mut projmatrix: [[f32; 4]; 4] = [
-            [0.01, 0.0, 0.0, translateX],
-            [0.0, 0.01, 0.0, translateY],
-            [0.0, 0.0, 0.01, translateZ],
+        let projmatrix: [[f32; 4]; 4] = [
+            [0.01, 0.0, 0.0, translate_x],
+            [0.0, 0.01, 0.0, translate_y],
+            [0.0, 0.0, 0.01, translate_z],
             [0.0, 0.0, 1.0, zoom]
         ];
 
@@ -102,21 +98,21 @@ pub fn main() -> Result<(), String> {
         //CORNERS render
         for i in 0..20 {
             //Glium GL VBO 3 - CORNER - FILL
-            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render(&*megaminx.corners[i])).unwrap();
+            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &corner::corner::Corner::render(&*megaminx.corners[i])).unwrap();
             target.draw(&vertex_buffer_3, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 3 - CORNER - LINES
-            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &Corner::render_lines(&*megaminx.corners[i])).unwrap();
+            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &corner::corner::Corner::render_lines(&*megaminx.corners[i])).unwrap();
             target.draw(&vertex_buffer_3, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
         }
 
         //EDGES render
         for i in 0..30 {
             //Glium GL VBO 2 - EDGE - FILL
-            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &Edge::render(&*megaminx.edges[i])).unwrap();
+            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &edge::edge::Edge::render(&*megaminx.edges[i])).unwrap();
             target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 2 - EDGE - LINES
-            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
-            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
+            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &edge::edge::Edge::render_lines(&*megaminx.edges[i], 0)).unwrap();
+            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &edge::edge::Edge::render_lines(&*megaminx.edges[i], 1)).unwrap();        
             target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
         }
@@ -134,7 +130,9 @@ pub fn main() -> Result<(), String> {
         // |         ---------- move occurs because `target` has type `Frame`, which does not implement the `Copy` trait
         //      |                 ---- inside of this loop
         //      |         ^^^^^^ -------- `target` moved due to this method call, in previous iteration of loop
-        // note: `Frame::finish` takes ownership of the receiver `self`, which moves `target`        
+        // note: `Frame::finish` takes ownership of the receiver `self`, which moves `target`
+
+        //WARNING: The `Frame` object must be explicitly destroyed by calling `.finish()`
 
         //Keyboard Event Handler
         for event in event_pump.poll_iter() {
@@ -147,11 +145,11 @@ pub fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::F1), .. 
                 } => { zoom+=0.1; }
                 Event::KeyDown { keycode: Some(Keycode::F2), .. 
-                } => { translateX+=0.001; }
+                } => { translate_x+=0.001; }
                 Event::KeyDown { keycode: Some(Keycode::F3), .. 
-                } => { translateY+=0.001; }
+                } => { translate_y+=0.001; }
                 Event::KeyDown { keycode: Some(Keycode::F4), .. 
-                } => { translateZ+=0.001; }                
+                } => { translate_z+=0.001; }                
                 Event::Quit { .. }
                 | Event::KeyDown { keycode: Some(Keycode::Escape), .. 
                 } => {

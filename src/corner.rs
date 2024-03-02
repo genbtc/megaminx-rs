@@ -6,7 +6,7 @@ pub mod corner {
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
-  use crate::Vertex3;
+  use crate::piece::piece::Vertex3;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
   //Corner functions

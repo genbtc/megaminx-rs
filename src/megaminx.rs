@@ -1,7 +1,9 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 pub mod megaminx {
+  use crate::face::face::FacePlaceFunctions;
   use crate::face::face::FaceFunctions;
   use crate::face::face::Face;
+  use crate::piece::piece::NumDir;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceInit;
   use crate::center::center::Center;
@@ -21,7 +23,7 @@ pub mod megaminx {
     pub corners: Vec<Box<Piece>>,
     pub edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,
-    pub rotate_queue: VecDeque<usize>
+    pub rotate_queue: VecDeque<NumDir>
   }
   
   impl Megaminx {
@@ -55,13 +57,8 @@ pub mod megaminx {
         self.init_corner_pieces();
         self.init_center_pieces();
         self.init_face_pieces();
-        //self._render_all_pieces();
+        self.render();
     }
-    /**                                                                                                                                     
-     * \brief Default Render ALL the pieces (unconditionally)                                                                               
-     */
-    fn _render_all_pieces(&mut self) {
-    }    
 
     /**
      * \brief Main Render Logic function - (start handling rotation calls and sub-object render calls)
@@ -74,56 +71,59 @@ pub mod megaminx {
         }
 
         //Start the face rotation Queue for multiple ops.
-        if !self.rotate_queue.is_empty() {
-            let Some(&op) = self.rotate_queue.front();
+        if ! self.rotate_queue.is_empty() {
+            //let Some(&op) = self.rotate_queue.front();
+          //   error[E0005]: refutable pattern in local binding
+          //    |                 ^^^^^^^^^ pattern `None` not covered
+          //    = note: `let` bindings require an "irrefutable pattern", like a `struct` or an `enum` with only one variant
+          //    = note: for more information, visit https://doc.rust-lang.org/book/ch18-02-refutability.html
+          //    = note: the matched value is of type `Option<&NumDir>`
+          // help: you might want to use `let else` to handle the variant that isn't matched
+            let Some(&ref op) = self.rotate_queue.front() else { todo!() };
+
             self.rotating_face_index = op.num;    //this is set only here
+            //error[E0610]: `usize` is a primitive type and therefore doesn't have fields  = DEFINE Struct NumDir
             assert!(self.rotating_face_index != -1);   //ensure safety
             self.is_rotating = true;
-            self.faces[self.rotating_face_index as usize].rotate(op.dir);
+            //(*self.faces[self.rotating_face_index as usize]).rotate(op.dir);
+            FacePlaceFunctions::rotate(&mut *self.faces[self.rotating_face_index as usize], op.dir);
 //|                                                       ^^^^^^ method not found in `Box<Face>
         }
 
         // Full Re-render all if non-rotating or early startup
         //Conditionally Process all pieces that are NOT part of a rotating face.
         for i in 0..NUM_FACES {
-          let center = self.centers;
-          if center[i] != self.faces[self.rotating_face_index as usize].center[0] {
+          let center = &mut self.centers;
+          if center[i].getnum() != self.faces[self.rotating_face_index as usize].center[0].getnum() {
 //error[E0369]: binary operation `!=` cannot be applied to type `Box<dyn center::center::Center>`
-//|              --------- ^^ ------------------------------------------------------- Box<dyn center::center::Center>
-//|              Box<dyn center::center::Center>
-            Center::render(&mut center[i]);
-            //center.render(); 
+//|          --------- ^^ ------------------------------------------------------- Box<dyn center::center::Center>
+//|          Box<dyn center::center::Center>
+            center[i].render(); 
           }
         }
-        let k: usize = 0;
+        let mut k: usize = 0;
         for i in 0..NUM_EDGES {
-          let edge = self.edges;
+          let edge = &self.edges;
           if edge[i] != self.faces[self.rotating_face_index as usize].edge[k] {
             //edge[i].render();
-            Edge::render(&edge[i]);
-//|         ------------ ^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
+            //error[E0034]: multiple applicable items in scope
+            Edge::render(&*edge[i]);
+//|         ------------ ^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>` = *DEREF
           } else {
             k += 1;
           }
         }
-        let k: usize = 0;
+        let mut k: usize = 0;
         for i in 0..NUM_CORNERS {
-          let corner = self.corners;
+          let corner = &self.corners;
           if corner[i] != self.faces[self.rotating_face_index as usize].corner[k] {
             //corner[i].render();
-            Corner::render(&corner[i]);
-//|         -------------- ^^^^^^^^^^ the trait `Corner` is not implemented for `Box<Piece>`
+            Corner::render(&*corner[i]);
+//|         -------------- ^^^^^^^^^^ the trait `Corner` is not implemented for `Box<Piece>` = *DEREF
           } else {
             k += 1;
           }
         }
-            //_edge.render();
-            //error[E0034]: multiple applicable items in scope
-              //Edge::render(&mut *edge);
-    //          |           ------------ ^^^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
-    //          |           required by a bound introduced by this call          
-    // and
-    //          Corner::render(&mut *corner);
 
         // (starts up with rotating_face_index is -1)
         //rest of function can be skipped to avoid array[-1] error
@@ -132,8 +132,8 @@ pub mod megaminx {
         }
 
         //call .RENDER() and find out if successful
-        let didrender = self.faces[self.rotating_face_index as usize].render();
-        if didrender.len() > 0 && self.is_rotating {
+        let didrender = FacePlaceFunctions::render(&mut *self.faces[self.rotating_face_index as usize]);
+        if didrender && self.is_rotating {
             //If yes, then Finish the Rotation & advance the Queue
             self.rotate_queue.pop_front();
         }

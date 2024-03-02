@@ -356,4 +356,9 @@ impl PieceColor for Piece {
                self.data.color.colorNum[2] == color;
     }
   }
+  pub struct NumDir {                                                                                                                                                                                                                                         
+    pub num: i8,
+    pub dir: i8,
+    pub algo: i8,
+  }
 }

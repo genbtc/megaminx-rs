@@ -2,16 +2,14 @@
 #![allow(non_upper_case_globals)]
 #![allow(dead_code)]
 pub mod face {
+  use crate::piece::piece::Vertex3;
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
-  use crate::Vertex3;
   use crate::piece::piece::PieceData;
   use crate::piece::piece::PieceMath;
   use crate::piece::piece::Piece;
   use crate::piece::piece::VertexPositionColor;
   use crate::center::center::Center;
-  //use crate::edge::edge::Edge;
-  //use crate::corner::corner::Corner;  
 
   //Face Data
   #[derive(Default)]
@@ -158,7 +156,7 @@ pub mod face {
 
 
   #[derive(Copy, Clone, Default, PartialEq)]
-  enum TurnDir { Clockwise = -1, #[default] None = 0, CounterClockwise }
+  pub enum TurnDir { Clockwise = -1, #[default] None = 0, CounterClockwise }
   use TurnDir::{ Clockwise, CounterClockwise };
 
   //Named Flip Direction lists:
@@ -228,7 +226,7 @@ pub mod face {
   static CW10E: [usize;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
   static CW11E: [usize;8] = CW7E;
 
-  trait FacePlaceFunctions {
+  pub trait FacePlaceFunctions {
     fn place_parts(&mut self, dir: TurnDir) -> bool;
     fn two_edges_flip(&mut self, a: usize, b: usize);
     fn flip_corners(&mut self, a: usize, b: usize, c: usize, d: usize, pack: [usize;4]);
@@ -237,7 +235,7 @@ pub mod face {
     fn quad_swap_corners(&mut self, pack: [usize;8]);
     fn swap_pieces(&mut self, a: usize, b: usize);
     fn get_face_piece<T: PieceMath>(&mut self, n: usize, i: usize); // -> &mut Box<T>;
-    fn rotate(&mut self, direction: TurnDir);
+    fn rotate(&mut self, direction: i8);
     fn render(&mut self) -> bool;
   }
   /**
@@ -442,10 +440,14 @@ pub mod face {
     /**
      * \brief Public. Calling this sets off a chain of events in the render loops to rotate.
      * \param  direction  turn direction: -1 for Right, +1 for left (seems/is backwards). */
-    fn rotate(&mut self, direction: TurnDir) {
-        assert!(direction == Clockwise || direction == CounterClockwise);
+    fn rotate(&mut self, direction: i8) {
+        assert!(direction == Clockwise as i8 || direction == CounterClockwise as i8);
         self.rotating = true;
-        self.turn_dir = direction;
+        match direction { 
+            1=> { self.turn_dir = CounterClockwise }
+            -1=> { self.turn_dir = Clockwise }
+            _=> { self.turn_dir = TurnDir::None }
+        }
     }
 
     /**
