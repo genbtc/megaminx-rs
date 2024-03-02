@@ -52,7 +52,10 @@ pub mod face {
     fn render_lines(&self) -> Vec<VertexPositionColor>;
 // } */
   impl Center for Face {
-    fn newa(&mut self) {
+    fn getnum(&self) -> usize { 
+        return self.default_piece_num;
+    }    
+    fn new(&mut self) {
         return Default::default();
     }
    /**
@@ -77,6 +80,9 @@ pub mod face {
     fn create_axis(&mut self, piecenum: usize, _index: usize) {
         self.init(piecenum);
     }
+    fn init_data(&mut self, _piecenum: usize, _center_vertex_base: [Vertex3; 7]) {
+        //COMMENTED OUT DELIBERATELY FOR CENTER.RS
+    }      
     fn render(&mut self) -> Vec<VertexPositionColor> {
         self.place_parts(self.turn_dir);
         //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
