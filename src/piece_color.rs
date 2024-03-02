@@ -9,7 +9,7 @@ pub mod PieceColor {
     pub const NUM_EDGES:   usize = 30;
 
     //Megaminx standard color names defined in numerical int order 
-    #[derive(Copy,Clone,Default)]
+    #[derive(Copy, Clone , Default, PartialEq)]
     pub enum MegaminxColor {
         #[default]
         Black,
@@ -31,7 +31,7 @@ pub mod PieceColor {
     const MAX_COLOR_STATES: usize = MaxColorStates as usize;
 
     //Color Pack - scaffolding Struct
-    #[derive(Copy,Clone,Default)]
+    #[derive(Copy, Clone, Default, PartialEq)]
     pub struct ColorPack {
         pub i: usize,
         pub r: f32,
@@ -46,7 +46,7 @@ pub mod PieceColor {
         }
     }
     //Color Block
-    #[derive(Copy, Clone, Default)]
+    #[derive(Copy, Clone, Default, PartialEq)]
     pub struct ColorData {
         pub colorNum: [usize; 3],
         pub colorName: [&'static str; 3],

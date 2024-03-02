@@ -30,7 +30,7 @@ pub const VERTEXDATAZERO: Vertex3x7 = [VERTEXZERO; 7];
 pub const COLORGRAY: Vertex3 = [0.5,0.5,0.5];
 
 //Piece Block
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq)]
 pub struct PieceData {
     pub pieceNum: usize,
     pub flipStatus: usize,
@@ -39,7 +39,7 @@ pub struct PieceData {
 }  //data-members - (can swap out all at once)
 
 //Piece Object (main)
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq)]
 pub struct Piece {
     //Coords for GL vertex*3 (up to 7, not all used)
     pub vertex: Vertex3x7,

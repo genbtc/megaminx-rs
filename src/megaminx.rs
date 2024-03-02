@@ -10,6 +10,7 @@ pub mod megaminx {
   use crate::piece::piece::Vertex3;
   use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
   use crate::piece::piece::PieceColor;
+  use std::collections::VecDeque;
 
   pub struct Megaminx { 
     pub invisible: bool,
@@ -20,6 +21,7 @@ pub mod megaminx {
     pub corners: Vec<Box<Piece>>,
     pub edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,
+    pub rotate_queue: VecDeque<usize>
   }
   
   impl Megaminx {
@@ -34,6 +36,7 @@ pub mod megaminx {
         corners: Default::default(),
         edges:   Default::default(),
         g_current_face: Default::default(),
+        rotate_queue: Default::default(),
       }
     }
     /**
@@ -58,67 +61,81 @@ pub mod megaminx {
      * \brief Default Render ALL the pieces (unconditionally)                                                                               
      */
     fn _render_all_pieces(&mut self) {
-      for center in &mut self.centers {
-          center.render();
-      }
-      for _edge in &self.edges {
-        //_edge.render();
-        //error[E0034]: multiple applicable items in scope
-          //Edge::render(&mut *edge);
-//          |           ------------ ^^^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
-//          |           required by a bound introduced by this call          
-      }
-      for _corner in &self.corners {
-//          Corner::render(&mut *corner);
-      }
     }    
 
     /**
      * \brief Main Render Logic function - (start handling rotation calls and sub-object render calls)
      * \note Conditionally call each OpenGL .render() func (each rotating face, center, edge, corner)
      */
-    fn render() {
+    fn render(&mut self) {
         //Skip everything if its invisible
-        if (invisible)
+        if self.invisible {
             return;
+        }
 
         //Start the face rotation Queue for multiple ops.
-        if (!rotateQueue.empty()) {
-            const auto &op = rotateQueue.front();
-            _rotatingFaceIndex = op.num;    //this is set only here
-            assert(_rotatingFaceIndex != -1);   //ensure safety
-            isRotating = true;
-            faces[_rotatingFaceIndex].rotate(op.dir);
+        if !self.rotate_queue.is_empty() {
+            let Some(&op) = self.rotate_queue.front();
+            self.rotating_face_index = op.num;    //this is set only here
+            assert!(self.rotating_face_index != -1);   //ensure safety
+            self.is_rotating = true;
+            self.faces[self.rotating_face_index as usize].rotate(op.dir);
+//|                                                       ^^^^^^ method not found in `Box<Face>
         }
 
-               // Full Re-render all if non-rotating or early startup
+        // Full Re-render all if non-rotating or early startup
         //Conditionally Process all pieces that are NOT part of a rotating face.
-        for (int i = 0; i < numFaces; ++i) {
-            if (&centers[i] != faces[_rotatingFaceIndex].center)
-                centers[i].render();
+        for i in 0..NUM_FACES {
+          let center = self.centers;
+          if center[i] != self.faces[self.rotating_face_index as usize].center[0] {
+//error[E0369]: binary operation `!=` cannot be applied to type `Box<dyn center::center::Center>`
+//|              --------- ^^ ------------------------------------------------------- Box<dyn center::center::Center>
+//|              Box<dyn center::center::Center>
+            Center::render(&mut center[i]);
+            //center.render(); 
+          }
         }
-        for (int i = 0, k = 0; i < numEdges; ++i) {
-            if (&edges[i] != faces[_rotatingFaceIndex].edge[k])
-                edges[i].render();
-            else
-                k++;
+        let k: usize = 0;
+        for i in 0..NUM_EDGES {
+          let edge = self.edges;
+          if edge[i] != self.faces[self.rotating_face_index as usize].edge[k] {
+            //edge[i].render();
+            Edge::render(&edge[i]);
+//|         ------------ ^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
+          } else {
+            k += 1;
+          }
         }
-        for (int i = 0, k = 0; i < numCorners; ++i) {
-            if (&corners[i] != faces[_rotatingFaceIndex].corner[k])
-                corners[i].render();
-            else
-                k++;
+        let k: usize = 0;
+        for i in 0..NUM_CORNERS {
+          let corner = self.corners;
+          if corner[i] != self.faces[self.rotating_face_index as usize].corner[k] {
+            //corner[i].render();
+            Corner::render(&corner[i]);
+//|         -------------- ^^^^^^^^^^ the trait `Corner` is not implemented for `Box<Piece>`
+          } else {
+            k += 1;
+          }
         }
+            //_edge.render();
+            //error[E0034]: multiple applicable items in scope
+              //Edge::render(&mut *edge);
+    //          |           ------------ ^^^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>`
+    //          |           required by a bound introduced by this call          
+    // and
+    //          Corner::render(&mut *corner);
 
-        // (starts up with _rotatingFaceIndex is -1)
+        // (starts up with rotating_face_index is -1)
         //rest of function can be skipped to avoid array[-1] error
-        if (_rotatingFaceIndex == -1)
+        if self.rotating_face_index == -1 {
             return;
+        }
 
         //call .RENDER() and find out if successful
-        if (faces[_rotatingFaceIndex].render() && isRotating) {
+        let didrender = self.faces[self.rotating_face_index as usize].render();
+        if didrender.len() > 0 && self.is_rotating {
             //If yes, then Finish the Rotation & advance the Queue
-            rotateQueue.pop();
+            self.rotate_queue.pop_front();
         }
     }
 
