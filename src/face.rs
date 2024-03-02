@@ -24,7 +24,7 @@ pub mod face {
     default_piece_num: usize,
     data: PieceData,
     //Boxed References to Trait Objects
-    pub center: Vec<Box<dyn Center>>,
+    pub center: Vec<Box<(dyn Center + 'static)>>,
     pub corner: Vec<Box<Piece>>,
     pub edge: Vec<Box<Piece>>,
     //TODO: hold a pointer back to the parent megaminx
@@ -106,7 +106,7 @@ pub mod face {
 
   pub trait FaceFunctions {
     fn num(&self) -> usize;
-    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>);     //(Center* c, double* centerVertexBase);
+    fn attach_center(&mut self, centers: &mut Vec<Box<(dyn Center + 'static)>>);     //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&mut self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
     fn attach_edge_pieces(&mut self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
@@ -114,7 +114,7 @@ pub mod face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
+    fn attach_center(&mut self, centers: &mut Vec<Box <(dyn Center + 'static)>>) {
         //println!("face.attach_center() to {}", self.this_num);
         //self.initColor(piecenum + 1);  //from Piece, unavailable here.
         self.init(self.this_num);
@@ -122,11 +122,24 @@ pub mod face {
         if self.center.len() == 0 {
             Center::init(&mut *centers[self.this_num], self.this_num);
         }
+        //self.center.push(Box::new(*centers[self.this_num]));
+    //     error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
+    //     --> src/face.rs:125:26
+    //      |
+    //  125 |         self.center.push(centers[self.this_num]);
+    //self.center.push(centers[self.this_num]);
+    //      |                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
+// and
+    //     error[E0277]: the trait bound `&mut (dyn center::center::Center + 'static): center::center::Center` is not satisfied
+    //      |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `center::center::Center` is not implemented for `&mut (dyn center::center::Center + 'static)`
+    //      = help: the following other types implement trait `center::center::Center`:
+    //                Face
+    //                Piece
+    //      = note: required for the cast from `Box<&mut (dyn center::center::Center + 'static)>` to `Box<(dyn center::center::Center + 'static)>`        
+//    }
+// and
+            //self.center.push(Box::new(*centers[self.this_num]));
     }
-//            error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
-//            self.center.push(centers[self.this_num]);            
-//|                            ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait
-//            self.center.push(Box::new(*centers[self.this_num]));
 //    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
 //     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
 //     |                          required by a bound introduced by this call

@@ -19,7 +19,7 @@ pub mod megaminx {
     pub is_rotating: bool,
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
-    pub centers: Vec<Box<dyn Center>>,
+    pub centers: Vec<Box<(dyn Center + 'static)>>,
     pub corners: Vec<Box<Piece>>,
     pub edges: Vec<Box<Piece>>,
     pub g_current_face: Box<Face>,
@@ -64,6 +64,7 @@ pub mod megaminx {
      * \brief Main Render Logic function - (start handling rotation calls and sub-object render calls)
      * \note Conditionally call each OpenGL .render() func (each rotating face, center, edge, corner)
      */
+    #[allow(dead_code)]
     fn render(&mut self) {
         //Skip everything if its invisible
         if self.invisible {
@@ -72,57 +73,26 @@ pub mod megaminx {
 
         //Start the face rotation Queue for multiple ops.
         if ! self.rotate_queue.is_empty() {
-            //let Some(&op) = self.rotate_queue.front();
-          //   error[E0005]: refutable pattern in local binding
-          //    |                 ^^^^^^^^^ pattern `None` not covered
-          //    = note: `let` bindings require an "irrefutable pattern", like a `struct` or an `enum` with only one variant
-          //    = note: for more information, visit https://doc.rust-lang.org/book/ch18-02-refutability.html
-          //    = note: the matched value is of type `Option<&NumDir>`
-          // help: you might want to use `let else` to handle the variant that isn't matched
             let Some(&ref op) = self.rotate_queue.front() else { todo!() };
-
             self.rotating_face_index = op.num;    //this is set only here
-            //error[E0610]: `usize` is a primitive type and therefore doesn't have fields  = DEFINE Struct NumDir
             assert!(self.rotating_face_index != -1);   //ensure safety
             self.is_rotating = true;
-            //(*self.faces[self.rotating_face_index as usize]).rotate(op.dir);
-            FacePlaceFunctions::rotate(&mut *self.faces[self.rotating_face_index as usize], op.dir);
-//|                                                       ^^^^^^ method not found in `Box<Face>
+            self.faces[self.rotating_face_index as usize].rotate(op.dir);
         }
 
         // Full Re-render all if non-rotating or early startup
         //Conditionally Process all pieces that are NOT part of a rotating face.
         for i in 0..NUM_FACES {
-          let center = &mut self.centers;
-          if center[i].getnum() != self.faces[self.rotating_face_index as usize].center[0].getnum() {
-//error[E0369]: binary operation `!=` cannot be applied to type `Box<dyn center::center::Center>`
-//|          --------- ^^ ------------------------------------------------------- Box<dyn center::center::Center>
-//|          Box<dyn center::center::Center>
+            let center = &mut self.centers;
             center[i].render(); 
-          }
         }
-        let mut k: usize = 0;
         for i in 0..NUM_EDGES {
-          let edge = &self.edges;
-          if edge[i] != self.faces[self.rotating_face_index as usize].edge[k] {
-            //edge[i].render();
-            //error[E0034]: multiple applicable items in scope
+            let edge = &self.edges;
             Edge::render(&*edge[i]);
-//|         ------------ ^^^^^^^^ the trait `Edge` is not implemented for `Box<Piece>` = *DEREF
-          } else {
-            k += 1;
-          }
         }
-        let mut k: usize = 0;
         for i in 0..NUM_CORNERS {
-          let corner = &self.corners;
-          if corner[i] != self.faces[self.rotating_face_index as usize].corner[k] {
-            //corner[i].render();
+            let corner = &self.corners;
             Corner::render(&*corner[i]);
-//|         -------------- ^^^^^^^^^^ the trait `Corner` is not implemented for `Box<Piece>` = *DEREF
-          } else {
-            k += 1;
-          }
         }
 
         // (starts up with rotating_face_index is -1)
