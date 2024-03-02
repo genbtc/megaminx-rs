@@ -2,21 +2,41 @@
 pub mod edge {
   use crate::piece::piece::EdgeCornerInit;
   use crate::piece::piece::Piece;
+  use crate::piece::piece::PieceColor;
   use crate::piece::piece::PieceData;
-use crate::piece::piece::VertexPositionColor;
+  use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
+  use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
   //Edge functions
   pub trait Edge : EdgeCornerInit {
+    fn getdata(&self) -> &PieceData;
+    fn init(&mut self, piecenum: usize, do_axes: bool);    
     fn render(&self) -> Vec<VertexPositionColor>;
     fn render_lines(&self, n: i8) -> Vec<VertexPositionColor>;
     fn flip_twice(&mut self);    
     fn flip(&mut self);
-    fn getdata(&self) -> &PieceData;
   }
   impl Edge for Piece {
     fn getdata(&self) -> &PieceData {
         &self.data
-    }
+    }//for faces.rs:swap_pieces()
+    /**
+     * \brief Inits a EdgeCorner piece
+     * \note  (calls createAxis and initColor)
+     * \param n the number of the EdgeCorner piece (piecenum)
+     * \param doAxes True by default. First Time Initialization Only
+     */
+    fn init(&mut self, piecenum: usize, do_axes: bool) {
+        self.new();
+        if do_axes {
+            for i in 0..6 {
+                self.create_edge_axis(piecenum, i);
+            }
+        }
+        self.initColor(G_EDGEPIECESCOLORS[piecenum], false);
+        self.data.pieceNum = piecenum;
+        self.defaultPieceNum = piecenum;
+    }    
     /**
      * \brief Render Edge Node (CONST)
      */

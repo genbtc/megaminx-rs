@@ -1,10 +1,7 @@
 //2024 megaminx-rs corner.rs , by genr8eofl - LICENSED APGL3
 pub mod corner {
   use crate::piece::piece::EdgeCornerInit;
-  use crate::piece::piece::PieceInit;
-  use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
-  use crate::piece::piece::PieceMath;
   use crate::piece::piece::PieceColor;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
@@ -12,20 +9,14 @@ pub mod corner {
   use crate::piece::piece::Vertex3;
   //Corner functions
   pub trait Corner : EdgeCornerInit {
-      fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
-      fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
       fn flip_twice(&mut self);    
       fn flip(&mut self);
   }
   impl Corner for Piece {
-    fn new(&mut self) {
-        self.cornerInit();
-        Corner::init(self, self.defaultPieceNum, true);
-    }
     /**
      * \brief Inits a Corner piece
      * \note  (calls createAxis and initColor)
@@ -35,7 +26,7 @@ pub mod corner {
     fn init(&mut self, piecenum: usize, do_axes: bool) {
         if do_axes {
             for i in 0..7  {
-                Corner::create_axis(self, piecenum, i);
+                self.create_corner_axis(piecenum, i);
             }
         }
         self.initColor(G_CORNERPIECESCOLORS[piecenum], true);
@@ -55,23 +46,7 @@ pub mod corner {
      * \note (called by init on startup)
      * \param n - the number of the piece (piecenum)
      */
-    fn create_axis(&mut self, piecenum: usize, index: usize) {
-        let mut pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
-        match piecenum + 1 {
-        1=> { },
-        2..=5 => {
-            self.axis1multi(index, pack); },
-        6..=10 => {
-            self.CenterSide1(index, pack); },
-        11..=15 => {
-            self.CornerGrp3(index, pack); },
-        16..=20 => {
-            pack.axis1 = 'x';
-            pack.axis2 = 'z';
-            self.CornerGrp4(index, pack); },
-        _ => println!("Must be within 1-20"),
-        }
-    }
+
     /**
      * \brief Render Corner Node (CONST)
      */

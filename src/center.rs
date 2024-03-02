@@ -14,7 +14,7 @@ pub mod center {
       fn getnum(&self) -> usize;
       fn getcolor(&self) -> ColorData;
       fn init(&mut self, piecenum: usize);
-      fn create_axis(&mut self, piecenum: usize, index: usize);
+      fn create_center_axis(&mut self, piecenum: usize, index: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
@@ -36,17 +36,16 @@ pub mod center {
      */
     fn init(&mut self, piecenum: usize) {
         for i in 0..5  {
-            self.create_axis(piecenum, i);
+            self.create_center_axis(piecenum, i);
         }
         self.initColorA(piecenum + 1);  //from Piece
     }
-
     /**
      * \brief createAxis sets up the x,y,z Axes that the Center pieces ride on
      * \note (called by init on startup)
      * \param n - the number of the piece (piecenum)
      */
-    fn create_axis(&mut self, piecenum: usize, index: usize) {
+    fn create_center_axis(&mut self, piecenum: usize, index: usize) {
         match piecenum + 1 {
         2..=6 => {
             self.CenterSide1(index, PiecePack { axis1: 'z', axis2: 'x', multi: ((piecenum-1) * 2 % 10) }); },
@@ -58,7 +57,6 @@ pub mod center {
         _ => println!("Must be within 1-12"),
         }
     }
-
     /**
      * \brief Render Center Node (CONST)(mut for face)
      */
@@ -77,27 +75,18 @@ pub mod center {
         //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        vec![
-            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
-            VertexPositionColor { position: self.vertex[4], color: VERTEXZERO }, //loop1
-            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO },
-        ]
+        let mut returnvec = vec![];
+        for l in  [ 0 , 1 , 2 , 3 , 4 , 0 ] {
+            returnvec.push(VertexPositionColor { position: self.vertex[l], color: VERTEXZERO });
+        }
+        return returnvec;
     }
-    /*
-    //Make a solid color pentagon
-    glColor3dv(data._color[0]);
-    makeGLpolygon(_vertex, 1.0, 5);
-    //Make a black line border around pentagon
-    glColor3d(0, 0, 0); //RGB(0,0,0) == Black
+    /* 
     glLineWidth(3);     //border thickness
     makeGLpolygon(_vertex, 1.005, 5);   //1 + 0.005 (to account for the border)
     //label the piece with a number(string), as a floating tag on piece
     if (openGLGlobalState.textGLCenterLabels)
         utDrawText3DFont(_vertex[4][0]*1.1,_vertex[4][1]*1.1,_vertex[4][2]*1.1, GLUT_BITMAP_HELVETICA_18, data._colorName[0]);
-                                                    // 1.1x spaces it out
-    */
+                                                    // 1.1x spaces it out     */
   }
 }

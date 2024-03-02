@@ -116,6 +116,7 @@ pub mod megaminx {
     fn init_face_pieces(&mut self);
     fn print_vector(&mut self,piece: &Piece);
   }
+  use crate::piece::piece::EdgeCornerInit;
   impl MegaminxInitFunctions for Megaminx {
 
     /** \brief Init the Edge pieces. (numEdges = 30)  */
@@ -125,7 +126,7 @@ pub mod megaminx {
             //println!("initing edge: {}", i);
             let mut edgepiece: Piece = Piece::new(i);
             let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
-            <dyn Edge>::init_data(&mut edgepiece, i, edge_vertex_list);
+            edgepiece.init_edge_data(i, edge_vertex_list);
             self.edges.push(Box::new(edgepiece));
             //self.print_vector(&edgepiece);
         }
@@ -139,7 +140,7 @@ pub mod megaminx {
             //println!("initing corner: {}", i);
             let mut cornerpiece: Piece = Piece::new(i);
             let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
-            Corner::init_data(&mut cornerpiece, i, corner_vertex_list);
+            cornerpiece.init_data(i, corner_vertex_list);
             self.corners.push(Box::new(cornerpiece));
             //self.print_vector(&cornerpiece);
         }
@@ -152,6 +153,7 @@ pub mod megaminx {
             //println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i);
             let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
+            Center::init(&mut centerpiece, i);
             //Center::init_data(&mut centerpiece, i, center_vertex_list);
             self.centers.push(Box::new(centerpiece));
             //self.print_vector(&centerpiece);
@@ -167,10 +169,10 @@ pub mod megaminx {
     fn init_face_pieces(&mut self) {
         for i in 0..NUM_FACES {
             //println!("initing face: {}", i);
-            let mut face: Face = Face::new(i);
-            face.attach_center(&mut self.centers);
-            face.attach_edge_pieces(&mut self.edges);
-            face.attach_corner_pieces(&mut self.corners);
+            let  face: Face = Face::new(i);
+            // face.attach_center(&mut self.centers);
+            // face.attach_edge_pieces(&mut self.edges);
+            // face.attach_corner_pieces(&mut self.corners);
             self.faces.push(Box::new(face));
         }
         assert_eq!(self.faces.len(), NUM_FACES);        

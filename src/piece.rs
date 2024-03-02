@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 pub mod piece {
-use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS, G_EDGEPIECESCOLORS};
+use crate::{edge::edge::Edge, piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS}};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
@@ -37,7 +37,7 @@ pub struct PieceData {
     pub hotPieceMoving: bool,
     pub color: ColorData,
     //Shape enum - same as numSides = NEW
-    pub shape: Shape,    
+    pub shape: Shape,
 }  //data-members - (can swap out all at once)
 
 //Piece Object (main)
@@ -371,40 +371,41 @@ impl PieceColor for Piece {
   }
   pub trait EdgeCornerInit : PieceInit {
     fn new(&mut self);
-    fn init_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
-    fn init(&mut self, piecenum: usize, do_axes: bool);
-    fn create_axis(&mut self, piecenum: usize, index: usize);    
+    fn newEnum(&mut self, shapeType: Shape);
+    fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
+    fn create_edge_axis(&mut self, piecenum: usize, index: usize);
+    fn create_corner_axis(&mut self, piecenum: usize, index: usize);
   }
   impl EdgeCornerInit for Piece {
     fn new(&mut self) {
-        self.edgeInit();
-        self.init(self.defaultPieceNum, true);
+        //This is not set at the startup, Catch22.
+        match self.numSides {
+            2 => { self.edgeInit();   },
+            3 => { self.cornerInit(); },
+            1 => { self.centerInit(); },
+            0 => { self.faceInit();   },
+            _ => {},
+        }
+        //self.init(self.defaultPieceNum, true);
+    }
+    //Starts a piece based on the Shape Enum passed in.
+    fn newEnum(&mut self, shapeType: Shape) {
+        match shapeType {
+            EdgePiece   => { self.edgeInit();   },
+            CornerPiece => { self.cornerInit(); },
+            CenterPiece => { self.centerInit(); },
+            EmptyPiece  => { self.faceInit();   },
+        }
     }
     /**
      * \brief Inits the piece with a pre-existing Vertex Array
-     * \param edgeVertexBase the starting points to be memcpy'ed in
+     * \param vertexBase the starting points to be memcpy'ed in
      */
-    fn init_data(&mut self, piecenum: usize, edge_vertex_base: [Vertex3; 7]) {
-        self.vertex = edge_vertex_base;
-        self.init(piecenum, true);
+    fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]) {
+        self.vertex = vertex_base;
+        Edge::init(self, piecenum, true);
     }
-    /**
-     * \brief Inits a Edge piece
-     * \note  (calls createAxis and initColor)
-     * \param n the number of the Edge piece (piecenum)
-     * \param doAxes True by default. First Time Initialization Only
-     */
-    fn init(&mut self, piecenum: usize, do_axes: bool) {
-        if do_axes {
-            for i in 0..6 {
-                self.create_axis(piecenum, i);
-            }
-        }
-        self.initColor(G_EDGEPIECESCOLORS[piecenum], false);
-        self.data.pieceNum = piecenum;
-        self.defaultPieceNum = piecenum;
-    }
-    fn create_axis(&mut self, piecenum: usize, index: usize) {
+    fn create_edge_axis(&mut self, piecenum: usize, index: usize) {
         let pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
         1..=5 => {
@@ -422,5 +423,22 @@ impl PieceColor for Piece {
         _ => println!("Must be within 1-30"),
         }
     }
+    fn create_corner_axis(&mut self, piecenum: usize, index: usize) {
+        let mut pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
+        match piecenum + 1 {
+        1=> { },
+        2..=5 => {
+            self.axis1multi(index, pack); },
+        6..=10 => {
+            self.CenterSide1(index, pack); },
+        11..=15 => {
+            self.CornerGrp3(index, pack); },
+        16..=20 => {
+            pack.axis1 = 'x';
+            pack.axis2 = 'z';
+            self.CornerGrp4(index, pack); },
+        _ => println!("Must be within 1-20"),
+        }
+    }    
   }
 }

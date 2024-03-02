@@ -5,13 +5,10 @@ pub mod face {
   use crate::piece::piece::Vertex3;
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::PieceData;
-  use crate::piece_color::PieceColor::ColorData;  
   use crate::center::center::Center;
   use crate::corner::corner::Corner;
   use crate::edge::edge::Edge;
-
   //Face Data
   #[derive(Default)]
   pub struct Face {
@@ -44,50 +41,7 @@ pub mod face {
       }
     }
   }
-  impl Center for Face {
-    fn getnum(&self) -> usize { 
-        self.default_piece_num
-    }
-    fn getcolor(&self) -> ColorData {
-        self.data.color
-    }
-    fn start(&mut self) {
-        Default::default()
-    }
-   /**
-     * \brief Inits a Face piece based on Center
-     * \note  (calls createAxis and initColor)
-     * \param n the number of the Face piece (piecenum)
-     * \param doAxes True by default. First Time Initialization Only
-     */
-    fn init(&mut self, piecenum: usize) {
-        if self.do_axes {
-            for i in 0..5 {
-              Center::create_axis(self, piecenum, i);
-            }
-        }
-        //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
-        //|--------------------- ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
-        //self.initColor(piecenum + 1);  //from Piece
-//        |----^^^^^^^^^ method not found in `&mut Face`
-//        = help: items from traits can only be used if the trait is implemented and in scope
-//      note: `piece::piece::PieceColor` defines an item `initColor`, perhaps you need to implement it        
-        self.data.pieceNum = piecenum;
-        self.default_piece_num = piecenum;
-    }
-    fn create_axis(&mut self, piecenum: usize, _index: usize) {
-        self.init(piecenum);
-    }
-    fn render(&mut self) -> Vec<VertexPositionColor> {
-        self.place_parts(self.turn_dir);
-        self.render_lines()
-    }
-    fn render_lines(&self) -> Vec<VertexPositionColor> {
-        //THIS WAS PLACED HERE ON PURPOSE TO SATISFY THE RETURN VALUE OF CENTER.RS
-        vec![VertexPositionColor { position: self.axis, color: self.data.color.colorRGB[0] } ]
-    }    
-  }
-
+  
   pub trait FaceFunctions {
     fn num(&self) -> usize;
     fn attach_center(&mut self, centers: &mut Vec<Box<dyn Center>>);     //(Center* c, double* centerVertexBase);
@@ -101,15 +55,15 @@ pub mod face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, centers: &mut Vec<Box <dyn Center>>) {
+    fn attach_center(&mut self, _centers: &mut Vec<Box <dyn Center>>) {
         //println!("face.attach_center() to {}", self.this_num);
         //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
         //               ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
-        self.init(self.this_num);
+        //self.init(self.this_num);
         //self.create_axis(self.this_num, self.this_num);
-        if self.center.len() == 0 {
-            Center::init(&mut *centers[self.this_num], self.this_num);
-        }
+        // if self.center.len() == 0 { //done in megaminx.rs Centers loop
+        //     Center::init(&mut *centers[self.this_num], self.this_num);
+        // }
         //self.center.push(Box::new(&mut *centers[self.this_num]));
         //self.center.push(Box::new(centers[self.this_num]));
         //self.center.push(centers[self.this_num]);
@@ -338,7 +292,6 @@ pub mod face {
         //return &mut self.center[0];
         //return &mut Box::<T: Piece>::new(Piece::new(1));
         //^^^^^^^^^^^^^^^^^^^ expected `&mut Box<T>`, found `&mut Box<dyn Center>
-    
 
     /**
      * \brief Colorizing function. Intricate series of flips/swaps.
