@@ -68,7 +68,7 @@ impl Piece {
     }
     pub fn getdata(&self) -> PieceData {
         self.data
-    }    
+    }
 }
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
@@ -117,8 +117,6 @@ pub trait PieceMath {
     fn EdgeGrp4(&mut self, index: usize, pack: PiecePack);
     fn EdgeGrp5(&mut self, index: usize, pack: PiecePack);
     fn EdgeGrp6(&mut self, index: usize, pack: PiecePack);
-    fn flip(&mut self);
-    fn flip_twice(&mut self);
 }
 impl PieceInit for Piece {
     fn cornerInit(&mut self) -> &Vertex3x7 {
@@ -286,7 +284,17 @@ impl PieceMath for Piece {
         self.rotateVertexXYZ(index, pack.axis2, pi!());
         self.axis1multi(index, pack);
     }
-
+}
+//Piece Color Implementations
+pub trait PieceColor {
+    fn flip(&mut self);    
+    fn setColor(&mut self, i: usize, c: ColorPack);
+    fn initColorIndex(&mut self, idx: usize, k: usize);
+    fn initColorA(&mut self, a: usize);
+    fn initColor(&mut self, color: ColorPiece, corner: bool);
+    fn matchesColor(&self, color: usize) -> bool;
+}
+impl PieceColor for Piece {
     //Flip - Changes colors. rotate/switches colors for current piece
     fn flip(&mut self) {
         self.data.color.colorRGB[0].rotate_left(3);
@@ -301,21 +309,7 @@ impl PieceMath for Piece {
             self.data.flipStatus = 0;
         }
     }
-    //Does two flips. Thats it.
-    fn flip_twice(&mut self) {
-        self.flip();
-        self.flip();
-    }    
-}
-//Piece Color Implementations
-pub trait PieceColor {
-    fn setColor(&mut self, i: usize, c: ColorPack);
-    fn initColorIndex(&mut self, idx: usize, k: usize);
-    fn initColorA(&mut self, a: usize);
-    fn initColor(&mut self, color: ColorPiece, corner: bool);
-    fn matchesColor(&self, color: usize) -> bool;
-}
-impl PieceColor for Piece {
+    //Set / Initializer for entire
     fn setColor(&mut self, i: usize, c: ColorPack) {
         self.data.color.colorRGB[i][0] = c.r;
         self.data.color.colorRGB[i][1] = c.g;
@@ -364,12 +358,8 @@ impl PieceColor for Piece {
   pub trait EdgeCornerInit : PieceInit {
     fn new(&mut self);
     fn init_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
-  }
-  pub trait EdgeCornerMath : PieceMath {
     fn init(&mut self, piecenum: usize, do_axes: bool);
-    fn create_axis(&mut self, piecenum: usize, index: usize);
-    fn render(&self) -> Vec<VertexPositionColor>;
-    fn render_lines(&self, n: i8) -> Vec<VertexPositionColor>;
+    fn create_axis(&mut self, piecenum: usize, index: usize);    
   }
   impl EdgeCornerInit for Piece {
     fn new(&mut self) {
@@ -384,8 +374,6 @@ impl PieceColor for Piece {
         self.vertex = edge_vertex_base;
         self.init(piecenum, true);
     }
-  }
-  impl EdgeCornerMath for Piece {
     /**
      * \brief Inits a Edge piece
      * \note  (calls createAxis and initColor)
@@ -418,47 +406,6 @@ impl PieceColor for Piece {
         26..=30 => {
             self.EdgeGrp6(index, pack); },
         _ => println!("Must be within 1-30"),
-        }
-    }
-    /**
-     * \brief Render Edge Node (CONST)
-     */
-    fn render(&self) -> Vec<VertexPositionColor> {
-        vec![
-            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
-            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri2
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, 
-            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
-            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] }, //tri3
-            VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[1] }, 
-            VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, //tri4
-        ]
-        //println!("DEBUG Edge[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
-    }
-    fn render_lines(&self, n: i8) -> Vec<VertexPositionColor> {
-        match n {
-            0 => { 
-                return vec![
-                    VertexPositionColor { position: self.vertex[0], color: VERTEXZERO }, //black line
-                    VertexPositionColor { position: self.vertex[1], color: VERTEXZERO },
-                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO },
-                    VertexPositionColor { position: self.vertex[3], color: VERTEXZERO }, //loop1
-                ];
-            },  //(Intersection Line is at 2/3)
-            1 => {
-                return vec![
-                    VertexPositionColor { position: self.vertex[2], color: VERTEXZERO }, //black line
-                    VertexPositionColor { position: self.vertex[3], color: VERTEXZERO },
-                    VertexPositionColor { position: self.vertex[4], color: VERTEXZERO },
-                    VertexPositionColor { position: self.vertex[5], color: VERTEXZERO }, //loop2
-                ];
-            },
-            _=> { return Vec::<VertexPositionColor>::new() },
         }
     }
   }

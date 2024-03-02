@@ -17,7 +17,6 @@ mod face;
 mod piece;
 mod piece_color;
 use megaminx::megaminx::Corner;
-use piece::piece::EdgeCornerMath;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -110,11 +109,11 @@ pub fn main() -> Result<(), String> {
         //EDGES render
         for i in 0..30 {
             //Glium GL VBO 2 - EDGE - FILL
-            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &EdgeCornerMath::render(&*megaminx.edges[i])).unwrap();
+            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &megaminx.edges[i].render()).unwrap();
             target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 2 - EDGE - LINES
-            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &EdgeCornerMath::render_lines(&*megaminx.edges[i], 0)).unwrap();
-            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &EdgeCornerMath::render_lines(&*megaminx.edges[i], 1)).unwrap();        
+            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(0)).unwrap();
+            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(1)).unwrap();        
             target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
         }

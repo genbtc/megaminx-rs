@@ -1,6 +1,7 @@
 //2024 megaminx-rs corner.rs , by genr8eofl - LICENSED APGL3
 pub mod corner {
-  pub use crate::megaminx::megaminx::EdgeCornerMath;
+  use crate::piece::piece::EdgeCornerInit;
+  use crate::piece::piece::PieceData;
   use crate::piece::piece::PieceInit;
   use crate::piece::piece::PiecePack;
   use crate::piece::piece::Piece;
@@ -11,15 +12,21 @@ pub mod corner {
   use crate::piece::piece::VERTEXZERO;
   use crate::piece::piece::Vertex3;
   //Corner functions
-  pub trait Corner : EdgeCornerMath {
+  pub trait Corner : EdgeCornerInit {
       fn new(&mut self);
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
       fn create_axis(&mut self, piecenum: usize, index: usize);
       fn render(&self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
+      fn flip_twice(&mut self);    
+      fn flip(&mut self);
+      fn getdata(&self) -> PieceData;
   }
   impl Corner for Piece {
+    fn getdata(&self) -> PieceData {
+        self.data
+    }
     fn new(&mut self) {
         self.cornerInit();
         Corner::init(self, self.defaultPieceNum, true);
@@ -112,6 +119,23 @@ pub mod corner {
             VertexPositionColor { position: self.vertex[6], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  }, //loop3
         ]
+    }
+    //Flip - Changes colors. rotate/switches colors for current piece
+    fn flip(&mut self) {
+        self.data.color.colorRGB[0].rotate_left(3);
+        self.data.color.colorNum.rotate_left(1);
+        self.data.color.colorName.rotate_left(1);
+        if self.data.flipStatus < 2 {
+            self.data.flipStatus += 1;
+        }
+        else {
+            self.data.flipStatus = 0;
+        }
+    }
+    //Does two flips. Thats it.
+    fn flip_twice(&mut self) {
+        Corner::flip(self);
+        Corner::flip(self);
     }
   }
 }

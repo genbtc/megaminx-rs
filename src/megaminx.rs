@@ -1,6 +1,5 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 pub mod megaminx {
-  pub use crate::piece::piece::EdgeCornerMath;
   use crate::edge::edge::Edge;
   pub use crate::face::face::FacePlaceFunctions;
   pub use crate::face::face::FaceFunctions;
@@ -21,8 +20,8 @@ pub mod megaminx {
         rotating_face_index: i8,
     pub faces: Vec<Box<Face>>,
     pub centers: Vec<Box<(dyn Center + 'static)>>,
-    pub corners: Vec<Box<Piece>>,
-    pub edges: Vec<Box<Piece>>,
+    pub corners: Vec<Box<(dyn Corner + 'static)>>,
+    pub edges:   Vec<Box<(dyn Edge + 'static)>>,
     pub g_current_face: Box<Face>,
     pub rotate_queue: VecDeque<NumDir>
   }
@@ -87,7 +86,7 @@ pub mod megaminx {
             self.centers[i].render();
         }
         for i in 0..NUM_EDGES {
-            EdgeCornerMath::render(&*self.edges[i]);
+            self.edges[i].render();
         }
         for i in 0..NUM_CORNERS {
             Corner::render(&*self.corners[i]);
@@ -170,8 +169,8 @@ pub mod megaminx {
             //println!("initing face: {}", i);
             let mut face: Face = Face::new(i);
             face.attach_center(&mut self.centers);
-            face.attach_edge_pieces(&self.edges);
-            face.attach_corner_pieces(&self.corners);
+            face.attach_edge_pieces_dyn(&mut self.edges);
+            face.attach_corner_pieces_dyn(&mut self.corners);
             self.faces.push(Box::new(face));
         }
         assert_eq!(self.faces.len(), NUM_FACES);        

@@ -6,10 +6,13 @@ pub mod face {
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
   use crate::piece::piece::PieceData;
-  use crate::piece::piece::PieceMath;
-  use crate::piece::piece::Piece;
+  pub use crate::piece::piece::PieceMath;
+  pub use crate::piece::piece::PieceInit;
+  pub use crate::piece::piece::Piece;
   use crate::piece::piece::VertexPositionColor;
   use crate::center::center::Center;
+  pub use crate::corner::corner::Corner;
+  use crate::edge::edge::Edge;  
 
   //Face Data
   #[derive(Default)]
@@ -25,8 +28,8 @@ pub mod face {
     data: PieceData,
     //Boxed References to Trait Objects
     pub center: Vec<Box<(dyn Center + 'static)>>,
-    pub corner: Vec<Box<Piece>>,
-    pub edge: Vec<Box<Piece>>,
+    pub corner: Vec<Box<(dyn Corner + 'static)>>,
+    pub edge: Vec<Box<(dyn Edge + 'static)>>,
     //TODO: hold a pointer back to the parent megaminx
     //Megaminx *megaminx;
     center_vertex_list: [Vertex3; 7],
@@ -94,6 +97,8 @@ pub mod face {
   pub trait FaceFunctions {
     fn num(&self) -> usize;
     fn attach_center(&mut self, centers: &mut Vec<Box<(dyn Center + 'static)>>);     //(Center* c, double* centerVertexBase);
+    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<(dyn Corner + 'static)>>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<(dyn Edge + 'static)>>);      //(const Megaminx* megaminx, Edge& edgesPTR);    
     fn attach_corner_pieces(&mut self, _corners: &Vec<Box<Piece>>); //(const Megaminx* megaminx, Corner& cornersPTR);
     fn attach_edge_pieces(&mut self, _edges: &Vec<Box<Piece>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
   }
@@ -150,6 +155,9 @@ pub mod face {
           assert(edge[i]->data.pieceNum == defaultEdges[i]);
       }  */
     }
+    fn attach_corner_pieces_dyn(&mut self, _corners: &Vec<Box<(dyn Corner + 'static)>>) {} //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces_dyn(&mut self, _edges: &Vec<Box<(dyn Edge + 'static)>>) {}     //(const Megaminx* megaminx, Edge& edgesPTR);    
+
   }
 
 
@@ -276,8 +284,8 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
-        let mut edge_data_a = &self.edge[a].data;
-        let mut edge_data_b = &self.edge[b].data;
+        let mut edge_data_a = self.edge[a].getdata();
+        let mut edge_data_b = self.edge[b].getdata();
         std::mem::swap(&mut edge_data_a, &mut edge_data_b);
         // ABOVE WORKS BUT BELOW DOES NOT
         //std::mem::swap(&mut self.edge[a].data, &mut self.edge[b].data);
