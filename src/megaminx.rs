@@ -147,7 +147,6 @@ pub mod megaminx {
         assert_eq!(self.centers.len(), NUM_FACES);        
     }
 
-
     /** \brief Init the Edge pieces. (numEdges = 30)  */
     fn init_edge_pieces(&mut self) {
       //store a list of the basic starting Edge vertexes
@@ -159,11 +158,24 @@ pub mod megaminx {
           edgepiece.init_edge_data(i, edge_vertex_list);
           self.edges.push(Box::new(edgepiece));
           //self.print_vector(&edgepiece);
-          foundedges.extend(self.find_pieces_of_face(0, &edgepiece, 5));
+          let [a,b,c] = edgepiece.getcolor().colorNum;
+          if edgepiece.matchesColor(a) {
+            self.faces[a - 1].attach_edge_pieces(Box::new(edgepiece));
+            //print!("EdgecolorA: {:?} ", a);
+          }
+          if edgepiece.matchesColor(b) {
+            self.faces[b - 1].attach_edge_pieces(Box::new(edgepiece));
+            //println!("EdgecolorB: {:?}", b);
+          }
+          foundedges.extend(self.find_pieces_of_face(a -1, &edgepiece, 5)); //30*5 = 150
       }
       //foundedges: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
-      println!("foundedges: {:?}", foundedges);
-
+      //foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]
+      // initing edge: 29
+      // colorA: 7
+      // colorB: 12
+      // foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29, 29] 150
+      //println!("foundedges: {:?} {}", foundedges, foundedges.len());
       assert_eq!(self.edges.len(), NUM_EDGES);        
   }
 
@@ -177,6 +189,19 @@ pub mod megaminx {
           cornerpiece.init_corner_data(i, corner_vertex_list);
           self.corners.push(Box::new(cornerpiece));
           //self.print_vector(&cornerpiece);
+          let [a,b,c] = cornerpiece.getcolor().colorNum;
+          if cornerpiece.matchesColor(a) {
+            self.faces[a - 1].attach_corner_pieces(Box::new(cornerpiece));
+            //print!("cornerColorA: {:?} ", a);
+          }
+          if cornerpiece.matchesColor(b) {
+            self.faces[b - 1].attach_corner_pieces(Box::new(cornerpiece));
+            //print!("cornerColorB: {:?} ", b);
+          }
+          if cornerpiece.matchesColor(c) {
+            self.faces[c - 1].attach_corner_pieces(Box::new(cornerpiece));
+            //print!("cornerColorC: {:?} \n", c);
+          }
       }
       assert_eq!(self.corners.len(), NUM_CORNERS);        
   }
@@ -211,7 +236,7 @@ pub mod megaminx {
   }
   /* \brief Finds the colored center that is perma-attached to a face, and then
   *         iterates the entire list of pieces to find when the colors match, and outputs a list.
-  * \param face Nth-face number (1-12)
+  * \param face Nth-face number (1-12) //TODO: Adjusted -1
   * \param pieceRef Takes a reference to the [0]th member of Pointer_array of (either Corner/Edge's)
   * \param times how many times to iterate over the ref'd array
   * \return Returns the list of 5 positions where the starting face's pieces have ended up at.
@@ -228,7 +253,7 @@ pub mod megaminx {
           }
           let result: bool = (*piece_ref).matchesColor(color);
           if result {
-              piece_list.push(i);
+              piece_list.push((*piece_ref).defaultPieceNum as i8);
           }
       }
       return piece_list;
