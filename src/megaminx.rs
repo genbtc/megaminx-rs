@@ -10,9 +10,12 @@ pub mod megaminx {
   pub use crate::center::center::Center;
   pub use crate::corner::corner::Corner;
   pub use crate::piece::piece::Vertex3;
-  pub use crate::piece_color::PieceColor::{NUM_EDGES,NUM_CORNERS,NUM_FACES};
   pub use crate::piece::piece::PieceColor;
   use std::collections::VecDeque;
+
+  pub const NUM_FACES:   usize = 12;
+  pub const NUM_CORNERS: usize = 20;
+  pub const NUM_EDGES:   usize = 30;
 
   pub struct Megaminx { 
     pub invisible: bool,
@@ -78,7 +81,7 @@ pub mod megaminx {
             self.faces[self.rotating_face_index as usize].rotate(op.dir);
         }
         // Full Re-render all if non-rotating or early startup
-        //Conditionally Process all pieces that are NOT part of a rotating face.
+        //TODO:[Conditionally] Process all pieces that are NOT part of a rotating face.
         for i in 0..NUM_FACES {
             self.centers[i].render();
         }
@@ -124,13 +127,15 @@ pub mod megaminx {
             //println!("initing face: {}", i);
             let  face: Face = Face::new(i);
             self.faces.push(Box::new(face));
+        }
+    //fn attach_face_pieces(&mut self) {
             // self.find_pieces_of_face(i, &face, 5);
             // |                  -------------------    ^^^^^ expected `&Piece`, found `&Face`
             // |                  arguments to this method are incorrect            
             // face.attach_center(&mut self.centers);
             // face.attach_edge_pieces(&mut self.edges);
             // face.attach_corner_pieces(&mut self.corners);
-        }
+        //}
         assert_eq!(self.faces.len(), NUM_FACES);        
     }
 
@@ -158,7 +163,7 @@ pub mod megaminx {
           edgepiece.init_edge_data(i, edge_vertex_list);
           self.edges.push(Box::new(edgepiece));
           //self.print_vector(&edgepiece);
-          let [a,b,c] = edgepiece.getcolor().colorNum;
+          let [a,b,_] = edgepiece.getcolor().colorNum;
           if edgepiece.matchesColor(a) {
             self.faces[a - 1].attach_edge_pieces(Box::new(edgepiece));
             //print!("EdgecolorA: {:?} ", a);
@@ -247,7 +252,7 @@ pub mod megaminx {
       let mut piece_list = Vec::<i8>::new();
       let color = self.faces[face/* -1 */].center[0].getcolor().colorNum[0];
       assert_eq!(face+1,color);
-        for i in 0..times  {
+        for _ in 0..times  {
           if piece_list.len() >= 5 {
               break;
           }

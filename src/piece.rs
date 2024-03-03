@@ -2,6 +2,7 @@
 // Megaminx-rs/piece.rs - LICENSE - AGPL3 - genr8eofl @ genBTC - for megaminx-rs (2024)
 #![allow(non_snake_case)]
 #![allow(dead_code)]
+#![allow(unused_variables)]
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 
@@ -307,6 +308,9 @@ pub trait PieceColor {
     fn initColorA(&mut self, a: usize);
     fn initColor(&mut self, color: ColorPiece, corner: bool);
     fn matchesColor(&self, color: usize) -> bool;
+    fn anyColor(&self, color: usize) -> bool;
+    fn match_color(&self, color: usize) -> bool;
+    fn isShape(&mut self) -> Shape;
 }
 impl PieceColor for Piece {
     //Flip - Changes colors. rotate/switches colors for current piece
@@ -356,13 +360,29 @@ impl PieceColor for Piece {
             self.numSides = 2;
         }
     }
-    //check if color-num (int) matches any colors
-    // currently stored in struct data (3 sided)
+    //check if color-num (int) matches ANY colors (3 sided)
+    // currently stored in struct data
     fn matchesColor(&self, color: usize) -> bool {
         return self.data.color.colorNum[0] == color ||
                self.data.color.colorNum[1] == color ||
                self.data.color.colorNum[2] == color;
     }
+    fn anyColor(&self, color: usize) -> bool {
+        self.data.color.colorNum.iter().any(|&rgb| rgb == color)
+    }
+    fn match_color(&self, color: usize) -> bool {
+        match self.data.color.colorNum {
+            |[_,_,_] => {true},
+        }
+    }
+    fn isShape(&mut self) -> Shape {
+        match self.numSides {
+            2 => { EdgePiece  },
+            3 => { CornerPiece},
+            1 => { CenterPiece},
+            0|_ => { EmptyPiece },
+        }
+    }    
   }
   pub struct NumDir {                                                                                                                                                                                                                                         
     pub num: i8,

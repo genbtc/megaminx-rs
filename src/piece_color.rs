@@ -2,11 +2,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 pub mod PieceColor {
-    use crate::piece::piece::Vertex3;
-
-    pub const NUM_FACES:   usize = 12;
-    pub const NUM_CORNERS: usize = 20;
-    pub const NUM_EDGES:   usize = 30;
+    use crate::{megaminx::megaminx::{NUM_CORNERS, NUM_EDGES}, piece::piece::Vertex3};
 
     //Megaminx standard color names defined in numerical int order 
     #[derive(Copy, Clone , Default, PartialEq)]
