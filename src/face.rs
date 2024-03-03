@@ -1,6 +1,7 @@
 //2024 megaminx-rs face.rs , by genr8eofl - LICENSED APGL3
 #![allow(non_upper_case_globals)]
 #![allow(dead_code)]
+#![allow(unreachable_code)]
 pub mod face {
   use crate::piece::piece::Vertex3;
   use crate::piece::piece::VERTEXDATAZERO;
@@ -252,6 +253,11 @@ pub mod face {
     /* Public. Given two pieces on the face with local indexes 0-5, swap them. */
     fn swap_pieces(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
+        // assert!(self.edge[a].len() > a); assert!(self.edge[b].len() > b);
+        // error[E0599]: the method `len` exists for struct `Box<dyn Edge>`, but its trait bounds were not satisfied
+        //  |                                ^^^ method cannot be called on `Box<dyn Edge>` due to unsatisfied trait bounds
+        //and
+        todo!(); // SEG FAULT [a] overflow, Face Not Attached To anything.
         //Has to be attached to the dyn Trait objects to read (get) the Data struct.
         //Hopefully the mut swap still works.
         let mut edge_data_a = self.edge[a].getdata();

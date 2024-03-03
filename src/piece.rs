@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 pub mod piece {
-use crate::{edge::edge::Edge, piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS}};
+use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
@@ -372,13 +372,15 @@ impl PieceColor for Piece {
   pub trait EdgeCornerInit : PieceInit {
     fn new(&mut self);
     fn newEnum(&mut self, shapeType: Shape);
+    fn init_data(&mut self, vertex_base: [Vertex3; 7]);
     fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
+    fn init_corner_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
     fn create_edge_axis(&mut self, piecenum: usize, index: usize);
     fn create_corner_axis(&mut self, piecenum: usize, index: usize);
+    fn create_center_axis(&mut self, piecenum: usize, index: usize);
   }
   impl EdgeCornerInit for Piece {
     fn new(&mut self) {
-        //This is not set at the startup, Catch22.
         match self.numSides {
             2 => { self.edgeInit();   },
             3 => { self.cornerInit(); },
@@ -401,10 +403,22 @@ impl PieceColor for Piece {
      * \brief Inits the piece with a pre-existing Vertex Array
      * \param vertexBase the starting points to be memcpy'ed in
      */
+    fn init_data(&mut self, vertex_base: [Vertex3; 7]) {
+        self.vertex = vertex_base;
+    }
     fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]) {
         self.vertex = vertex_base;
-        Edge::init(self, piecenum, true);
+        crate::edge::edge::Edge::init(self, piecenum, true);
     }
+    fn init_corner_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]) {
+        self.vertex = vertex_base;
+        crate::corner::corner::Corner::init(self, piecenum, true)
+    }
+    /**
+     * \brief createAxis sets up the x,y,z Axes that the EdgeCorner pieces ride on
+     * \note (called by init on startup)
+     * \param n - the number of the piece (piecenum)
+     */
     fn create_edge_axis(&mut self, piecenum: usize, index: usize) {
         let pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
@@ -434,10 +448,24 @@ impl PieceColor for Piece {
         11..=15 => {
             self.CornerGrp3(index, pack); },
         16..=20 => {
-            pack.axis1 = 'x';
-            pack.axis2 = 'z';
+            pack.axis1 = 'x'; pack.axis2 = 'z';
             self.CornerGrp4(index, pack); },
         _ => println!("Must be within 1-20"),
+        }
+    }
+    fn create_center_axis(&mut self, piecenum: usize, index: usize) {
+        let mut pack: PiecePack = PiecePack { axis1: 'z', axis2: 'x', multi: (piecenum-1) * 2 % 10 };
+        match piecenum + 1 {
+        2..=6 => {
+            self.CenterSide1(index, pack) },
+        7 => {
+            pack.axis1 = 'x'; pack.axis2 = '0'; pack.multi = 0;
+            self.CenterCenter(index, pack) },
+        8..=12 => {
+            pack.axis1 = 'y'; pack.multi = (piecenum-2) * 2 % 10;
+            self.CenterSide2(index, pack) },
+        1 => {}, 
+        _ => println!("Must be within 1-12"),
         }
     }    
   }

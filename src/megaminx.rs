@@ -140,7 +140,7 @@ pub mod megaminx {
             //println!("initing corner: {}", i);
             let mut cornerpiece: Piece = Piece::new(i);
             let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
-            cornerpiece.init_data(i, corner_vertex_list);
+            cornerpiece.init_corner_data(i, corner_vertex_list);
             self.corners.push(Box::new(cornerpiece));
             //self.print_vector(&cornerpiece);
         }

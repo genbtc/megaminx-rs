@@ -6,11 +6,9 @@ pub mod corner {
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::Vertex3;
   //Corner functions
   pub trait Corner : EdgeCornerInit {
       fn init(&mut self, piecenum: usize, do_axes: bool);
-      fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]);
       fn render(&self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
       fn flip_twice(&mut self);    
@@ -33,20 +31,6 @@ pub mod corner {
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
     }
-    /**
-     * \brief Inits the piece with a pre-existing Vertex Array
-     * \param corner_vertex_base the starting points to be memcpy'ed in
-     */
-    fn init_data(&mut self, piecenum: usize, corner_vertex_base: [Vertex3; 7]) {
-        self.vertex = corner_vertex_base;
-        Corner::init(self, piecenum, true)
-    }
-    /**
-     * \brief createAxis sets up the x,y,z Axes that the Corner pieces ride on
-     * \note (called by init on startup)
-     * \param n - the number of the piece (piecenum)
-     */
-
     /**
      * \brief Render Corner Node (CONST)
      */
