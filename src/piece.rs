@@ -65,7 +65,7 @@ impl Piece {
     pub fn swapdata(&mut self, data: &mut PieceData) {
         std::mem::swap(&mut self.data, data);
     }
-    pub fn getpos(&self) -> Vertex3x7 {
+    pub fn getvertex(&self) -> Vertex3x7 {
         self.vertex
     }
     pub fn getdata(&self) -> PieceData {

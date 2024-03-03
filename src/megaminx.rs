@@ -53,10 +53,10 @@ pub mod megaminx {
         self.is_rotating = false;
         self.invisible = false;
         //MegaminxInitFunctions
-        self.init_edge_pieces();
-        self.init_corner_pieces();
         self.init_face_pieces();
         self.init_center_pieces();
+        self.init_edge_pieces();
+        self.init_corner_pieces();
         self.render();
     }
 
@@ -106,43 +106,14 @@ pub mod megaminx {
 
   //Megaminx Init Pieces Setup
   pub trait MegaminxInitFunctions {
-    fn init_edge_pieces(&mut self);
-    fn init_corner_pieces(&mut self);
     fn init_face_pieces(&mut self);
     fn init_center_pieces(&mut self);
+    fn init_edge_pieces(&mut self);
+    fn init_corner_pieces(&mut self);
     fn print_vector(&mut self, piece: &Piece);
   }
   use crate::piece::piece::EdgeCornerInit;
   impl MegaminxInitFunctions for Megaminx {
-
-    /** \brief Init the Edge pieces. (numEdges = 30)  */
-    fn init_edge_pieces(&mut self) {
-        //store a list of the basic starting Edge vertexes
-        for i in 0..NUM_EDGES {
-            //println!("initing edge: {}", i);
-            let mut edgepiece: Piece = Piece::new(i);
-            let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
-            edgepiece.init_edge_data(i, edge_vertex_list);
-            self.edges.push(Box::new(edgepiece));
-            //self.print_vector(&edgepiece);
-        }
-        assert_eq!(self.edges.len(), NUM_EDGES);        
-    }
-
-    /** \brief Init the Corner pieces. (numCorners = 20)  */
-    fn init_corner_pieces(&mut self) {
-        //store a list of the basic starting Corner vertexes
-        for i in 0..NUM_CORNERS {
-            //println!("initing corner: {}", i);
-            let mut cornerpiece: Piece = Piece::new(i);
-            let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
-            cornerpiece.init_corner_data(i, corner_vertex_list);
-            self.corners.push(Box::new(cornerpiece));
-            //self.print_vector(&cornerpiece);
-        }
-        assert_eq!(self.corners.len(), NUM_CORNERS);        
-    }
-
     /**
      * \brief Init the Faces and All Pieces.
      *         Set up the Axes of the faces, attach the centers, 
@@ -152,10 +123,13 @@ pub mod megaminx {
         for i in 0..NUM_FACES {
             //println!("initing face: {}", i);
             let  face: Face = Face::new(i);
+            self.faces.push(Box::new(face));
+            // self.find_pieces_of_face(i, &face, 5);
+            // |                  -------------------    ^^^^^ expected `&Piece`, found `&Face`
+            // |                  arguments to this method are incorrect            
             // face.attach_center(&mut self.centers);
             // face.attach_edge_pieces(&mut self.edges);
             // face.attach_corner_pieces(&mut self.corners);
-            self.faces.push(Box::new(face));
         }
         assert_eq!(self.faces.len(), NUM_FACES);        
     }
@@ -172,6 +146,40 @@ pub mod megaminx {
         }
         assert_eq!(self.centers.len(), NUM_FACES);        
     }
+
+
+    /** \brief Init the Edge pieces. (numEdges = 30)  */
+    fn init_edge_pieces(&mut self) {
+      //store a list of the basic starting Edge vertexes
+      let mut foundedges: Vec<i8> = Vec::new();
+      for i in 0..NUM_EDGES {
+          //println!("initing edge: {}", i);
+          let mut edgepiece: Piece = Piece::new(i);
+          let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
+          edgepiece.init_edge_data(i, edge_vertex_list);
+          self.edges.push(Box::new(edgepiece));
+          //self.print_vector(&edgepiece);
+          foundedges.extend(self.find_pieces_of_face(0, &edgepiece, 5));
+      }
+      //foundedges: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+      println!("foundedges: {:?}", foundedges);
+
+      assert_eq!(self.edges.len(), NUM_EDGES);        
+  }
+
+  /** \brief Init the Corner pieces. (numCorners = 20)  */
+  fn init_corner_pieces(&mut self) {
+      //store a list of the basic starting Corner vertexes
+      for i in 0..NUM_CORNERS {
+          //println!("initing corner: {}", i);
+          let mut cornerpiece: Piece = Piece::new(i);
+          let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
+          cornerpiece.init_corner_data(i, corner_vertex_list);
+          self.corners.push(Box::new(cornerpiece));
+          //self.print_vector(&cornerpiece);
+      }
+      assert_eq!(self.corners.len(), NUM_CORNERS);        
+  }
 
     fn print_vector(&mut self, piece: &Piece) {
       print!("Piece {} Vertex Array: [ ", piece.defaultPieceNum);
@@ -212,8 +220,8 @@ pub mod megaminx {
   impl MegaminxFindPieces for Megaminx {
     fn find_pieces_of_face(&mut self, face: usize, piece_ref: &Piece, times: i8) -> Vec<i8> {
       let mut piece_list = Vec::<i8>::new();
-      let color = self.faces[face - 1].center[0].getcolor().colorNum[0];
-      assert_eq!(face,color);
+      let color = self.faces[face/* -1 */].center[0].getcolor().colorNum[0];
+      assert_eq!(face+1,color);
         for i in 0..times  {
           if piece_list.len() >= 5 {
               break;

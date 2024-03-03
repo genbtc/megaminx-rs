@@ -46,9 +46,9 @@ pub mod face {
   
   pub trait FaceFunctions {
     fn num(&self) -> usize;
-    fn attach_center(&mut self, centers: Box<Piece>);     //(Center* c, double* centerVertexBase);
-    fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
-    fn attach_edge_pieces(&mut self, _edges: &mut Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
+    fn attach_center(&mut self, center: Box<Piece>);     //(Center* c, double* centerVertexBase);
+    fn attach_corner_pieces(&mut self, corner: Box<Piece>); //(const Megaminx* megaminx, Corner& cornersPTR);
+    fn attach_edge_pieces(&mut self, edge: Box<Piece>);      //(const Megaminx* megaminx, Edge& edgesPTR);
     fn get_edge_piece<Piece:Edge>(&mut self, n: usize, i: usize) -> &mut Box<dyn Edge>;
     fn get_center_piece<Piece:Center>(&mut self, n: usize, i: usize) -> &mut Box<dyn Center>;
     fn get_corner_piece<Piece:Corner>(&mut self, n: usize, i: usize) -> &mut Box<dyn Corner>;    
@@ -57,75 +57,14 @@ pub mod face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, centers: Box<Piece>) {
-        self.center.push(centers);        
-    //     self.get_corner_piece(0,1);
-    //     error[E0282]: type annotations needed
-    //      |              ^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `Piece` declared on the method `get_corner_piece`
-    //   help: consider specifying the generic argument
-        //self.get_center_piece::<Piece>(0,1);
-        //println!("face.attach_center() to {}", self.this_num);
-        //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
-        //               ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
-        //self.init(self.this_num);
-        //self.create_axis(self.this_num, self.this_num);
-        // if self.center.len() == 0 { //done in megaminx.rs Centers loop
-        //     Center::init(&mut *centers[self.this_num], self.this_num);
-        // }
-        //self.center.push(Box::new(&mut *centers[self.this_num]));
-        //self.center.push(Box::new(centers[self.this_num]));
-    //     error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
-    //      |                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
-// and
-    //     error[E0277]: the trait bound `&mut (dyn center::center::Center + 'static): center::center::Center` is not satisfied
-    //      |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `center::center::Center` is not implemented for `&mut (dyn center::center::Center + 'static)`
-    //      = help: the following other types implement trait `center::center::Center`:
-    //                Face
-    //                Piece
-    //      = note: required for the cast from `Box<&mut (dyn center::center::Center + 'static)>` to `Box<(dyn center::center::Center + 'static)>`
-//    }
-// and
-        //self.center.push(Box::new(*centers[self.this_num]));
-    
-//    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
-//     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
-//     |                          required by a bound introduced by this call
-//     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
-// note: required by a bound in `Box::<T>::new`
-// and
-        // let cow = Box::new(&*centers as &(dyn Center + 'static));
-        // self.center.push(Box::new(**cow));
-        // error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
-        // |                          -------- ^^^^^ doesn't have a size known at compile-time
-        // |                          required by a bound introduced by this call
-        // = help: the trait `Sized` is not implemented for `dyn center::center::Center`
-        // note: required by a bound in `Box::<T>::new`
-
+    fn attach_center(&mut self, center: Box<Piece>) {
+        self.center.push(center);
     }
-    fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>) { 
-         //self.corner.extend(vec![Box::new(*corners[0])]);
-//         error[E0507]: cannot move out of `*corners` which is behind a shared reference
-// |                            ^^^^^^^^ move occurs because `*corners` has type `Vec<Box<dyn Corner>>`, which does not implement the `Copy` trait
-    /* let color = faces[face - 1].center.data._colorNum[0];
-      defaultCorners = megaminx->findPiecesOfFace(thisNum+1, cornersPTR, Megaminx::numCorners);
-      for i in 0..5 {
-          corner[i] = &dyn CornersPTR + defaultCorners[i];
-          assert_eq!(corner[i].data.pieceNum, defaultCorners[i]);
-      }  */
-      //error[E0609]: no field `data` on type `Box<(dyn center::center::Center + 'static)>`
+    fn attach_corner_pieces(&mut self, corner: Box<Piece>) {
+        self.corner.push(corner);
     }
-    fn attach_edge_pieces(&mut self, _edges: &mut Vec<Box<dyn Edge>>) { 
-//        for edge in edges {
-            //self.edge.extend(vec![*edge]);
-            //error[E0507]: cannot move out of `*edge` which is behind a mutable reference
-            //^^^^^ move occurs because `*edge` has type `Box<dyn Edge>`, which does not implement the `Copy` trait
-            //self.edge.extend(vec![Box::new(*edge)]);
-            //                      ------ ^^^^^^^^^^^^^^^^^^^^^ expected `Box<dyn Edge>`, found `Box<Box<dyn Edge>>`
-            //self.edge.extend(vec![Box::new(**edge)]);
-            //error[E0277]: the size for values of type `dyn Edge` cannot be known at compilation time
-            //self.edge = vec![Box::new(**edge)];
-  //      }
-        
+    fn attach_edge_pieces(&mut self, edge: Box<Piece>) { 
+        self.edge.push(edge);
         /*
       let defaultEdges = <crate::megaminx::megaminx::Megaminx as crate::megaminx::megaminx::MegaminxFindPieces>::find_pieces_of_face(self,thisNum+1, edgesPTR, Megaminx::numEdges);
       for i in 0..5 {
