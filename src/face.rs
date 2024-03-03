@@ -15,7 +15,7 @@ pub mod face {
   #[derive(Default)]
   pub struct Face {
     this_num: usize,
-    turn_dir: TurnDir,
+    pub turn_dir: TurnDir,
     rotating: bool,
     angle: f32,
     axis: [f32;3],
@@ -46,7 +46,7 @@ pub mod face {
   
   pub trait FaceFunctions {
     fn num(&self) -> usize;
-    fn attach_center(&mut self, centers: &mut Vec<Box<dyn Center>>);     //(Center* c, double* centerVertexBase);
+    fn attach_center(&mut self, centers: Box<Piece>);     //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>); //(const Megaminx* megaminx, Corner& cornersPTR);
     fn attach_edge_pieces(&mut self, _edges: &mut Vec<Box<dyn Edge>>);      //(const Megaminx* megaminx, Edge& edgesPTR);
     fn get_edge_piece<Piece:Edge>(&mut self, n: usize, i: usize) -> &mut Box<dyn Edge>;
@@ -57,12 +57,13 @@ pub mod face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
-    fn attach_center(&mut self, _centers: &mut Vec<Box <dyn Center>>) {
+    fn attach_center(&mut self, centers: Box<Piece>) {
+        self.center.push(centers);        
     //     self.get_corner_piece(0,1);
     //     error[E0282]: type annotations needed
     //      |              ^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `Piece` declared on the method `get_corner_piece`
     //   help: consider specifying the generic argument
-        self.get_corner_piece::<Piece>(0,1);  
+        //self.get_center_piece::<Piece>(0,1);
         //println!("face.attach_center() to {}", self.this_num);
         //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
         //               ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
@@ -73,7 +74,6 @@ pub mod face {
         // }
         //self.center.push(Box::new(&mut *centers[self.this_num]));
         //self.center.push(Box::new(centers[self.this_num]));
-        //self.center.push(centers[self.this_num]);
     //     error[E0507]: cannot move out of index of `Vec<Box<dyn center::center::Center>>`
     //      |                          ^^^^^^^^^^^^^^^^^^^^^^ move occurs because value has type `Box<dyn center::center::Center>`, which does not implement the `Copy` trait        
 // and
@@ -82,17 +82,26 @@ pub mod face {
     //      = help: the following other types implement trait `center::center::Center`:
     //                Face
     //                Piece
-    //      = note: required for the cast from `Box<&mut (dyn center::center::Center + 'static)>` to `Box<(dyn center::center::Center + 'static)>`        
+    //      = note: required for the cast from `Box<&mut (dyn center::center::Center + 'static)>` to `Box<(dyn center::center::Center + 'static)>`
 //    }
 // and
         //self.center.push(Box::new(*centers[self.this_num]));
-    }
+    
 //    error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
 //     |                          -------- ^^^^^^^^^^^^^^^^^^^^^^^ doesn't have a size known at compile-time
 //     |                          required by a bound introduced by this call
 //     = help: the trait `Sized` is not implemented for `dyn center::center::Center`
 // note: required by a bound in `Box::<T>::new`
-    
+// and
+        // let cow = Box::new(&*centers as &(dyn Center + 'static));
+        // self.center.push(Box::new(**cow));
+        // error[E0277]: the size for values of type `dyn center::center::Center` cannot be known at compilation time
+        // |                          -------- ^^^^^ doesn't have a size known at compile-time
+        // |                          required by a bound introduced by this call
+        // = help: the trait `Sized` is not implemented for `dyn center::center::Center`
+        // note: required by a bound in `Box::<T>::new`
+
+    }
     fn attach_corner_pieces(&mut self, _corners: &mut Vec<Box<dyn Corner>>) { 
          //self.corner.extend(vec![Box::new(*corners[0])]);
 //         error[E0507]: cannot move out of `*corners` which is behind a shared reference
@@ -280,6 +289,7 @@ pub mod face {
 //      |          ---------    --------      ^^^^^^^^^ second mutable borrow occurs here
 //      |          |            ^ first borrow later used by call
 //      |          first mutable borrow occurs here
+//        //issues with lifetimes <'a> <_>
 //error[E0599]: no method named `swapdata` found for struct `Box<dyn Edge>` in the current scope  
     }
     fn get_face_piece(&mut self, _n: usize, _i: usize) {

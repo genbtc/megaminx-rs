@@ -86,9 +86,9 @@ pub fn main() -> Result<(), String> {
 
         //Orthographic Projection Matrix
         let projmatrix: [[f32; 4]; 4] = [
-            [0.01, 0.0, 0.0, translate_x],
-            [0.0, 0.01, 0.0, translate_y],
-            [0.0, 0.0, 0.01, translate_z],
+            [0.01+translate_x, 0.0, 0.0, 0.0],
+            [0.0, 0.01+translate_y, 0.0, 0.0],
+            [0.0, 0.0, 0.01+translate_z, 0.0],
             [0.0, 0.0, 1.0, zoom]
         ];
 
@@ -129,7 +129,8 @@ pub fn main() -> Result<(), String> {
         for event in event_pump.poll_iter() {
             match event {
                 Event::KeyDown { keycode: Some(Keycode::F5), .. 
-                } => {  megaminx.faces[0].place_parts(face::face::TurnDir::Clockwise); }
+                } => { let turndir = megaminx.faces[0].turn_dir;
+                    megaminx.faces[0].place_parts(turndir); }
                 Event::KeyDown { keycode: Some(Keycode::F1), .. 
                 } => { zoom+=0.1; }
                 Event::KeyDown { keycode: Some(Keycode::F2), .. 
@@ -150,5 +151,6 @@ pub fn main() -> Result<(), String> {
         }
         ::std::thread::sleep(std::time::Duration::new(0, 1_000_000_000u32 / 60));
     }
+    println!("Exit.");
     Ok(())
 }

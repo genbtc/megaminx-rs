@@ -55,8 +55,8 @@ pub mod megaminx {
         //MegaminxInitFunctions
         self.init_edge_pieces();
         self.init_corner_pieces();
-        self.init_center_pieces();
         self.init_face_pieces();
+        self.init_center_pieces();
         self.render();
     }
 
@@ -108,8 +108,8 @@ pub mod megaminx {
   pub trait MegaminxInitFunctions {
     fn init_edge_pieces(&mut self);
     fn init_corner_pieces(&mut self);
-    fn init_center_pieces(&mut self);
     fn init_face_pieces(&mut self);
+    fn init_center_pieces(&mut self);
     fn print_vector(&mut self, piece: &Piece);
   }
   use crate::piece::piece::EdgeCornerInit;
@@ -143,18 +143,6 @@ pub mod megaminx {
         assert_eq!(self.corners.len(), NUM_CORNERS);        
     }
 
-    /** \brief Init the Centers, attach them to Faces. (numFaces = 12) */
-    fn init_center_pieces(&mut self) {
-        for i in 0..NUM_FACES {
-            //println!("initing center: {}", i);
-            let mut centerpiece: Piece = Piece::new(i);
-            centerpiece.start(i);
-            self.centers.push(Box::new(centerpiece));
-            //self.print_vector(&centerpiece);
-        }
-        assert_eq!(self.centers.len(), NUM_FACES);        
-    }
-
     /**
      * \brief Init the Faces and All Pieces.
      *         Set up the Axes of the faces, attach the centers, 
@@ -170,6 +158,19 @@ pub mod megaminx {
             self.faces.push(Box::new(face));
         }
         assert_eq!(self.faces.len(), NUM_FACES);        
+    }
+
+    /** \brief Init the Centers, attach them to Faces. (numFaces = 12) */
+    fn init_center_pieces(&mut self) {
+        for i in 0..NUM_FACES {
+            //println!("initing center: {}", i);
+            let mut centerpiece: Piece = Piece::new(i);
+            centerpiece.start(i);
+            self.faces[i].attach_center(Box::new(centerpiece));
+            self.centers.push(Box::new(centerpiece));
+            //self.print_vector(&centerpiece);
+        }
+        assert_eq!(self.centers.len(), NUM_FACES);        
     }
 
     fn print_vector(&mut self, piece: &Piece) {
