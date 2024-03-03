@@ -378,14 +378,15 @@ impl PieceColor for Piece {
     fn create_edge_axis(&mut self, piecenum: usize, index: usize);
     fn create_corner_axis(&mut self, piecenum: usize, index: usize);
     fn create_center_axis(&mut self, piecenum: usize, index: usize);
+    fn switch_axis(&mut self, shapeType: Shape, piecenum: usize, index: usize);
   }
   impl EdgeCornerInit for Piece {
     fn new(&mut self) {
         match self.numSides {
-            2 => { self.edgeInit();   },
-            3 => { self.cornerInit(); },
-            1 => { self.centerInit(); },
-            0 => { self.faceInit();   },
+            2 => { self.edgeInit();   self.data.shape = EdgePiece;  },
+            3 => { self.cornerInit(); self.data.shape = CornerPiece;},
+            1 => { self.centerInit(); self.data.shape = CenterPiece;},
+            0 => { self.faceInit();   self.data.shape = EmptyPiece; },
             _ => {},
         }
         //self.init(self.defaultPieceNum, true);
@@ -454,18 +455,24 @@ impl PieceColor for Piece {
         }
     }
     fn create_center_axis(&mut self, piecenum: usize, index: usize) {
-        let mut pack: PiecePack = PiecePack { axis1: 'z', axis2: 'x', multi: (piecenum-1) * 2 % 10 };
         match piecenum + 1 {
         2..=6 => {
-            self.CenterSide1(index, pack) },
+            self.CenterSide1(index, PiecePack { axis1: 'z', axis2: 'x', multi: ((piecenum-1) * 2 % 10) }); },
         7 => {
-            pack.axis1 = 'x'; pack.axis2 = '0'; pack.multi = 0;
-            self.CenterCenter(index, pack) },
+            self.CenterCenter(index, PiecePack { axis1: 'x', axis2: '0', multi: 0 }); },
         8..=12 => {
-            pack.axis1 = 'y'; pack.multi = (piecenum-2) * 2 % 10;
-            self.CenterSide2(index, pack) },
-        1 => {}, 
+            self.CenterSide2(index, PiecePack { axis1: 'y', axis2: 'x', multi: ((piecenum-2) * 2 % 10) }); },
+        1 => {},
         _ => println!("Must be within 1-12"),
+        }
+    }
+    //Starts a piece based on the Shape Enum passed in.
+    fn switch_axis(&mut self, shapeType: Shape, piecenum: usize, index: usize) {
+        match shapeType {
+            EdgePiece   => { self.create_edge_axis(piecenum, index);   },
+            CornerPiece => { self.create_corner_axis(piecenum, index); },
+            CenterPiece => { self.create_center_axis(piecenum, index); },
+            EmptyPiece  => { },
         }
     }    
   }

@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 #![allow(unreachable_code)]
 pub mod face {
+  use crate::piece::piece::Piece;
   use crate::piece::piece::Vertex3;
   use crate::piece::piece::VERTEXDATAZERO;
   use crate::piece::piece::VERTEXZERO;
@@ -57,6 +58,11 @@ pub mod face {
         return self.this_num;
     }
     fn attach_center(&mut self, _centers: &mut Vec<Box <dyn Center>>) {
+    //     self.get_corner_piece(0,1);
+    //     error[E0282]: type annotations needed
+    //      |              ^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `Piece` declared on the method `get_corner_piece`
+    //   help: consider specifying the generic argument
+        self.get_corner_piece::<Piece>(0,1);  
         //println!("face.attach_center() to {}", self.this_num);
         //PieceColor::initColorA(self, 1);  //from Piece, unavailable here.
         //               ^^^^ the trait `piece::piece::PieceColor` is not implemented for `Face`
@@ -112,7 +118,7 @@ pub mod face {
   //      }
         
         /*
-      defaultEdges = megaminx->findPiecesOfFace(thisNum+1, edgesPTR, Megaminx::numEdges);
+      let defaultEdges = <crate::megaminx::megaminx::Megaminx as crate::megaminx::megaminx::MegaminxFindPieces>::find_pieces_of_face(self,thisNum+1, edgesPTR, Megaminx::numEdges);
       for i in 0..5 {
           edge[i] = &dyn EdgesPTR + defaultEdges[i];
           assert(edge[i]->data.pieceNum == defaultEdges[i]);

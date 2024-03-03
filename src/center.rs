@@ -9,12 +9,14 @@ pub mod center {
   use crate::piece::piece::VERTEXZERO;  
   //Center functions
   pub trait Center {
-      fn start(&mut self);
+      fn start(&mut self, piecenum: usize);
       fn getnum(&self) -> usize;
       fn getcolor(&self) -> ColorData;
       fn init(&mut self, piecenum: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
+      fn barse() -> Self where Self: Sized; //so it does not apply to trait objects
+      //^^^^ cannot be made into an object ...because method `barse` references the `Self` type in its return type
   }
   impl Center for Piece {
     fn getnum(&self) -> usize { 
@@ -23,10 +25,13 @@ pub mod center {
     fn getcolor(&self) -> ColorData {
         self.data.color
     }
-    fn start(&mut self) {
+    fn start(&mut self, piecenum: usize) {
         self.centerInit();
-        self.init(self.defaultPieceNum);
-    }
+        self.init(piecenum);
+    } // was in faces.rs @
+    //let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
+    //Center::init(&mut centerpiece, i);
+    //Center::init_data(&mut centerpiece, i, center_vertex_list);    
     /**
      * \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
@@ -42,6 +47,7 @@ pub mod center {
      * \brief Render Center Node (CONST)(mut for face)
      */
     fn render(&mut self) -> Vec<VertexPositionColor> {
+        //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
@@ -53,7 +59,6 @@ pub mod center {
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[0] }, //tri3
         ]
-        //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
         let mut returnvec = vec![];
@@ -61,6 +66,12 @@ pub mod center {
             returnvec.push(VertexPositionColor { position: self.vertex[l], color: VERTEXZERO });
         }
         return returnvec;
+    }
+    
+    fn barse() -> Self {
+        todo!();
+//        |        -----      ^^^^ expected `Piece`, found `()`
+//        |        implicitly returns `()` as its body has no tail or `return` expression
     }
     /* 
     glLineWidth(3);     //border thickness

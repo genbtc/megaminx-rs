@@ -41,6 +41,7 @@ pub mod edge {
      * \brief Render Edge Node (CONST)
      */
     fn render(&self) -> Vec<VertexPositionColor> {
+        //println!("DEBUG Edge[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
@@ -55,7 +56,6 @@ pub mod edge {
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, //tri4
         ]
-        //println!("DEBUG Edge[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
     }
     fn render_lines(&self, n: i8) -> Vec<VertexPositionColor> {
         match n {

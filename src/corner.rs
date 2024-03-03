@@ -22,6 +22,7 @@ pub mod corner {
      * \param do_axes True by default. First Time Initialization Only
      */
     fn init(&mut self, piecenum: usize, do_axes: bool) {
+        self.new();
         if do_axes {
             for i in 0..7  {
                 self.create_corner_axis(piecenum, i);
@@ -35,6 +36,7 @@ pub mod corner {
      * \brief Render Corner Node (CONST)
      */
     fn render(&self) -> Vec<VertexPositionColor> {
+        //println!("DEBUG Corner[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
@@ -54,8 +56,7 @@ pub mod corner {
             VertexPositionColor { position: self.vertex[5], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[2] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[2] }, //tri2
-        ]
-        //println!("DEBUG Corner[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
+        ]        
     }
 
     fn render_lines(&self) -> Vec<VertexPositionColor> {

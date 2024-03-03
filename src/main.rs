@@ -98,31 +98,31 @@ pub fn main() -> Result<(), String> {
         //CORNERS render
         for i in 0..20 {
             //Glium GL VBO 3 - CORNER - FILL
-            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &megaminx.corners[i].render()).unwrap();
-            target.draw(&vertex_buffer_3, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.corners[i].render()).unwrap(),
+             &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 3 - CORNER - LINES
-            let vertex_buffer_3 = glium::VertexBuffer::new(&display, &megaminx.corners[i].render_lines()).unwrap();
-            target.draw(&vertex_buffer_3, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.corners[i].render_lines()).unwrap(),
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();             
         }
         //EDGES render
         for i in 0..30 {
             //Glium GL VBO 2 - EDGE - FILL
-            let vertex_buffer_2 = glium::VertexBuffer::new(&display, &megaminx.edges[i].render()).unwrap();
-            target.draw(&vertex_buffer_2, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render()).unwrap(),
+             &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 2 - EDGE - LINES
-            let vertex_buffer_2b = glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(0)).unwrap();
-            let vertex_buffer_2c = glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(1)).unwrap();        
-            target.draw(&vertex_buffer_2b, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
-            target.draw(&vertex_buffer_2c, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(0)).unwrap(),
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(1)).unwrap(),
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
         }
         //CENTERS render
         for i in 0..12 {
             //Glium GL VBO 1 - CENTER - FILL
-            let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap();
-            target.draw(&vertex_buffer_1, &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap(),
+             &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 1 - CENTER - LINES
-            let vertex_buffer_1 = glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap();
-            target.draw(&vertex_buffer_1, &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
+            target.draw(&glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap(),
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
         }
 
         //Keyboard Event Handler
