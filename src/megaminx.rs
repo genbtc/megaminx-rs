@@ -127,11 +127,11 @@ pub mod megaminx {
             //println!("initing face: {}", i);
             let  face: Face = Face::new(i);
             self.faces.push(Box::new(face));
+            //face.faceInit();
+            //error[E0599]: no method named `faceInit` found for struct `Face` in the current scope
         }
     //fn attach_face_pieces(&mut self) {
             // self.find_pieces_of_face(i, &face, 5);
-            // |                  -------------------    ^^^^^ expected `&Piece`, found `&Face`
-            // |                  arguments to this method are incorrect            
             // face.attach_center(&mut self.centers);
             // face.attach_edge_pieces(&mut self.edges);
             // face.attach_corner_pieces(&mut self.corners);
