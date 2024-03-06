@@ -4,6 +4,7 @@ pub mod center {
   use crate::piece::piece::PieceInit;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceColor;
+  use crate::piece::piece::Points;
   use crate::piece_color::PieceColor::ColorData;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;  
@@ -15,16 +16,20 @@ pub mod center {
       fn init(&mut self, piecenum: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
+      fn getpoints(&self) -> Points;
       fn barse() -> Self where Self: Sized; //so it does not apply to trait objects
       //^^^^ cannot be made into an object ...because method `barse` references the `Self` type in its return type
   }
   impl Center for Piece {
     fn getnum(&self) -> usize { 
-        return self.defaultPieceNum;
+        self.defaultPieceNum
     }
     fn getcolor(&self) -> ColorData {
         self.data.color
     }
+    fn getpoints(&self) -> Points {
+        self.points
+    }    
     fn start(&mut self, piecenum: usize) {
         self.centerInit();
         self.init(piecenum);

@@ -1,9 +1,10 @@
 // megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
 // Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
 extern crate gl;
+use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::{event::Event, keyboard::Keycode};
 use sdl2::pixels::Color;
-use sdl2::rect::Rect;
+use sdl2::rect::{Point, Rect};
 use sdl2::video::WindowBuilder;
 use sdl2::render::Canvas;
 include!{"../glium_sdl2_lib.rs"}
@@ -27,7 +28,7 @@ pub fn main() -> Result<(), String> {
     let     display: SDL2Facade = binding.build_glium().unwrap();
     let window_b: Window = unsafe { Window::from_ref(display.window().context()) };
     let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
-
+    //OpenGL
     let mut translate_x:f32=0.0;
     let mut translate_y:f32=0.0;
     let mut translate_z:f32=0.0;
@@ -82,47 +83,68 @@ pub fn main() -> Result<(), String> {
         //Color Changing Square
         canvas.set_draw_color(Color::RGB(i, 0, 255 - i));
         let _ = canvas.fill_rect(Rect::new(0, 0, 25, 25));
+        let _ = canvas.circle((width/2).try_into().unwrap(), (height/2).try_into().unwrap(), (height/2).try_into().unwrap(), (255,255,255,155));
+        let _ = canvas.draw_line(Point::new(0,640), Point::new(320,320));
         canvas.present();
+        let points = megaminx.centers[0].getpoints();
+        
+        let a = points.a;
+        let la = points.length(a);
+        let x = (width as f32)  * a[0]/a[2];
+        let y = (height as f32) * a[1]/a[2];
+        
+        println!("{:?} len {} x,y {} {}",a, la, x, y ); //len 116.43434 for dode 100, len 98.96919 for 85.  //[17.0, 23.398495, -94.64889] = x,y -114.951164 -158.21672
+        let _ = canvas.draw_line(Point::new(0,0), Point::new(x.abs() as i32, y.abs() as i32));
 
         //Orthographic Projection Matrix
         let projmatrix: [[f32; 4]; 4] = [
-            [0.01+translate_x, 0.0, 0.0, 0.0],
-            [0.0, 0.01+translate_y, 0.0, 0.0],
-            [0.0, 0.0, 0.01+translate_z, 0.0],
-            [0.0, 0.0, 1.0, zoom]
+            [0.01, 0.0, 0.0, 0.0],
+            [0.0, 0.01, 0.0, 0.0],
+            [0.0, 0.0, 0.01, 0.0],
+            [0.0+translate_x, 0.0+translate_y, 0.0+translate_z, zoom]
         ];
-
+        let rv = points.multiply(a, projmatrix);
+        println!("{:?} ", rv );
         //Glium compile GL shaders - Color,
         let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();
 
         //CORNERS render
+        let do_corners = true;
         for i in 0..20 {
             //Glium GL VBO 3 - CORNER - FILL
+            if do_corners {
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.corners[i].render()).unwrap(),
              &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 3 - CORNER - LINES
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.corners[i].render_lines()).unwrap(),
-             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();             
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            }
         }
         //EDGES render
+        let do_edges = true;
         for i in 0..30 {
             //Glium GL VBO 2 - EDGE - FILL
+            if do_edges {
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render()).unwrap(),
              &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 2 - EDGE - LINES
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(0)).unwrap(),
              &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.edges[i].render_lines(1)).unwrap(),
-             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();                
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            }
         }
         //CENTERS render
+        let do_centers = true;
         for i in 0..12 {
             //Glium GL VBO 1 - CENTER - FILL
+            if do_centers {
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.centers[i].render()).unwrap(),
              &indices_triangles, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
             //Glium GL VBO 1 - CENTER - LINES
             target.draw(&glium::VertexBuffer::new(&display, &megaminx.centers[i].render_lines()).unwrap(),
-             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();        
+             &indices_lineloop, &program_color, &uniform! { projmatrix: projmatrix }, &depthparams).unwrap();
+            }
         }
 
         //Keyboard Event Handler
@@ -134,11 +156,11 @@ pub fn main() -> Result<(), String> {
                 Event::KeyDown { keycode: Some(Keycode::F1), .. 
                 } => { zoom+=0.1; }
                 Event::KeyDown { keycode: Some(Keycode::F2), .. 
-                } => { translate_x+=0.001; }
+                } => { translate_x+=0.1; }
                 Event::KeyDown { keycode: Some(Keycode::F3), .. 
-                } => { translate_y+=0.001; }
+                } => { translate_y+=0.1; }
                 Event::KeyDown { keycode: Some(Keycode::F4), .. 
-                } => { translate_z+=0.001; }                
+                } => { translate_z+=0.1; }                
                 Event::Quit { .. }
                 | Event::KeyDown { keycode: Some(Keycode::Escape), .. 
                 } => {

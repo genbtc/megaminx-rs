@@ -5,6 +5,7 @@
 #![allow(unused_variables)]
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
+use glm::* ; //{Vector3,Matrix4};
 
 //Vertex 3 Position Definitions
 #[derive(Copy, Clone, Default)]
@@ -52,6 +53,8 @@ pub struct Piece {
     pub numSides: usize,
     //Data Struct (can swap out)
     pub data: PieceData,
+    //alternate form of Vertex
+    pub points: Points,
 }
 //Initialize constructor
 impl Piece {
@@ -61,6 +64,7 @@ impl Piece {
         numSides: 0,
         defaultPieceNum,
         data: Default::default(),
+        points: Default::default(),
       }
     }
     pub fn swapdata(&mut self, data: &mut PieceData) {
@@ -74,6 +78,9 @@ impl Piece {
     }
     pub fn getcolor(&self) -> ColorData {
         self.data.color
+    }
+    pub fn getpoints(&self) -> Points {
+        self.points
     }
 }
 #[derive(Copy, Clone , Default, PartialEq)]
@@ -89,14 +96,16 @@ pub use Shape::*;
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
 macro_rules! dodesize { () => {   85f32   }; }  //smaller size than original 100
-//common geometric constants
-macro_rules! pi { () => {  (-1f32).acos()  }; }                     //3.1415927410125732
+//common geometric constants                                                        (exact representation ©2024 Wolfram Alpha LLC)
+macro_rules! pi { () => {  (-1f32).acos()  }; }                //3.1415927410125732 (3.1415926535897932384626433832795028841971693993751058209749445923)
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
-macro_rules! phi { () => {  (1. + (5f32).sqrt()) / 2.  }; }         //1.6180340051651001
-macro_rules! sideangle { () => {  2. * phi!().atan()  }; }          //2.0344439448698051
+macro_rules! pent { () => { (5f32).sqrt() }; }
+macro_rules! phi { () => {  (1. + pent!() ) / 2.  }; }         //1.6180340051651001 (1.6180339887498948482045868343656381177203091798057628621354486227)
+macro_rules! sideangle { () => {  2. * phi!().atan()  }; }     //2.0344439448698051 (2.0344439357957027354455779231009658441271217539736731742984053848)
+macro_rules! pisideangle { () => {  pi!() - sideangle!() }; }  //1.107148796        (1.1071487177940905030170654601785370400700476454014326466765392074)
 //inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
-macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / (5f32).sqrt()).sqrt() / 4.   }; }    //111.35163307189941
-macro_rules! inscirclerad { () => { dodesize!() / ((5. - (5f32).sqrt()) / 2.).sqrt()   }; }         // 85.065082037033278
+macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / pent!()).sqrt() / 4.   }; }    //111.35163307189941
+macro_rules! inscirclerad { () => { dodesize!() / ((5. - pent!()) / 2.).sqrt()   }; }         // 85.065082037033278
 //megaminx vertex math shortcuts
 macro_rules! twofifths { () => { 0.4  }; }
 fn pim(x: f32) -> f32 { x*pi!()/5. }
@@ -105,6 +114,42 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
+#[derive(Copy, Clone, Default, PartialEq, Debug)]
+pub struct Points {
+    pub a: Vertex3,
+    pub b: Vertex3,
+    pub c: Vertex3,
+    pub d: Vertex3,
+    pub e: Vertex3,
+    pub f: Vertex3,
+    pub g: Vertex3,
+}
+impl Points {
+    pub fn length(&self, vec: Vertex3) -> f32 {
+      return {
+        let mut accum = 0.0;
+        for v in vec {
+            accum += v*v;
+        }
+        accum.sqrt()
+      }
+    }
+    pub fn dot(&self, v1: Vertex3, v2: Vertex3) -> f32 {
+        v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]
+    }
+    pub fn multiply(&self, vertex: Vertex3, m: [[f32;4];4]) -> Vector3<f32> {
+        let       v =  Vector3::<f32>::from_array(&vertex);
+        let mut dst =  Vector3::<f32>::from(*v);
+        dst.x = v.x*m[0][0] + v.y*m[1][0] + v.z*m[2][0] + 0.0;
+        dst.y = v.x*m[0][1] + v.y*m[1][1] + v.z*m[2][1] + 0.0;
+        dst.z = v.x*m[0][2] + v.y*m[1][2] + v.z*m[2][2] + 0.0;
+        //dst.w = v.x*m[0][3] + v.y*m[1][3] + v.z*m[2][3] + 0.0;
+        dst
+    } 
+    // error[E0277]: cannot multiply `f32` by `Vector4<f32>`
+    //  |                    ^ no implementation for `f32 * Vector4<f32>`
+    //  = help: the trait `std::ops::Mul<Vector4<f32>>` is not implemented for `f32`    
+}
 //Piece Pack struct to rotateVertexXYZ
 #[derive(Copy, Clone, Default)]
 pub struct PiecePack {
@@ -140,36 +185,36 @@ impl PieceInit for Piece {
         for i in 0..7 {
             self.vertex[i][2] = -inssphererad!();
         }
-
         self.vertex[0][0] = cospim35!() * twofifths!(); //inside corner (aka outside center)
         self.vertex[0][1] = sinpim35!() * twofifths!();
-
+        self.points.a = self.vertex[0];
         self.vertex[1][0] = cospim35!() + edgefifth!() * twofifths!(); //corner inside edge a
         self.vertex[1][1] = sinpim35!();
-
+        self.points.b = self.vertex[1];
         self.vertex[2][0] = cospim35!();     //outside corner
-        self.vertex[2][1] = sinpim35!();
-
+        self.vertex[2][1] = self.vertex[1][1];
+        self.points.c = self.vertex[2];
         self.vertex[3][0] = cospim15!() - edgefifth!() * twofifths!(); //corner inside edge b
-        self.vertex[3][1] = sinpim35!();
+        self.vertex[3][1] = self.vertex[1][1];
         self.rotateVertexXYZ(3, 'z', pim(2.));
-
-        self.vertex[4][0] = cospim15!() * twofifths!(); //brother = 0 or 6
-        self.vertex[4][1] = sinpim35!() * twofifths!();
+        self.points.d = self.vertex[3];
+        self.vertex[4][0] = cospim15!() * twofifths!(); //brother = 6 + 0
+        self.vertex[4][1] = self.vertex[0][1];
         self.rotateVertexXYZ(4, 'z', pim(-3.));
-        self.rotateVertexXYZ(4, 'x', pi!() - sideangle!());
+        self.rotateVertexXYZ(4, 'x', pisideangle!());
         self.rotateVertexXYZ(4, 'z', pim(2.));
-
-        self.vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 or 1
-        self.vertex[5][1] = sinpim35!();
+        self.points.e = self.vertex[4];
+        self.vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 + 1
+        self.vertex[5][1] = self.vertex[1][1];
         self.rotateVertexXYZ(5, 'z', pim(-3.));
-        self.rotateVertexXYZ(5, 'x', pi!() - sideangle!());
+        self.rotateVertexXYZ(5, 'x', pisideangle!());
         self.rotateVertexXYZ(5, 'z', pim(2.));
-
-        self.vertex[6][0] = cospim15!() * twofifths!(); //brother = 0 or 4
-        self.vertex[6][1] = sinpim35!() * twofifths!();
+        self.points.f = self.vertex[5];
+        self.vertex[6][0] = cospim15!() * twofifths!(); //brother = 4 + 0
+        self.vertex[6][1] = self.vertex[0][1];
         self.rotateVertexXYZ(6, 'z', pim(-5.));
-        self.rotateVertexXYZ(6, 'x', pi!() - sideangle!());
+        self.rotateVertexXYZ(6, 'x', pisideangle!());
+        self.points.g = self.vertex[6];
         &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are EDGES
@@ -182,25 +227,29 @@ impl PieceInit for Piece {
 
         self.vertex[0][0] = cospim35!() * twofifths!();
         self.vertex[0][1] = sinpim35!() * twofifths!();
-
+        self.points.a = self.vertex[0];
         self.vertex[1][0] = cospim15!() * twofifths!();
-        self.vertex[1][1] = sinpim35!() * twofifths!();
-
+        self.vertex[1][1] = self.vertex[0][1];
+        self.points.b = self.vertex[1];
         self.vertex[2][0] = cospim15!() - edgefifth!() * twofifths!();
         self.vertex[2][1] = sinpim35!();
-
-        self.vertex[3][0] = cospim35!() + edgefifth!() * twofifths!();
-        self.vertex[3][1] = sinpim35!();
-
+        self.points.c = self.vertex[2];
+        // self.vertex[3][0] = cospim35!() + edgefifth!() * twofifths!();
+        self.vertex[3][0] = self.vertex[2][0];
+        self.vertex[3][1] = self.vertex[2][1];
+        self.rotateVertexXYZ(3, 'z', pi!());
+        self.rotateVertexXYZ(3, 'x', pisideangle!());
+        self.points.d = self.vertex[3];
         self.vertex[4][0] = self.vertex[1][0];
         self.vertex[4][1] = self.vertex[1][1];
         self.rotateVertexXYZ(4, 'z', pi!());
-        self.rotateVertexXYZ(4, 'x', pi!() - sideangle!());
-
+        self.rotateVertexXYZ(4, 'x', pisideangle!());
+        self.points.e = self.vertex[4];
         self.vertex[5][0] = self.vertex[0][0];
         self.vertex[5][1] = self.vertex[0][1];
         self.rotateVertexXYZ(5, 'z', pi!());
-        self.rotateVertexXYZ(5, 'x', pi!() - sideangle!());
+        self.rotateVertexXYZ(5, 'x', pisideangle!());
+        self.points.f = self.vertex[5];
         &self.vertex
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
@@ -212,6 +261,11 @@ impl PieceInit for Piece {
             self.vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
             self.vertex[i][2] = -inssphererad!();
         }
+        self.points.a = self.vertex[0];
+        self.points.b = self.vertex[1];
+        self.points.c = self.vertex[2];
+        self.points.d = self.vertex[3];
+        self.points.e = self.vertex[4];
         &self.vertex
     }    
     //Creates the common starting vertexes for all pieces that are FACES
@@ -224,9 +278,14 @@ impl PieceInit for Piece {
             self.vertex[i][1] = -sinpim35!();
             self.vertex[i][2] = -inssphererad!();
             self.rotateVertexXYZ(i, 'z', pim(2.));
-            self.rotateVertexXYZ(i, 'x', pi!() - sideangle!());
+            self.rotateVertexXYZ(i, 'x', pisideangle!());
             self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
+        self.points.a = self.vertex[0];
+        self.points.b = self.vertex[1];
+        self.points.c = self.vertex[2];
+        self.points.d = self.vertex[3];
+        self.points.e = self.vertex[4];        
         &self.vertex
     }
 }
@@ -256,7 +315,7 @@ impl PieceMath for Piece {
     }
     fn CenterSide1(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(1.));
-        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.rotateVertexXYZ(index, pack.axis2, pisideangle!());
         self.axis1multi(index, pack);
     }
     fn CenterCenter(&mut self, index: usize, pack: PiecePack) {
@@ -264,7 +323,7 @@ impl PieceMath for Piece {
     }
     fn CenterSide2(&mut self, index: usize, pack: PiecePack) {
         self.CenterCenter(index, pack);
-        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.rotateVertexXYZ(index, pack.axis2, pisideangle!());
         self.rotateVertexXYZ(index,  'z', pim(pack.multi as f32));
         //note: always z, because axis1/2 are y/x. the z gets re-used by face.
     }
@@ -278,7 +337,7 @@ impl PieceMath for Piece {
     }
     fn EdgeGrp2(&mut self, index: usize, pack: PiecePack) {
         self.rotateVertexXYZ(index, pack.axis1, pim(3.));
-        self.rotateVertexXYZ(index, pack.axis2, pi!() - sideangle!());
+        self.rotateVertexXYZ(index, pack.axis2, pisideangle!());
         self.axis1multi(index, pack);
     }
     fn EdgeGrp3(&mut self, index: usize, pack: PiecePack) {
