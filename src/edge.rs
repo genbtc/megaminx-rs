@@ -46,9 +46,9 @@ pub mod edge {
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri1
-            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
-            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] }, //tri2
+            VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[0] },
+            VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] }, //tri2
             VertexPositionColor { position: self.vertex[2], color: self.data.color.colorRGB[1] }, 
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[1] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[1] }, //tri3

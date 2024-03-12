@@ -6,6 +6,7 @@ pub mod corner {
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
+  use crate::edge::edge::Edge;
   //Corner functions
   pub trait Corner : EdgeCornerInit {
       fn init(&mut self, piecenum: usize, do_axes: bool);
@@ -60,20 +61,16 @@ pub mod corner {
     }
 
     fn render_lines(&self) -> Vec<VertexPositionColor> {
-        vec![
-            VertexPositionColor { position: self.vertex[0], color: VERTEXZERO  },
-            VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  },
-            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
-            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO  }, //loop1
-            VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
-            VertexPositionColor { position: self.vertex[3], color: VERTEXZERO  },
-            VertexPositionColor { position: self.vertex[4], color: VERTEXZERO  }, 
-            VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  }, //Loop2
+        let mut returnvec = Vec::new();
+        returnvec.extend(Edge::render_lines(self,0));
+        returnvec.extend(Edge::render_lines(self,1));
+        returnvec.extend(vec![
             VertexPositionColor { position: self.vertex[2], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[5], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[6], color: VERTEXZERO  },
             VertexPositionColor { position: self.vertex[1], color: VERTEXZERO  }, //loop3
-        ]
+        ]);
+        return returnvec;
     }
     //Flip - Changes colors. rotate/switches colors for current piece
     fn flip(&mut self) {

@@ -24,6 +24,8 @@ implement_vertex!(VertexPositionColor, position, color);
 
 //typedef for Regular Vertex 3 and 3;7
 pub type Vertex3 = [f32; 3];
+pub type VectorVertex3 = [Vertex3; 3];
+pub type TriVec = [VectorVertex3; 6];
 pub type Vertex3x7 = [Vertex3; 7];
 
 //Default initializer data for vertex
@@ -55,6 +57,9 @@ pub struct Piece {
     pub data: PieceData,
     //alternate form of Vertex
     pub points: Points,
+    pub triIndices: [[usize;3]; 6],
+    pub tris: [TriVec; 6],
+    pub triVecs: [VectorVertex3; 6],
 }
 //Initialize constructor
 impl Piece {
@@ -65,6 +70,9 @@ impl Piece {
         defaultPieceNum,
         data: Default::default(),
         points: Default::default(),
+        tris:  Default::default(),
+        triIndices: Default::default(),
+        triVecs: Default::default(),
       }
     }
     pub fn swapdata(&mut self, data: &mut PieceData) {
@@ -97,17 +105,20 @@ pub use Shape::*;
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
 macro_rules! dodesize { () => {   85f32   }; }  //smaller size than original 100
 //common geometric constants                                                        (exact representation ©2024 Wolfram Alpha LLC)
-macro_rules! pi { () => {  (-1f32).acos()  }; }                //3.1415927410125732 (3.1415926535897932384626433832795028841971693993751058209749445923)
+//macro_rules! pi { () => {  (-1f32).acos()  }; }                //3.1415927410125732 (3.1415926535897932384626433832795028841971693993751058209749445923)
+macro_rules! pi { () => { glm::ext::consts::pi::<f32,f32>() }; }
 //golden ratio (phi) (also the ratio between the side length of a regular pentagon and one of its diagonals.)
-macro_rules! pent { () => { (5f32).sqrt() }; }
-macro_rules! phi { () => {  (1. + pent!() ) / 2.  }; }         //1.6180340051651001 (1.6180339887498948482045868343656381177203091798057628621354486227)
+//macro_rules! pent { () => { (5f32).sqrt() }; }
+macro_rules! pent { () => { glm::ext::consts::root_five::<f32,f32>() }; }
+//macro_rules! phi { () => {  (1. + pent!() ) / 2.  }; }         //1.6180340051651001 (1.6180339887498948482045868343656381177203091798057628621354486227)
+macro_rules! phi { () => { glm::ext::consts::golden_ratio::<f32,f32>() }; }
 macro_rules! sideangle { () => {  2. * phi!().atan()  }; }     //2.0344439448698051 (2.0344439357957027354455779231009658441271217539736731742984053848)
 macro_rules! pisideangle { () => {  pi!() - sideangle!() }; }  //1.107148796        (1.1071487177940905030170654601785370400700476454014326466765392074)
 //inscribed sphere radius ( ri: f32 = a / 2 * √ ( 25 + 11 * √5 ) / 10 )
 macro_rules! inssphererad { () => { dodesize!() * (10. + 22. / pent!()).sqrt() / 4.   }; }    //111.35163307189941
 macro_rules! inscirclerad { () => { dodesize!() / ((5. - pent!()) / 2.).sqrt()   }; }         // 85.065082037033278
 //megaminx vertex math shortcuts
-macro_rules! twofifths { () => { 0.4  }; }
+macro_rules! twofifths { () => { 0.4 }; }
 fn pim(x: f32) -> f32 { x*pi!()/5. }
 macro_rules! edgefifth { () => { dodesize!() / pim(2.).sin()   }; }         //105.14622122913930
 macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-50.000004917867173
@@ -125,18 +136,63 @@ pub struct Points {
     pub g: Vertex3,
 }
 impl Points {
+    pub fn a(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.a)
+    }
+    pub fn b(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.b)
+    }
+    pub fn c(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.c)
+    }
+    pub fn d(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.d)
+    }
+    pub fn e(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.e)
+    }
+    pub fn f(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.f)
+    }
+    pub fn g(&self) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(&self.g)
+    }
+    pub fn from(&self, point: char) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(
+        match point {
+            'a' => &self.a,
+            'b' => &self.b,
+            'c' => &self.c,
+            'd' => &self.d,
+            'e' => &self.e,
+            'f' => &self.f,
+            'g' => &self.g,
+            _=> &VERTEXZERO,
+        })  //Return
+    }
+
+    //import old vertex data into Point style
+    pub fn new(&mut self, vertex: Vertex3x7) -> &Self {
+        self.a = vertex[0];
+        self.b = vertex[1];
+        self.c = vertex[2];
+        self.d = vertex[3];
+        self.e = vertex[4];
+        self.f = vertex[5];
+        self.g = vertex[6];
+        self    //Return
+    }
+    //Unit length math functions
     pub fn length(&self, vec: Vertex3) -> f32 {
-      return {
-        let mut accum = 0.0;
-        for v in vec {
-            accum += v*v;
-        }
-        accum.sqrt()
-      }
+        vec.iter().map(|v| v*v ).sum::<f32>().sqrt()
     }
-    pub fn dot(&self, v1: Vertex3, v2: Vertex3) -> f32 {
-        v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]
+    //dot product math function
+    pub fn dot(&self, lhs: Vertex3, rhs: Vertex3) -> f32 {
+        lhs[0]*rhs[0] +
+        lhs[1]*rhs[1] + 
+        lhs[2]*rhs[2]
     }
+    //vector multiply by matrix math function
     pub fn multiply(&self, vertex: Vertex3, m: [[f32;4];4]) -> Vector3<f32> {
         let       v =  Vector3::<f32>::from_array(&vertex);
         let mut dst =  Vector3::<f32>::from(*v);
@@ -145,10 +201,45 @@ impl Points {
         dst.z = v.x*m[0][2] + v.y*m[1][2] + v.z*m[2][2] + 0.0;
         //dst.w = v.x*m[0][3] + v.y*m[1][3] + v.z*m[2][3] + 0.0;
         dst
-    } 
-    // error[E0277]: cannot multiply `f32` by `Vector4<f32>`
-    //  |                    ^ no implementation for `f32 * Vector4<f32>`
-    //  = help: the trait `std::ops::Mul<Vector4<f32>>` is not implemented for `f32`    
+    }
+    //cross product math function
+    pub fn cross(&self, left: Vector3<f32>, right: Vector3<f32>) -> Vector3<f32> {
+        //left * right
+        Vector3::<f32>::new(
+            left.y * right.z - left.z * right.y,
+            left.z * right.x - left.x * right.z,
+            left.x * right.y - left.y * right.x,
+        )
+    }
+    //subtraction examples1
+    pub fn subtractAB(&self) -> Vector3<f32> {
+        //a[0] - b[0];
+        Vector3::<f32>::new(
+            self.a[0] - self.b[0],
+            self.a[1] - self.b[1],
+            self.a[2] - self.b[2],
+        )
+    }
+    pub fn addition(&self,  lhs: Vector3<f32>, rhs: Vector3<f32>) -> Vector3<f32> {
+        // l + r
+        Vector3::<f32>::new(
+            lhs.x + rhs.x, 
+            lhs.y + rhs.y, 
+            lhs.z + rhs.z
+        )
+    }
+    pub fn subtraction(&self,  lhs: Vector3<f32>, rhs: Vector3<f32>) -> Vector3<f32> {
+        // l - r
+        Vector3::<f32>::new(
+            lhs.x - rhs.x, 
+            lhs.y - rhs.y, 
+            lhs.z - rhs.z
+        )
+    }    
+    //subtraction example2
+    pub fn subtract(&self, a: Vector3<f32>, b: Vector3<f32>) -> Vector3<f32> {
+        a - b
+    }
 }
 //Piece Pack struct to rotateVertexXYZ
 #[derive(Copy, Clone, Default)]
@@ -215,7 +306,16 @@ impl PieceInit for Piece {
         self.rotateVertexXYZ(6, 'z', pim(-5.));
         self.rotateVertexXYZ(6, 'x', pisideangle!());
         self.points.g = self.vertex[6];
-        &self.vertex
+        //define Triangles now
+        self.triIndices = [[0,1,2],[0,2,3],[3,4,5],[2,5,3],[5,6,1],[5,1,2]];
+                        //      v0              v1              v2
+        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
+        self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
+        self.triVecs[2] = [self.vertex[3], self.vertex[4], self.vertex[5]];
+        self.triVecs[3] = [self.vertex[2], self.vertex[5], self.vertex[3]];
+        self.triVecs[4] = [self.vertex[5], self.vertex[6], self.vertex[1]];
+        self.triVecs[5] = [self.vertex[5], self.vertex[1], self.vertex[2]];
+        &self.vertex    //Return
     }
     //Creates the common starting vertexes for all pieces that are EDGES
     fn edgeInit(&mut self) -> &Vertex3x7 {
@@ -224,7 +324,6 @@ impl PieceInit for Piece {
         for i in 0..6 {
             self.vertex[i][2] = -inssphererad!();
         }
-
         self.vertex[0][0] = cospim35!() * twofifths!();
         self.vertex[0][1] = sinpim35!() * twofifths!();
         self.points.a = self.vertex[0];
@@ -250,7 +349,29 @@ impl PieceInit for Piece {
         self.rotateVertexXYZ(5, 'z', pi!());
         self.rotateVertexXYZ(5, 'x', pisideangle!());
         self.points.f = self.vertex[5];
-        &self.vertex
+        //Define Triangles
+        self.triIndices = [[0,1,2],[0,2,3],[2,3,4],[5,4,2],Default::default(),Default::default()];
+        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
+        self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
+        self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
+        self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
+        let &trivec00 = Vector3::<f32>::from_array(&self.vertex[0]);
+        let &trivec01 = Vector3::<f32>::from_array(&self.vertex[1]);
+        let &trivec02 = Vector3::<f32>::from_array(&self.vertex[2]);
+        //Vec3f A = v1 - v0; // Edge 0
+        //Vec3f B = v2 - v0; // Edge 1
+        //let edgeA = self.triVecs[0][1] - self.triVecs[0][0];
+        //let edgeB = self.triVecs[0][2] - self.triVecs[0][0];
+        let edgeA = trivec01 - trivec00;    //00->01
+        let edgeB = trivec02 - trivec00;    //00->02 (03 is hypotn)
+        let normalC = Points::cross(&self.points, edgeA,edgeB);
+        let crossp = glm::cross(edgeA, edgeB);
+        assert_eq!(normalC,crossp);
+        let floatDot = -glm::dot(normalC, trivec00);
+        // or if you want to compute the dot product directly
+        let floatDotManual = -(normalC.x * trivec00.x + normalC.y * trivec00.y + normalC.z * trivec00.z);        
+        assert_eq!(floatDot, floatDotManual);
+        &self.vertex    //Return
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
     fn centerInit(&mut self) -> &Vertex3x7 {
@@ -261,12 +382,8 @@ impl PieceInit for Piece {
             self.vertex[i][1] = inscirclerad!() * (pim(2.) * (i as f32) + pim(1.5)).sin() * twofifths!();
             self.vertex[i][2] = -inssphererad!();
         }
-        self.points.a = self.vertex[0];
-        self.points.b = self.vertex[1];
-        self.points.c = self.vertex[2];
-        self.points.d = self.vertex[3];
-        self.points.e = self.vertex[4];
-        &self.vertex
+        self.points.new(self.vertex);
+        &self.vertex    //Return
     }    
     //Creates the common starting vertexes for all pieces that are FACES
     fn faceInit(&mut self) -> &Vertex3x7 {
@@ -281,12 +398,8 @@ impl PieceInit for Piece {
             self.rotateVertexXYZ(i, 'x', pisideangle!());
             self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
-        self.points.a = self.vertex[0];
-        self.points.b = self.vertex[1];
-        self.points.c = self.vertex[2];
-        self.points.d = self.vertex[3];
-        self.points.e = self.vertex[4];        
-        &self.vertex
+        self.points.new(self.vertex);
+        &self.vertex    //Return
     }
 }
 //Attach these Math traits to Piece object
@@ -422,16 +535,18 @@ impl PieceColor for Piece {
     //check if color-num (int) matches ANY colors (3 sided)
     // currently stored in struct data
     fn matchesColor(&self, color: usize) -> bool {
-        return self.data.color.colorNum[0] == color ||
-               self.data.color.colorNum[1] == color ||
-               self.data.color.colorNum[2] == color;
+        self.data.color.colorNum[0] == color ||
+        self.data.color.colorNum[1] == color ||
+        self.data.color.colorNum[2] == color
     }
     fn anyColor(&self, color: usize) -> bool {
         self.data.color.colorNum.iter().any(|&rgb| rgb == color)
     }
     fn match_color(&self, color: usize) -> bool {
         match self.data.color.colorNum {
-            |[_,_,_] => {true},
+            [x,y,z] => { 
+                x == color || y == color || z == color
+            },
         }
     }
     fn isShape(&mut self) -> Shape {
