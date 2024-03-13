@@ -25,9 +25,23 @@ pub fn main() -> Result<(), String> {
     let video_subsystem: VideoSubsystem = sdl_context.video().unwrap();
     let mut binding: WindowBuilder = video_subsystem.window("Megaminx_SDL2", width, height);
     let    display: SDL2Facade = binding.build_glium().unwrap();
-    let gl_context: Rc<WindowContext> = display.window().context();
-    let   window_b: Window = unsafe { Window::from_ref(gl_context) };
+    let window: &Window = display.window();
+    //glium::backend::facade.get_context() = Returns an opaque type that contains the OpenGL state, extensions, version, etc.
+    let _glium_context: &Rc<Context> = display.get_context();
+    assert!(display.backend.is_current());
+    let sdlgl_context: Rc<WindowContext> = window.context(); //Clone Context
+    assert!(display.backend.is_current());
+    // Create a new `Window` without taking ownership of the `WindowContext`
+    let   window_b: Window = unsafe { Window::from_ref(sdlgl_context) };
+    assert!(display.backend.is_current());
     let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
+    //println!("{}", display.backend.is_current() );  //false
+    //sdl2::video::Window::into_canvas` takes ownership of the receiver `self`, which moves `*window_a`
+//    impl Window {    
+//     raw: *mut sys::SDL_Window,
+//     -> Window {
+//     let context = WindowContext::from_ll(subsystem, raw, metal_view);
+//     context.into()    
     //OpenGL
     let mut translate_x:f32=0.0;
     let mut translate_y:f32=0.0;
@@ -93,7 +107,7 @@ pub fn main() -> Result<(), String> {
         let x = (width as f32)  * a[0]/a[2];
         let y = (height as f32) * a[1]/a[2];
         
-        println!("{:?} len {} x,y {} {}",a, la, x, y ); //len 116.43434 for dode 100, len 98.96919 for 85.  //[17.0, 23.398495, -94.64889] = x,y -114.951164 -158.21672
+        //println!("{:?} len {} x,y {} {}",a, la, x, y ); //len 116.43434 for dode 100, len 98.96919 for 85.  //[17.0, 23.398495, -94.64889] = x,y -114.951164 -158.21672
         let _ = canvas.draw_line(Point::new(0,0), Point::new(x.abs() as i32, y.abs() as i32));
 
         //Orthographic Projection Matrix
@@ -104,7 +118,7 @@ pub fn main() -> Result<(), String> {
             [0.0+translate_x, 0.0+translate_y, 0.0+translate_z, zoom]
         ];
         let rv = points.multiply(a, projmatrix);
-        println!("{:?} ", rv );
+        //println!("{:?} ", rv );
         
         //Glium compile GL shaders - Color,
         let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();

@@ -301,7 +301,7 @@ impl PieceInit for Piece {
         self.triVecs[3] = [self.vertex[2], self.vertex[5], self.vertex[3]];
         self.triVecs[4] = [self.vertex[5], self.vertex[6], self.vertex[1]];
         self.triVecs[5] = [self.vertex[5], self.vertex[1], self.vertex[2]];
-        
+
         &self.vertex    //Return
     }
     //Creates the common starting vertexes for all pieces that are EDGES
@@ -334,38 +334,42 @@ impl PieceInit for Piece {
 
         //Define Triangles
         self.triIndices = [[0,1,2],[0,2,3],[2,3,4],[5,4,2],Default::default(),Default::default()];
-
+        //self.getTriangle(1 : triIndice) -> Triangle Class TODO:
         //Triangle 0
-        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
-        let &trivec00 = Vector3::<f32>::from_array(&self.vertex[0]);
+        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];                    //Store in Struct          
+        let &trivec00 = Vector3::<f32>::from_array(&self.vertex[0]);        //Three Vectors Local Copied
         let &trivec01 = Vector3::<f32>::from_array(&self.vertex[1]);
         let &trivec02 = Vector3::<f32>::from_array(&self.vertex[2]);
         //+++ math
-        let edgeA = trivec01 - trivec00;    //00->01
+        let edgeA = trivec01 - trivec00;    //00->01                            //Store Difference Edges
         let edgeB = trivec02 - trivec00;    //00->02 (03 is hypotn)
         let normalC = Points::cross(&self.points, edgeA,edgeB);
         let crossp = glm::cross(edgeA, edgeB);
         assert_eq!(normalC,crossp);
-        let floatDot = -glm::dot(normalC, trivec00);
+        let dotProd = -glm::dot(normalC, trivec00);
         // or if you want to compute the dot product directly
         let floatDotManual = -(normalC.x * trivec00.x + normalC.y * trivec00.y + normalC.z * trivec00.z);        
-        assert_eq!(floatDot, floatDotManual);        
+        assert_eq!(dotProd, floatDotManual);        
 
         //Triangle 1
         self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
-        let &trivec10 = Vector3::<f32>::from_array(&self.vertex[0]);
-        let &trivec11 = Vector3::<f32>::from_array(&self.vertex[2]);
-        let &trivec12 = Vector3::<f32>::from_array(&self.vertex[3]);
+        let &trivec10 = self.points.a();
+        let &trivec11 = self.points.c();
+        let &trivec12 = self.points.d();
+        let edgeA = trivec11 - trivec10;    //10->11
+        let edgeB = trivec12 - trivec10;    //10->12 (13 is hypotn)        
+        let normalC = glm::cross(edgeA, edgeB);
+        let dotProd = -glm::dot(normalC, trivec10);
         //Triangle 2
         self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
-        let &trivec20 = Vector3::<f32>::from_array(&self.vertex[2]);
-        let &trivec21 = Vector3::<f32>::from_array(&self.vertex[3]);
-        let &trivec22 = Vector3::<f32>::from_array(&self.vertex[4]);
+        let &trivec20 = self.points.c();
+        let &trivec21 = self.points.d();
+        let &trivec22 = self.points.e();
         //Triangle 3
         self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
-        let &trivec30 = Vector3::<f32>::from_array(&self.vertex[5]);
-        let &trivec31 = Vector3::<f32>::from_array(&self.vertex[4]);
-        let &trivec32 = Vector3::<f32>::from_array(&self.vertex[2]);
+        let &trivec30 = self.points.f();
+        let &trivec31 = self.points.e();
+        let &trivec32 = self.points.c();
 
         &self.vertex    //Return
     }
