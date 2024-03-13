@@ -10,15 +10,13 @@ pub mod center {
   use crate::piece::piece::VERTEXZERO;  
   //Center functions
   pub trait Center {
-      fn start(&mut self, piecenum: usize);
       fn getnum(&self) -> usize;
       fn getcolor(&self) -> ColorData;
+      fn getpoints(&self) -> Points;
+      fn getself(&self) -> &Self where Self: Sized; //so it does not apply to trait objects. returns back a Piece ref
       fn init(&mut self, piecenum: usize);
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
-      fn getpoints(&self) -> Points;
-      fn barse() -> Self where Self: Sized; //so it does not apply to trait objects
-      //^^^^ cannot be made into an object ...because method `barse` references the `Self` type in its return type
   }
   impl Center for Piece {
     fn getnum(&self) -> usize { 
@@ -29,25 +27,23 @@ pub mod center {
     }
     fn getpoints(&self) -> Points {
         self.points
-    }    
-    fn start(&mut self, piecenum: usize) {
-        self.centerInit();
-        self.init(piecenum);
-    } // was in faces.rs @
-    //let _center_vertex_list: [Vertex3;7] = *centerpiece.centerInit();
-    //Center::init(&mut centerpiece, i);
-    //Center::init_data(&mut centerpiece, i, center_vertex_list);    
+    }
+    fn getself(&self) -> &Piece {
+        self
+    }
     /**
      * \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
      * \param n the number of the piece (piecenum)
      */
     fn init(&mut self, piecenum: usize) {
+        let _center_vertex_list = self.centerInit();
         for i in 0..5  {
             self.create_center_axis(piecenum, i);
         }
         self.initColorA(piecenum + 1);  //from Piece
     }
+    //Center::init_data(&mut centerpiece, i, center_vertex_list);    
     /**
      * \brief Render Center Node (CONST)(mut for face)
      */
@@ -73,11 +69,6 @@ pub mod center {
         return returnvec;
     }
     
-    fn barse() -> Self {
-        todo!();
-//        |        -----      ^^^^ expected `Piece`, found `()`
-//        |        implicitly returns `()` as its body has no tail or `return` expression
-    }
     /* 
     glLineWidth(3);     //border thickness
     makeGLpolygon(_vertex, 1.005, 5);   //1 + 0.005 (to account for the border)

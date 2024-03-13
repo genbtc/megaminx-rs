@@ -144,7 +144,7 @@ pub mod megaminx {
         for i in 0..NUM_FACES {
             //println!("initing center: {}", i);
             let mut centerpiece: Piece = Piece::new(i);
-            centerpiece.start(i);
+            Center::init(&mut centerpiece, i);
             self.faces[i].attach_center(Box::new(centerpiece));
             self.centers.push(Box::new(centerpiece));
             //self.print_vector(&centerpiece);
@@ -172,7 +172,7 @@ pub mod megaminx {
             self.faces[b - 1].attach_edge_pieces(Box::new(edgepiece));
             //println!("EdgecolorB: {:?}", b);
           }
-          foundedges.extend(self.find_pieces_of_face(a -1, &edgepiece, 5)); //30*5 = 150
+          foundedges.extend(self.find_pieces_of_face(a - 1, &edgepiece, 1)); //30*5 = 150
       }
       //foundedges: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
       //foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]
@@ -180,7 +180,9 @@ pub mod megaminx {
       // colorA: 7
       // colorB: 12
       // foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29, 29] 150
-      //println!("foundedges: {:?} {}", foundedges, foundedges.len());
+      // change function from 5 to 1  :
+      // foundedges: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] 30
+      println!("foundedges: {:?} {}", foundedges, foundedges.len());
       assert_eq!(self.edges.len(), NUM_EDGES);        
   }
 

@@ -3,6 +3,7 @@ pub mod corner {
   use crate::piece::piece::EdgeCornerInit;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceColor;
+  use crate::piece::piece::PieceShape;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
   use crate::piece::piece::VERTEXZERO;
@@ -32,6 +33,7 @@ pub mod corner {
         self.initColor(G_CORNERPIECESCOLORS[piecenum], true);
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
+        self.points.new(self.vertex);
     }
     /**
      * \brief Render Corner Node (CONST)

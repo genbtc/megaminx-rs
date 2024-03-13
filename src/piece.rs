@@ -91,15 +91,6 @@ impl Piece {
         self.points
     }
 }
-#[derive(Copy, Clone , Default, PartialEq)]
-pub enum Shape {
-    #[default]
-    EmptyPiece  = 0,
-    CenterPiece = 1,
-    EdgePiece   = 2,
-    CornerPiece = 3,
-}
-pub use Shape::*;
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
 //arbitrary size of dodecahedron - default size in 3d coords for main megaminx
@@ -278,35 +269,30 @@ impl PieceInit for Piece {
         }
         self.vertex[0][0] = cospim35!() * twofifths!(); //inside corner (aka outside center)
         self.vertex[0][1] = sinpim35!() * twofifths!();
-        self.points.a = self.vertex[0];
         self.vertex[1][0] = cospim35!() + edgefifth!() * twofifths!(); //corner inside edge a
         self.vertex[1][1] = sinpim35!();
-        self.points.b = self.vertex[1];
         self.vertex[2][0] = cospim35!();     //outside corner
         self.vertex[2][1] = self.vertex[1][1];
-        self.points.c = self.vertex[2];
         self.vertex[3][0] = cospim15!() - edgefifth!() * twofifths!(); //corner inside edge b
         self.vertex[3][1] = self.vertex[1][1];
         self.rotateVertexXYZ(3, 'z', pim(2.));
-        self.points.d = self.vertex[3];
         self.vertex[4][0] = cospim15!() * twofifths!(); //brother = 6 + 0
         self.vertex[4][1] = self.vertex[0][1];
         self.rotateVertexXYZ(4, 'z', pim(-3.));
         self.rotateVertexXYZ(4, 'x', pisideangle!());
         self.rotateVertexXYZ(4, 'z', pim(2.));
-        self.points.e = self.vertex[4];
-        self.vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 + 1
+        self.vertex[5][0] = cospim15!() - edgefifth!() * twofifths!(); //brother = 3 + 1 (cant copy [3][0])
         self.vertex[5][1] = self.vertex[1][1];
         self.rotateVertexXYZ(5, 'z', pim(-3.));
         self.rotateVertexXYZ(5, 'x', pisideangle!());
         self.rotateVertexXYZ(5, 'z', pim(2.));
-        self.points.f = self.vertex[5];
         self.vertex[6][0] = cospim15!() * twofifths!(); //brother = 4 + 0
         self.vertex[6][1] = self.vertex[0][1];
         self.rotateVertexXYZ(6, 'z', pim(-5.));
         self.rotateVertexXYZ(6, 'x', pisideangle!());
-        self.points.g = self.vertex[6];
-        //define Triangles now
+        self.points.new(self.vertex);
+        
+        //Define Triangles
         self.triIndices = [[0,1,2],[0,2,3],[3,4,5],[2,5,3],[5,6,1],[5,1,2]];
                         //      v0              v1              v2
         self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
@@ -315,6 +301,7 @@ impl PieceInit for Piece {
         self.triVecs[3] = [self.vertex[2], self.vertex[5], self.vertex[3]];
         self.triVecs[4] = [self.vertex[5], self.vertex[6], self.vertex[1]];
         self.triVecs[5] = [self.vertex[5], self.vertex[1], self.vertex[2]];
+        
         &self.vertex    //Return
     }
     //Creates the common starting vertexes for all pieces that are EDGES
@@ -326,42 +313,34 @@ impl PieceInit for Piece {
         }
         self.vertex[0][0] = cospim35!() * twofifths!();
         self.vertex[0][1] = sinpim35!() * twofifths!();
-        self.points.a = self.vertex[0];
         self.vertex[1][0] = cospim15!() * twofifths!();
         self.vertex[1][1] = self.vertex[0][1];
-        self.points.b = self.vertex[1];
         self.vertex[2][0] = cospim15!() - edgefifth!() * twofifths!();
         self.vertex[2][1] = sinpim35!();
-        self.points.c = self.vertex[2];
         // self.vertex[3][0] = cospim35!() + edgefifth!() * twofifths!();
         self.vertex[3][0] = self.vertex[2][0];
         self.vertex[3][1] = self.vertex[2][1];
         self.rotateVertexXYZ(3, 'z', pi!());
         self.rotateVertexXYZ(3, 'x', pisideangle!());
-        self.points.d = self.vertex[3];
         self.vertex[4][0] = self.vertex[1][0];
         self.vertex[4][1] = self.vertex[1][1];
         self.rotateVertexXYZ(4, 'z', pi!());
         self.rotateVertexXYZ(4, 'x', pisideangle!());
-        self.points.e = self.vertex[4];
         self.vertex[5][0] = self.vertex[0][0];
         self.vertex[5][1] = self.vertex[0][1];
         self.rotateVertexXYZ(5, 'z', pi!());
         self.rotateVertexXYZ(5, 'x', pisideangle!());
-        self.points.f = self.vertex[5];
+        self.points.new(self.vertex);
+
         //Define Triangles
         self.triIndices = [[0,1,2],[0,2,3],[2,3,4],[5,4,2],Default::default(),Default::default()];
+
+        //Triangle 0
         self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
-        self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
-        self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
-        self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
         let &trivec00 = Vector3::<f32>::from_array(&self.vertex[0]);
         let &trivec01 = Vector3::<f32>::from_array(&self.vertex[1]);
         let &trivec02 = Vector3::<f32>::from_array(&self.vertex[2]);
-        //Vec3f A = v1 - v0; // Edge 0
-        //Vec3f B = v2 - v0; // Edge 1
-        //let edgeA = self.triVecs[0][1] - self.triVecs[0][0];
-        //let edgeB = self.triVecs[0][2] - self.triVecs[0][0];
+        //+++ math
         let edgeA = trivec01 - trivec00;    //00->01
         let edgeB = trivec02 - trivec00;    //00->02 (03 is hypotn)
         let normalC = Points::cross(&self.points, edgeA,edgeB);
@@ -370,7 +349,24 @@ impl PieceInit for Piece {
         let floatDot = -glm::dot(normalC, trivec00);
         // or if you want to compute the dot product directly
         let floatDotManual = -(normalC.x * trivec00.x + normalC.y * trivec00.y + normalC.z * trivec00.z);        
-        assert_eq!(floatDot, floatDotManual);
+        assert_eq!(floatDot, floatDotManual);        
+
+        //Triangle 1
+        self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
+        let &trivec10 = Vector3::<f32>::from_array(&self.vertex[0]);
+        let &trivec11 = Vector3::<f32>::from_array(&self.vertex[2]);
+        let &trivec12 = Vector3::<f32>::from_array(&self.vertex[3]);
+        //Triangle 2
+        self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
+        let &trivec20 = Vector3::<f32>::from_array(&self.vertex[2]);
+        let &trivec21 = Vector3::<f32>::from_array(&self.vertex[3]);
+        let &trivec22 = Vector3::<f32>::from_array(&self.vertex[4]);
+        //Triangle 3
+        self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
+        let &trivec30 = Vector3::<f32>::from_array(&self.vertex[5]);
+        let &trivec31 = Vector3::<f32>::from_array(&self.vertex[4]);
+        let &trivec32 = Vector3::<f32>::from_array(&self.vertex[2]);
+
         &self.vertex    //Return
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
@@ -472,6 +468,49 @@ impl PieceMath for Piece {
         self.axis1multi(index, pack);
     }
 }
+#[derive(Copy, Clone , Default, PartialEq)]
+pub enum Shape {
+    #[default]
+    EmptyPiece  = 0,
+    CenterPiece = 1,
+    EdgePiece   = 2,
+    CornerPiece = 3,
+}
+pub use Shape::*;
+pub trait PieceShape {
+    fn isShape(&mut self) -> Shape;
+    fn new(&mut self);
+    fn newEnum(&mut self, shapeType: Shape);    
+}
+impl PieceShape for Piece {
+    fn isShape(&mut self) -> Shape {
+        match self.numSides {
+            2 => { EdgePiece  },
+            3 => { CornerPiece},
+            1 => { CenterPiece},
+            0|_ => { EmptyPiece },
+        }
+    }
+    fn new(&mut self) {
+        match self.numSides {
+            2 => { self.edgeInit();   self.data.shape = EdgePiece;  },
+            3 => { self.cornerInit(); self.data.shape = CornerPiece;},
+            1 => { self.centerInit(); self.data.shape = CenterPiece;},
+            0 => { self.faceInit();   self.data.shape = EmptyPiece; },
+            _ => {},
+        }
+        //self.init(self.defaultPieceNum, true);
+    }
+    //Starts a piece based on the Shape Enum passed in.
+    fn newEnum(&mut self, shapeType: Shape) {
+        match shapeType {
+            EdgePiece   => { self.edgeInit();   },
+            CornerPiece => { self.cornerInit(); },
+            CenterPiece => { self.centerInit(); },
+            EmptyPiece  => { self.faceInit();   },
+        }
+    }    
+}
 //Piece Color Implementations
 pub trait PieceColor {
     fn flipColor(&mut self);    
@@ -482,7 +521,6 @@ pub trait PieceColor {
     fn matchesColor(&self, color: usize) -> bool;
     fn anyColor(&self, color: usize) -> bool;
     fn match_color(&self, color: usize) -> bool;
-    fn isShape(&mut self) -> Shape;
 }
 impl PieceColor for Piece {
     //Flip - Changes colors. rotate/switches colors for current piece
@@ -549,14 +587,6 @@ impl PieceColor for Piece {
             },
         }
     }
-    fn isShape(&mut self) -> Shape {
-        match self.numSides {
-            2 => { EdgePiece  },
-            3 => { CornerPiece},
-            1 => { CenterPiece},
-            0|_ => { EmptyPiece },
-        }
-    }    
   }
   pub struct NumDir {                                                                                                                                                                                                                                         
     pub num: i8,
@@ -564,8 +594,6 @@ impl PieceColor for Piece {
     pub algo: i8,
   }
   pub trait EdgeCornerInit : PieceInit {
-    fn new(&mut self);
-    fn newEnum(&mut self, shapeType: Shape);
     fn init_data(&mut self, vertex_base: [Vertex3; 7]);
     fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
     fn init_corner_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
@@ -575,25 +603,7 @@ impl PieceColor for Piece {
     fn switch_axis(&mut self, shapeType: Shape, piecenum: usize, index: usize);
   }
   impl EdgeCornerInit for Piece {
-    fn new(&mut self) {
-        match self.numSides {
-            2 => { self.edgeInit();   self.data.shape = EdgePiece;  },
-            3 => { self.cornerInit(); self.data.shape = CornerPiece;},
-            1 => { self.centerInit(); self.data.shape = CenterPiece;},
-            0 => { self.faceInit();   self.data.shape = EmptyPiece; },
-            _ => {},
-        }
-        //self.init(self.defaultPieceNum, true);
-    }
-    //Starts a piece based on the Shape Enum passed in.
-    fn newEnum(&mut self, shapeType: Shape) {
-        match shapeType {
-            EdgePiece   => { self.edgeInit();   },
-            CornerPiece => { self.cornerInit(); },
-            CenterPiece => { self.centerInit(); },
-            EmptyPiece  => { self.faceInit();   },
-        }
-    }
+
     /**
      * \brief Inits the piece with a pre-existing Vertex Array
      * \param vertexBase the starting points to be memcpy'ed in
@@ -635,8 +645,7 @@ impl PieceColor for Piece {
     fn create_corner_axis(&mut self, piecenum: usize, index: usize) {
         let mut pack: PiecePack = PiecePack { axis1: 'z', axis2:'x', multi: (piecenum * 2 % 10) };
         match piecenum + 1 {
-        1=> { },
-        2..=5 => {
+        1..=5 => {
             self.axis1multi(index, pack); },
         6..=10 => {
             self.CenterSide1(index, pack); },
@@ -668,6 +677,6 @@ impl PieceColor for Piece {
             CenterPiece => { self.create_center_axis(piecenum, index); },
             EmptyPiece  => { },
         }
-    }    
+    }
   }
 }

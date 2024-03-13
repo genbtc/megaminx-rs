@@ -3,6 +3,7 @@ pub mod edge {
   use crate::piece::piece::EdgeCornerInit;
   use crate::piece::piece::Piece;
   use crate::piece::piece::PieceColor;
+  use crate::piece::piece::PieceShape;
   use crate::piece::piece::PieceData;
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   use crate::piece::piece::VertexPositionColor;
@@ -36,6 +37,7 @@ pub mod edge {
         self.initColor(G_EDGEPIECESCOLORS[piecenum], false);
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
+        self.points.new(self.vertex);
     }    
     /**
      * \brief Render Edge Node (CONST)

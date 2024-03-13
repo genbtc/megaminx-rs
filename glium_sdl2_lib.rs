@@ -23,7 +23,7 @@ use sdl2::video::{Window, WindowBuildError};
 
 pub type Display = SDL2Facade;
 
-
+/// Error Handling
 #[derive(Debug)]
 pub enum GliumSdl2Error {
     WindowBuildError(WindowBuildError),
@@ -47,7 +47,7 @@ impl From<IncompatibleOpenGl> for GliumSdl2Error {
         GliumSdl2Error::ContextCreationError(err.to_string())
     }
 }
-
+/// Error Handling
 impl std::error::Error for GliumSdl2Error {
     fn description(&self) -> &str {
         return match *self {
@@ -64,7 +64,7 @@ impl std::error::Error for GliumSdl2Error {
         }
     }
 }
-
+/// Error Handling
 impl std::fmt::Display for GliumSdl2Error {
     fn fmt(&self, formatter: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         match *self {
