@@ -103,7 +103,7 @@ pub fn main() -> Result<(), String> {
         let points = megaminx.centers[0].getpoints();
         
         let a = points.a;
-        let la = points.length(a);
+        let _la = points.length(a);
         let x = (width as f32)  * a[0]/a[2];
         let y = (height as f32) * a[1]/a[2];
         
@@ -117,7 +117,7 @@ pub fn main() -> Result<(), String> {
             [0.0, 0.0, 0.01, 0.0],
             [0.0+translate_x, 0.0+translate_y, 0.0+translate_z, zoom]
         ];
-        let rv = points.multiply(a, projmatrix);
+        let _rv = points.multiply(a, projmatrix);
         //println!("{:?} ", rv );
         
         //Glium compile GL shaders - Color,

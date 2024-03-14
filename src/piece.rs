@@ -193,44 +193,6 @@ impl Points {
         //dst.w = v.x*m[0][3] + v.y*m[1][3] + v.z*m[2][3] + 0.0;
         dst
     }
-    //cross product math function
-    pub fn cross(&self, left: Vector3<f32>, right: Vector3<f32>) -> Vector3<f32> {
-        //left * right
-        Vector3::<f32>::new(
-            left.y * right.z - left.z * right.y,
-            left.z * right.x - left.x * right.z,
-            left.x * right.y - left.y * right.x,
-        )
-    }
-    //subtraction examples1
-    pub fn subtractAB(&self) -> Vector3<f32> {
-        //a[0] - b[0];
-        Vector3::<f32>::new(
-            self.a[0] - self.b[0],
-            self.a[1] - self.b[1],
-            self.a[2] - self.b[2],
-        )
-    }
-    pub fn addition(&self,  lhs: Vector3<f32>, rhs: Vector3<f32>) -> Vector3<f32> {
-        // l + r
-        Vector3::<f32>::new(
-            lhs.x + rhs.x, 
-            lhs.y + rhs.y, 
-            lhs.z + rhs.z
-        )
-    }
-    pub fn subtraction(&self,  lhs: Vector3<f32>, rhs: Vector3<f32>) -> Vector3<f32> {
-        // l - r
-        Vector3::<f32>::new(
-            lhs.x - rhs.x, 
-            lhs.y - rhs.y, 
-            lhs.z - rhs.z
-        )
-    }    
-    //subtraction example2
-    pub fn subtract(&self, a: Vector3<f32>, b: Vector3<f32>) -> Vector3<f32> {
-        a - b
-    }
 }
 //Piece Pack struct to rotateVertexXYZ
 #[derive(Copy, Clone, Default)]
@@ -343,21 +305,15 @@ impl PieceInit for Piece {
         //+++ math
         let edgeA = trivec01 - trivec00;    //00->01                            //Store Difference Edges
         let edgeB = trivec02 - trivec00;    //00->02 (03 is hypotn)
-        let normalC = Points::cross(&self.points, edgeA,edgeB);
-        let crossp = glm::cross(edgeA, edgeB);
-        assert_eq!(normalC,crossp);
+        let normalC = glm::cross(edgeA, edgeB);
         let dotProd = -glm::dot(normalC, trivec00);
-        // or if you want to compute the dot product directly
-        let floatDotManual = -(normalC.x * trivec00.x + normalC.y * trivec00.y + normalC.z * trivec00.z);        
-        assert_eq!(dotProd, floatDotManual);        
-
         //Triangle 1
         self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
         let &trivec10 = self.points.a();
         let &trivec11 = self.points.c();
         let &trivec12 = self.points.d();
         let edgeA = trivec11 - trivec10;    //10->11
-        let edgeB = trivec12 - trivec10;    //10->12 (13 is hypotn)        
+        let edgeB = trivec12 - trivec10;    //10->12 (13 is hypotn)
         let normalC = glm::cross(edgeA, edgeB);
         let dotProd = -glm::dot(normalC, trivec10);
         //Triangle 2
@@ -365,11 +321,19 @@ impl PieceInit for Piece {
         let &trivec20 = self.points.c();
         let &trivec21 = self.points.d();
         let &trivec22 = self.points.e();
+        let edgeA = trivec21 - trivec20;    //20->21
+        let edgeB = trivec22 - trivec20;    //20->22 (23 is hypotn)
+        let normalC = glm::cross(edgeA, edgeB);
+        let dotProd = -glm::dot(normalC, trivec20);
         //Triangle 3
         self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
         let &trivec30 = self.points.f();
         let &trivec31 = self.points.e();
         let &trivec32 = self.points.c();
+        let edgeA = trivec31 - trivec30;    //30->31
+        let edgeB = trivec32 - trivec30;    //30->32 (33 is hypotn)
+        let normalC = glm::cross(edgeA, edgeB);
+        let dotProd = -glm::dot(normalC, trivec30);
 
         &self.vertex    //Return
     }
@@ -383,6 +347,7 @@ impl PieceInit for Piece {
             self.vertex[i][2] = -inssphererad!();
         }
         self.points.new(self.vertex);
+        self.triIndices = [[0,1,2],[0,2,3],[0,3,4],Default::default(),Default::default(),Default::default()];
         &self.vertex    //Return
     }    
     //Creates the common starting vertexes for all pieces that are FACES
@@ -490,23 +455,24 @@ impl PieceShape for Piece {
     fn isShape(&mut self) -> Shape {
         match self.numSides {
             2 => { EdgePiece  },
-            3 => { CornerPiece},
-            1 => { CenterPiece},
+            3 => { CornerPiece },
+            1 => { CenterPiece },
             0|_ => { EmptyPiece },
         }
     }
     fn new(&mut self) {
+        self.data.shape = self.isShape();
         match self.numSides {
-            2 => { self.edgeInit();   self.data.shape = EdgePiece;  },
-            3 => { self.cornerInit(); self.data.shape = CornerPiece;},
-            1 => { self.centerInit(); self.data.shape = CenterPiece;},
-            0 => { self.faceInit();   self.data.shape = EmptyPiece; },
+            2 => { self.edgeInit();   },
+            3 => { self.cornerInit(); },
+            1 => { self.centerInit(); },
+            0 => { self.faceInit();   },
             _ => {},
         }
-        //self.init(self.defaultPieceNum, true);
     }
     //Starts a piece based on the Shape Enum passed in.
     fn newEnum(&mut self, shapeType: Shape) {
+        self.data.shape = shapeType;
         match shapeType {
             EdgePiece   => { self.edgeInit();   },
             CornerPiece => { self.cornerInit(); },
