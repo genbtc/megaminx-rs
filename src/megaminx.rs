@@ -1,16 +1,12 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 pub mod megaminx {
-  use crate::edge::edge::Edge;
+  use crate::piece::piece::*;
   pub use crate::face::face::FacePlaceFunctions;
   pub use crate::face::face::FaceFunctions;
   pub use crate::face::face::Face;
-  pub use crate::piece::piece::NumDir;
-  pub use crate::piece::piece::Piece;
-  pub use crate::piece::piece::PieceInit;
   pub use crate::center::center::Center;
   pub use crate::corner::corner::Corner;
-  pub use crate::piece::piece::Vertex3;
-  pub use crate::piece::piece::PieceColor;
+  use crate::edge::edge::Edge;    
   use std::collections::VecDeque;
 
   pub const NUM_FACES:   usize = 12;

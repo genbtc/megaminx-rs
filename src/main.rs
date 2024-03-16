@@ -36,12 +36,7 @@ pub fn main() -> Result<(), String> {
     assert!(display.backend.is_current());
     let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
     //println!("{}", display.backend.is_current() );  //false
-    //sdl2::video::Window::into_canvas` takes ownership of the receiver `self`, which moves `*window_a`
-//    impl Window {    
-//     raw: *mut sys::SDL_Window,
-//     -> Window {
-//     let context = WindowContext::from_ll(subsystem, raw, metal_view);
-//     context.into()    
+
     //OpenGL
     let mut translate_x:f32=0.0;
     let mut translate_y:f32=0.0;

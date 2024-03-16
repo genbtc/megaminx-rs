@@ -3,6 +3,11 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
+pub use crate::piece::piece::Piece;
+pub use crate::piece::piece::PieceData;
+pub use crate::piece::piece::Vertex3;
+pub use crate::piece::piece::VERTEXDATAZERO;
+pub use crate::piece::piece::VERTEXZERO;
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 use glm::* ; //{Vector3,Matrix4};
@@ -24,8 +29,8 @@ implement_vertex!(VertexPositionColor, position, color);
 
 //typedef for Regular Vertex 3 and 3;7
 pub type Vertex3 = [f32; 3];
-pub type VectorVertex3 = [Vertex3; 3];
-pub type TriVec = [VectorVertex3; 6];
+pub type TriangleVertsx3 = [Vertex3; 3];
+pub type TriVec = [TriangleVertsx3; 6];
 pub type Vertex3x7 = [Vertex3; 7];
 
 //Default initializer data for vertex
@@ -59,7 +64,7 @@ pub struct Piece {
     pub points: Points,
     pub triIndices: [[usize;3]; 6],
     pub tris: [TriVec; 6],
-    pub triVecs: [VectorVertex3; 6],
+    pub triVecs: [TriangleVertsx3; 6],
 }
 //Initialize constructor
 impl Piece {
@@ -116,6 +121,35 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
+pub struct TriangleSet {
+    pub tri0: Vector3<f32>,
+    pub tri1: Vector3<f32>,
+    pub tri2: Vector3<f32>,
+    pub edgeA: Vector3<f32>,
+    pub edgeB: Vector3<f32>,
+    pub normalC: Vector3<f32>,
+    pub dotProd: f32,
+}
+impl TriangleSet {
+    fn new(vertex0: Vertex3, vertex1: Vertex3, vertex2: Vertex3) -> Self {
+        Self { 
+            tri0: *Vector3::<f32>::from_array(&vertex0),        //Three Vectors Local Copied
+            tri1: *Vector3::<f32>::from_array(&vertex1),
+            tri2: *Vector3::<f32>::from_array(&vertex2),
+            edgeA:  Vector3::<f32>::new(0.0,0.0,0.0),
+            edgeB:  Vector3::<f32>::new(0.0,0.0,0.0),
+            normalC: Vector3::<f32>::new(0.0,0.0,0.0),
+            dotProd: Default::default(),
+        }
+    }
+    fn calc(&mut self) {
+        self.edgeA = self.tri1 - self.tri0;    //00->01                            //Store Difference Edges
+        self.edgeB = self.tri2 - self.tri0;    //00->02 (03 is hypotn)
+        self.normalC = glm::cross(self.edgeA, self.edgeB);
+        self.dotProd = -glm::dot(self.normalC, self.tri0);                
+    }
+}
+
 #[derive(Copy, Clone, Default, PartialEq, Debug)]
 pub struct Points {
     pub a: Vertex3,
@@ -161,7 +195,6 @@ impl Points {
             _=> &VERTEXZERO,
         })  //Return
     }
-
     //import old vertex data into Point style
     pub fn new(&mut self, vertex: Vertex3x7) -> &Self {
         self.a = vertex[0];
@@ -298,42 +331,21 @@ impl PieceInit for Piece {
         self.triIndices = [[0,1,2],[0,2,3],[2,3,4],[5,4,2],Default::default(),Default::default()];
         //self.getTriangle(1 : triIndice) -> Triangle Class TODO:
         //Triangle 0
-        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];                    //Store in Struct          
-        let &trivec00 = Vector3::<f32>::from_array(&self.vertex[0]);        //Three Vectors Local Copied
-        let &trivec01 = Vector3::<f32>::from_array(&self.vertex[1]);
-        let &trivec02 = Vector3::<f32>::from_array(&self.vertex[2]);
-        //+++ math
-        let edgeA = trivec01 - trivec00;    //00->01                            //Store Difference Edges
-        let edgeB = trivec02 - trivec00;    //00->02 (03 is hypotn)
-        let normalC = glm::cross(edgeA, edgeB);
-        let dotProd = -glm::dot(normalC, trivec00);
+        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];                    //Store in Struct
+        let mut tri0 = TriangleSet::new(self.vertex[0], self.vertex[1], self.vertex[2]);
+        tri0.calc();
         //Triangle 1
         self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
-        let &trivec10 = self.points.a();
-        let &trivec11 = self.points.c();
-        let &trivec12 = self.points.d();
-        let edgeA = trivec11 - trivec10;    //10->11
-        let edgeB = trivec12 - trivec10;    //10->12 (13 is hypotn)
-        let normalC = glm::cross(edgeA, edgeB);
-        let dotProd = -glm::dot(normalC, trivec10);
+        let mut tri1 = TriangleSet::new(self.vertex[0], self.vertex[2], self.vertex[3]);
+        tri1.calc();
         //Triangle 2
         self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
-        let &trivec20 = self.points.c();
-        let &trivec21 = self.points.d();
-        let &trivec22 = self.points.e();
-        let edgeA = trivec21 - trivec20;    //20->21
-        let edgeB = trivec22 - trivec20;    //20->22 (23 is hypotn)
-        let normalC = glm::cross(edgeA, edgeB);
-        let dotProd = -glm::dot(normalC, trivec20);
+        let mut tri2 = TriangleSet::new(self.vertex[2], self.vertex[3], self.vertex[4]);
+        tri2.calc();
         //Triangle 3
         self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
-        let &trivec30 = self.points.f();
-        let &trivec31 = self.points.e();
-        let &trivec32 = self.points.c();
-        let edgeA = trivec31 - trivec30;    //30->31
-        let edgeB = trivec32 - trivec30;    //30->32 (33 is hypotn)
-        let normalC = glm::cross(edgeA, edgeB);
-        let dotProd = -glm::dot(normalC, trivec30);
+        let mut tri3 = TriangleSet::new(self.vertex[5], self.vertex[4], self.vertex[2]);
+        tri3.calc();
 
         &self.vertex    //Return
     }

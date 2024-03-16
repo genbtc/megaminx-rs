@@ -1,13 +1,8 @@
 //2024 megaminx-rs center.rs , by genr8eofl - LICENSED APGL3
 pub mod center {
-  use crate::piece::piece::EdgeCornerInit;
-  use crate::piece::piece::PieceInit;
-  use crate::piece::piece::Piece;
-  use crate::piece::piece::PieceColor;
-  use crate::piece::piece::Points;
+  use crate::piece::piece::*;
   use crate::piece_color::PieceColor::ColorData;
-  use crate::piece::piece::VertexPositionColor;
-  use crate::piece::piece::VERTEXZERO;  
+
   //Center functions
   pub trait Center {
       fn getnum(&self) -> usize;

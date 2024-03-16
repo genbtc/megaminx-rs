@@ -3,11 +3,7 @@
 #![allow(dead_code)]
 #![allow(unreachable_code)]
 pub mod face {
-  use crate::piece::piece::Piece;
-  use crate::piece::piece::Vertex3;
-  use crate::piece::piece::VERTEXDATAZERO;
-  use crate::piece::piece::VERTEXZERO;
-  use crate::piece::piece::PieceData;
+  use crate::piece::piece::*;
   use crate::center::center::Center;
   use crate::corner::corner::Corner;
   use crate::edge::edge::Edge;
