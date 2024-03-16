@@ -29,9 +29,9 @@ implement_vertex!(VertexPositionColor, position, color);
 
 //typedef for Regular Vertex 3 and 3;7
 pub type Vertex3 = [f32; 3];
-pub type TriangleVertsx3 = [Vertex3; 3];
-pub type TriVec = [TriangleVertsx3; 6];
 pub type Vertex3x7 = [Vertex3; 7];
+pub type TriVertx3 = [Vertex3; 3];
+pub type TrianglVecListx6 = [TriVertx3; 6];
 
 //Default initializer data for vertex
 pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
@@ -63,8 +63,8 @@ pub struct Piece {
     //alternate form of Vertex
     pub points: Points,
     pub triIndices: [[usize;3]; 6],
-    pub tris: [TriVec; 6],
-    pub triVecs: [TriangleVertsx3; 6],
+    pub triVecs: [TriVertx3; 6],
+    pub tris: [TrianglVecListx6; 6],    
 }
 //Initialize constructor
 impl Piece {
@@ -75,9 +75,9 @@ impl Piece {
         defaultPieceNum,
         data: Default::default(),
         points: Default::default(),
-        tris:  Default::default(),
         triIndices: Default::default(),
         triVecs: Default::default(),
+        tris:  Default::default(),
       }
     }
     pub fn swapdata(&mut self, data: &mut PieceData) {
@@ -121,6 +121,7 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
+//#[derive(Copy, Clone, Default)]
 pub struct TriangleSet {
     pub tri0: Vector3<f32>,
     pub tri1: Vector3<f32>,
@@ -130,6 +131,7 @@ pub struct TriangleSet {
     pub normalC: Vector3<f32>,
     pub dotProd: f32,
 }
+//|     ^^^^^^^^^^^^^^^^^^^^^^ the trait `std::default::Default` is not implemented for `glm::Vector3<f32>`
 impl TriangleSet {
     fn new(vertex0: Vertex3, vertex1: Vertex3, vertex2: Vertex3) -> Self {
         Self { 
@@ -142,22 +144,29 @@ impl TriangleSet {
             dotProd: Default::default(),
         }
     }
+    fn newV(vertexes: TriVertx3) -> Self {
+        Self { 
+            tri0: *Vector3::<f32>::from_array(&vertexes[0]),        //Three Vectors Local Copied
+            tri1: *Vector3::<f32>::from_array(&vertexes[1]),
+            tri2: *Vector3::<f32>::from_array(&vertexes[2]),
+            edgeA:  Vector3::<f32>::new(0.0,0.0,0.0),
+            edgeB:  Vector3::<f32>::new(0.0,0.0,0.0),
+            normalC: Vector3::<f32>::new(0.0,0.0,0.0),
+            dotProd: Default::default(),
+        }
+    }
     fn calc(&mut self) {
-        self.edgeA = self.tri1 - self.tri0;    //00->01                            //Store Difference Edges
-        self.edgeB = self.tri2 - self.tri0;    //00->02 (03 is hypotn)
+        self.edgeA = self.tri1 - self.tri0;    //00->01             //Store Difference Edges
+        self.edgeB = self.tri2 - self.tri0;    //00->02 (03 is hypotenuse)
         self.normalC = glm::cross(self.edgeA, self.edgeB);
-        self.dotProd = -glm::dot(self.normalC, self.tri0);                
+        self.dotProd = -glm::dot(self.normalC, self.tri0);
     }
 }
 
 #[derive(Copy, Clone, Default, PartialEq, Debug)]
 pub struct Points {
-    pub a: Vertex3,
-    pub b: Vertex3,
-    pub c: Vertex3,
-    pub d: Vertex3,
-    pub e: Vertex3,
-    pub f: Vertex3,
+    pub a: Vertex3,     pub b: Vertex3,     pub c: Vertex3,
+    pub d: Vertex3,     pub e: Vertex3,     pub f: Vertex3,
     pub g: Vertex3,
 }
 impl Points {
@@ -329,22 +338,22 @@ impl PieceInit for Piece {
 
         //Define Triangles
         self.triIndices = [[0,1,2],[0,2,3],[2,3,4],[5,4,2],Default::default(),Default::default()];
-        //self.getTriangle(1 : triIndice) -> Triangle Class TODO:
+       
         //Triangle 0
-        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];                    //Store in Struct
-        let mut tri0 = TriangleSet::new(self.vertex[0], self.vertex[1], self.vertex[2]);
+        self.triVecs[0] = [self.vertex[0], self.vertex[1], self.vertex[2]];
+        let mut tri0 = TriangleSet::newV(self.triVecs[0]);
         tri0.calc();
         //Triangle 1
         self.triVecs[1] = [self.vertex[0], self.vertex[2], self.vertex[3]];
-        let mut tri1 = TriangleSet::new(self.vertex[0], self.vertex[2], self.vertex[3]);
+        let mut tri1 = TriangleSet::newV(self.triVecs[1]);
         tri1.calc();
         //Triangle 2
         self.triVecs[2] = [self.vertex[2], self.vertex[3], self.vertex[4]];
-        let mut tri2 = TriangleSet::new(self.vertex[2], self.vertex[3], self.vertex[4]);
+        let mut tri2 = TriangleSet::newV(self.triVecs[2]);
         tri2.calc();
         //Triangle 3
         self.triVecs[3] = [self.vertex[5], self.vertex[4], self.vertex[2]];
-        let mut tri3 = TriangleSet::new(self.vertex[5], self.vertex[4], self.vertex[2]);
+        let mut tri3 = TriangleSet::newV(self.triVecs[3]);
         tri3.calc();
 
         &self.vertex    //Return
