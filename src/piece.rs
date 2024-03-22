@@ -31,7 +31,6 @@ implement_vertex!(VertexPositionColor, position, color);
 pub type Vertex3 = [f32; 3];
 pub type Vertex3x7 = [Vertex3; 7];
 pub type TriVertx3 = [Vertex3; 3];
-pub type TrianglVecListx6 = [TriVertx3; 6];
 
 //Default initializer data for vertex
 pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
@@ -64,7 +63,6 @@ pub struct Piece {
     pub points: Points,
     pub triIndices: [[usize;3]; 6],
     pub triVecs: [TriVertx3; 6],
-    pub tris: [TrianglVecListx6; 6],    
 }
 //Initialize constructor
 impl Piece {
@@ -77,7 +75,6 @@ impl Piece {
         points: Default::default(),
         triIndices: Default::default(),
         triVecs: Default::default(),
-        tris:  Default::default(),
       }
     }
     pub fn swapdata(&mut self, data: &mut PieceData) {
@@ -204,6 +201,19 @@ impl Points {
             _=> &VERTEXZERO,
         })  //Return
     }
+    pub fn from_int(&self, point: usize) -> &Vector3<f32> {
+        Vector3::<f32>::from_array(
+        match point {
+            0 => &self.a,
+            1 => &self.b,
+            2 => &self.c,
+            3 => &self.d,
+            4 => &self.e,
+            5 => &self.f,
+            6 => &self.g,
+            _=> &VERTEXZERO,
+        })  //Return
+    }    
     //import old vertex data into Point style
     pub fn new(&mut self, vertex: Vertex3x7) -> &Self {
         self.a = vertex[0];
@@ -225,6 +235,20 @@ impl Points {
         lhs[1]*rhs[1] + 
         lhs[2]*rhs[2]
     }
+    pub fn subtract(&self, lhs: Vertex3, rhs: Vertex3) -> Vector3::<f32> {
+        Vector3::<f32>::new(
+            lhs[0] - rhs[0],
+            lhs[1] - rhs[1],
+            lhs[2] - rhs[2]
+        )
+    }
+    pub fn add(&self, lhs: Vertex3, rhs: Vertex3) -> Vector3::<f32> {
+        Vector3::<f32>::new(
+            lhs[0] + rhs[0],
+            lhs[1] + rhs[1],
+            lhs[2] + rhs[2]
+        )
+    }        
     //vector multiply by matrix math function
     pub fn multiply(&self, vertex: Vertex3, m: [[f32;4];4]) -> Vector3<f32> {
         let       v =  Vector3::<f32>::from_array(&vertex);
@@ -235,6 +259,21 @@ impl Points {
         //dst.w = v.x*m[0][3] + v.y*m[1][3] + v.z*m[2][3] + 0.0;
         dst
     }
+    fn calc(&mut self) -> TriangleSet {
+        let mut tri0 = TriangleSet::new(self.a,self.b,self.c);
+        tri0.edgeA = tri0.tri1 - tri0.tri0;    //00->01 (Difference Edges)
+        tri0.edgeB = tri0.tri2 - tri0.tri0;    //00->02 (03 is hypotenuse)
+        tri0.normalC = glm::cross(tri0.edgeA, tri0.edgeB);
+        tri0.dotProd = -glm::dot(tri0.normalC, tri0.tri0);
+        tri0
+    }
+    pub fn calcRaw(&self) -> (Vector3<f32>,Vector3<f32>,Vector3<f32>,f32) {
+        let edgeA = self.subtract(self.b,self.a);   //00->01 (Difference Edges)
+        let edgeB = self.subtract(self.c,self.a);   //00->02 (03 is hypotenuse)
+        let normalC = glm::cross(edgeA, edgeB);
+        let dotProd = -glm::dot(normalC, *self.a());
+        return (edgeA,edgeB,normalC,dotProd);
+    }    
 }
 //Piece Pack struct to rotateVertexXYZ
 #[derive(Copy, Clone, Default)]
@@ -305,6 +344,20 @@ impl PieceInit for Piece {
         self.triVecs[3] = [self.vertex[2], self.vertex[5], self.vertex[3]];
         self.triVecs[4] = [self.vertex[5], self.vertex[6], self.vertex[1]];
         self.triVecs[5] = [self.vertex[5], self.vertex[1], self.vertex[2]];
+        //TriangleSet
+        let mut tri0 = TriangleSet::newV(self.triVecs[0]);
+        let mut tri1 = TriangleSet::newV(self.triVecs[1]);
+        let mut tri2 = TriangleSet::newV(self.triVecs[2]);
+        let mut tri3 = TriangleSet::newV(self.triVecs[3]);
+        let mut tri4 = TriangleSet::newV(self.triVecs[4]);
+        let mut tri5 = TriangleSet::newV(self.triVecs[5]);
+        tri0.calc();
+        tri1.calc();
+        tri2.calc();
+        tri3.calc();
+        tri4.calc();
+        tri5.calc();
+        //self.tris = [ tri0,  tri1,  tri2,  tri3,  tri4,  tri5 ];
 
         &self.vertex    //Return
     }

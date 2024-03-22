@@ -37,6 +37,7 @@ pub mod center {
             self.create_center_axis(piecenum, i);
         }
         self.initColorA(piecenum + 1);  //from Piece
+        
     }
     //Center::init_data(&mut centerpiece, i, center_vertex_list);    
     /**
@@ -44,6 +45,7 @@ pub mod center {
      */
     fn render(&mut self) -> Vec<VertexPositionColor> {
         //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
+        let (a,b,c,d) = self.points.calcRaw();
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
@@ -54,6 +56,9 @@ pub mod center {
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[3], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[4], color: self.data.color.colorRGB[0] }, //tri3
+            VertexPositionColor { position: *a.as_array(), color: self.data.color.colorRGB[0] }, //edgeA
+            VertexPositionColor { position: *b.as_array(), color: self.data.color.colorRGB[0] }, //edgeB
+            VertexPositionColor { position: *c.as_array(), color: self.data.color.colorRGB[0] }, //normalC
         ]
     }
     fn render_lines(&self) -> Vec<VertexPositionColor> {
