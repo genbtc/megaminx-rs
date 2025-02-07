@@ -3,7 +3,7 @@ pub mod edge {
   use crate::piece::piece::*;
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   //Edge functions
-  pub trait Edge : EdgeCornerInit {
+  pub trait Edge {
     fn getdata(&self) -> &PieceData;
     fn init(&mut self, piecenum: usize, do_axes: bool);    
     fn render(&self) -> Vec<VertexPositionColor>;

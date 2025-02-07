@@ -45,7 +45,7 @@ pub mod center {
      */
     fn render(&mut self) -> Vec<VertexPositionColor> {
         //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
-        let (a,b,c,d) = self.points.calcRaw();
+        let (a,b,c,_d) = self.points.calcRaw();
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },

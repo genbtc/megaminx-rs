@@ -4,7 +4,7 @@ pub mod corner {
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::edge::edge::Edge;
   //Corner functions
-  pub trait Corner : EdgeCornerInit {
+  pub trait Corner {
       fn init(&mut self, piecenum: usize, do_axes: bool);
       fn render(&self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;

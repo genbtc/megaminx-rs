@@ -1,12 +1,10 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
 pub mod megaminx {
   use crate::piece::piece::*;
-  pub use crate::face::face::FacePlaceFunctions;
-  pub use crate::face::face::FaceFunctions;
-  pub use crate::face::face::Face;
+  pub use crate::face::face::{Face,FaceAttachment,FacePlacement};
   pub use crate::center::center::Center;
   pub use crate::corner::corner::Corner;
-  use crate::edge::edge::Edge;    
+  pub use crate::edge::edge::Edge;
   use std::collections::VecDeque;
 
   pub const NUM_FACES:   usize = 12;
@@ -51,7 +49,7 @@ pub mod megaminx {
         self.rotating_face_index = 0;
         self.is_rotating = false;
         self.invisible = false;
-        //MegaminxInitFunctions
+        //MegaminxInit Functions
         self.init_face_pieces();
         self.init_center_pieces();
         self.init_edge_pieces();
@@ -94,7 +92,7 @@ pub mod megaminx {
             return;
         }
         //call .RENDER() and find out if successful
-        let didrender: bool = FacePlaceFunctions::render(&mut *self.faces[self.rotating_face_index as usize]);
+        let didrender: bool = FacePlacement::render(&mut *self.faces[self.rotating_face_index as usize]);
         if didrender && self.is_rotating {
             //If yes, then Finish the Rotation & advance the Queue
             self.rotate_queue.pop_front();
@@ -104,15 +102,15 @@ pub mod megaminx {
   }
 
   //Megaminx Init Pieces Setup
-  pub trait MegaminxInitFunctions {
+  pub trait MegaminxInit {
     fn init_face_pieces(&mut self);
     fn init_center_pieces(&mut self);
     fn init_edge_pieces(&mut self);
     fn init_corner_pieces(&mut self);
     fn print_vector(&mut self, piece: &Piece);
   }
-  use crate::piece::piece::EdgeCornerInit;
-  impl MegaminxInitFunctions for Megaminx {
+  //use crate::piece::piece::EdgeCornerInit;
+  impl MegaminxInit for Megaminx {
     /**
      * \brief Init the Faces and All Pieces.
      *         Set up the Axes of the faces, attach the centers, 
@@ -225,7 +223,7 @@ pub mod megaminx {
   }
 
   //Control Functions
-  pub trait MegaminxMoveFunctions {
+  pub trait MegaminxMove {
     fn undo();
     fn undo_double();
     fn undo_quad();

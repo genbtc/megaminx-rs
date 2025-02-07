@@ -1,5 +1,5 @@
-// megaminx-rs - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
-// Author: genr8eofl , Date: 2024 , LICENSE - AGPL3
+// megaminx-rs - v0.2.5 - a rust and SDL2 version of Megaminx - previously a C++ and OpenGL Dodecahedron Cube
+// Author: genr8eofl , Date: 2024, 2025, LICENSE - AGPL3
 extern crate gl;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::{event::Event, keyboard::Keycode};
@@ -16,7 +16,7 @@ mod corner;
 mod face;
 mod piece;
 mod piece_color;
-use crate::face::face::FacePlaceFunctions;
+use crate::face::face::FacePlacement;
 
 pub fn main() -> Result<(), String> {
     //SDL2 + Glium setup (combined)
@@ -32,10 +32,10 @@ pub fn main() -> Result<(), String> {
     let sdlgl_context: Rc<WindowContext> = window.context(); //Clone Context
     assert!(display.backend.is_current());
     // Create a new `Window` without taking ownership of the `WindowContext`
-    let   window_b: Window = unsafe { Window::from_ref(sdlgl_context) };
+    //let   window_b: Window = unsafe { Window::from_ref(sdlgl_context) };
+    let   window_b: Window =  Window::from_ref(sdlgl_context);  //SDL2 v0.37 doesnt require unsafe
     assert!(display.backend.is_current());
     let mut canvas: Canvas<Window> = window_b.into_canvas().accelerated().build().unwrap();
-    //println!("{}", display.backend.is_current() );  //false
 
     //OpenGL
     let mut translate_x:f32=0.0;

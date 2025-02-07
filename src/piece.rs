@@ -3,11 +3,11 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
-pub use crate::piece::piece::Piece;
-pub use crate::piece::piece::PieceData;
-pub use crate::piece::piece::Vertex3;
-pub use crate::piece::piece::VERTEXDATAZERO;
-pub use crate::piece::piece::VERTEXZERO;
+//pub use crate::piece::piece::Piece;
+//pub use crate::piece::piece::PieceData;
+//pub use crate::piece::piece::Vertex3;
+//pub use crate::piece::piece::VERTEXDATAZERO;
+//pub use crate::piece::piece::VERTEXZERO;
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 use glm::* ; //{Vector3,Matrix4};
@@ -283,13 +283,13 @@ pub struct PiecePack {
     pub multi: usize
 }
 //Math & init Piece functions:
-pub trait PieceInit {
+pub trait PieceVertexInit {
     fn cornerInit(&mut self) -> &Vertex3x7;
     fn edgeInit(&mut self) -> &Vertex3x7;
     fn centerInit(&mut self) -> &Vertex3x7;
     fn faceInit(&mut self) -> &Vertex3x7;
 }
-pub trait PieceMath {    
+pub trait PieceVertexMath {    
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32);
     fn axis1multi(&mut self, index: usize, pack: PiecePack);
     fn CenterSide1(&mut self, index: usize, pack: PiecePack);
@@ -303,7 +303,7 @@ pub trait PieceMath {
     fn EdgeGrp5(&mut self, index: usize, pack: PiecePack);
     fn EdgeGrp6(&mut self, index: usize, pack: PiecePack);
 }
-impl PieceInit for Piece {
+impl PieceVertexInit for Piece {
     fn cornerInit(&mut self) -> &Vertex3x7 {
         //println!("cornerInit({})", self.defaultPieceNum);
         self.numSides = 3;
@@ -441,8 +441,7 @@ impl PieceInit for Piece {
         &self.vertex    //Return
     }
 }
-//Attach these Math traits to Piece object
-impl PieceMath for Piece {
+impl PieceVertexMath for Piece {
     //Vertex Transformation Functions
     fn rotateVertexXYZ(&mut self, index: usize, axis: char, angle: f32) {
         let mut vxIndex: usize = 0;
@@ -637,7 +636,7 @@ impl PieceColor for Piece {
     pub dir: i8,
     pub algo: i8,
   }
-  pub trait EdgeCornerInit : PieceInit {
+  pub trait PieceInit : PieceVertexInit {
     fn init_data(&mut self, vertex_base: [Vertex3; 7]);
     fn init_edge_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
     fn init_corner_data(&mut self, piecenum: usize, vertex_base: [Vertex3; 7]);
@@ -646,8 +645,7 @@ impl PieceColor for Piece {
     fn create_center_axis(&mut self, piecenum: usize, index: usize);
     fn switch_axis(&mut self, shapeType: Shape, piecenum: usize, index: usize);
   }
-  impl EdgeCornerInit for Piece {
-
+  impl PieceInit for Piece {
     /**
      * \brief Inits the piece with a pre-existing Vertex Array
      * \param vertexBase the starting points to be memcpy'ed in

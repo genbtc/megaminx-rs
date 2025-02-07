@@ -40,7 +40,7 @@ pub mod face {
     }
   }
   
-  pub trait FaceFunctions {
+  pub trait FaceAttachment {
     fn num(&self) -> usize;
     fn attach_center(&mut self, center: Box<Piece>);     //(Center* c, double* centerVertexBase);
     fn attach_corner_pieces(&mut self, corner: Box<Piece>); //(const Megaminx* megaminx, Corner& cornersPTR);
@@ -49,7 +49,7 @@ pub mod face {
     fn get_center_piece<Piece:Center>(&mut self, n: usize, i: usize) -> &mut Box<dyn Center>;
     fn get_corner_piece<Piece:Corner>(&mut self, n: usize, i: usize) -> &mut Box<dyn Corner>;    
   }
-  impl FaceFunctions for Face {
+  impl FaceAttachment for Face {
     fn num(&self) -> usize { 
         return self.this_num;
     }
@@ -155,7 +155,7 @@ pub mod face {
   static CW10E: [usize;8] = [ 0, 1, 0, 3, 0, 4, 0, 2 ];
   static CW11E: [usize;8] = CW7E;
 
-  pub trait FacePlaceFunctions {
+  pub trait FacePlacement {
     fn place_parts(&mut self, dir: TurnDir) -> bool;
     fn two_edges_flip(&mut self, a: usize, b: usize);
     fn flip_corners(&mut self, a: usize, b: usize, c: usize, d: usize, pack: [usize;4]);
@@ -173,7 +173,7 @@ pub mod face {
   * / in order to get it to switch colors after it rotates.
   * / called from render()
   */
-  impl FacePlaceFunctions for Face {
+  impl FacePlacement for Face {
     fn two_edges_flip(&mut self, a: usize, b: usize) {
         assert!(a < 5 && b < 5);
         self.edge[a].flip();
