@@ -1,4 +1,5 @@
 //2024 megaminx-rs megaminx.rs , by genr8eofl - LICENSED APGL3
+#![allow(dead_code)]
 pub mod megaminx {
   use crate::piece::piece::*;
   pub use crate::face::face::{Face,FaceAttachment,FacePlacement};
@@ -149,14 +150,15 @@ pub mod megaminx {
     /** \brief Init the Edge pieces. (numEdges = 30)  */
     fn init_edge_pieces(&mut self) {
       //store a list of the basic starting Edge vertexes
-      let mut foundedges: Vec<i8> = Vec::new();
+      //let mut foundedges: Vec<i8> = Vec::new();
       for i in 0..NUM_EDGES {
-          //println!("initing edge: {}", i);
           let mut edgepiece: Piece = Piece::new(i);
           let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
           edgepiece.init_edge_data(i, edge_vertex_list);
+
           self.edges.push(Box::new(edgepiece));
-          self.print_vector(&edgepiece);
+          //self.print_vector(&edgepiece);
+
           let [a,b,_] = edgepiece.getcolor().colorNum;
           let edgepiecebox = Box::new(edgepiece);
           if edgepiece.matchesColor(a) {
@@ -167,22 +169,21 @@ pub mod megaminx {
             self.faces[b - 1].attach_edge_pieces(edgepiecebox);
             //println!("EdgecolorB: {:?}", b);
           }
-          foundedges.extend(self.find_pieces_of_face(a - 1, &edgepiece, 1));
       }
-      println!("initialized edges: {:?} {}", foundedges, foundedges.len());
-      assert_eq!(self.edges.len(), NUM_EDGES);        
+      //println!("initialized edges: {:?} {}", self.edges, self.edges.len());
+      assert_eq!(self.edges.len(), NUM_EDGES);
   }
 
   /** \brief Init the Corner pieces. (numCorners = 20)  */
   fn init_corner_pieces(&mut self) {
       //store a list of the basic starting Corner vertexes
       for i in 0..NUM_CORNERS {
-          //println!("initing corner: {}", i);
           let mut cornerpiece: Piece = Piece::new(i);
           let corner_vertex_list: [Vertex3;7] = *cornerpiece.cornerInit();
           cornerpiece.init_corner_data(i, corner_vertex_list);
+
           self.corners.push(Box::new(cornerpiece));
-          //self.print_vector(&cornerpiece);
+
           let [a,b,c] = cornerpiece.getcolor().colorNum;
           let cornerpiecebox = Box::new(cornerpiece);
           if cornerpiece.matchesColor(a) {
@@ -198,22 +199,23 @@ pub mod megaminx {
             //print!("cornerColorC: {:?} \n", c);
           }
       }
+      //println!("initialized corners: {:?} {}", self.corners, self.corners.len());
       assert_eq!(self.corners.len(), NUM_CORNERS);        
   }
 
-    fn print_vector(&mut self, piece: &Piece) {
-      print!("Piece {} Vertex Array: [ ", piece.defaultPieceNum);
-      for i in 0..5 { //TODO!: 6,7 for edge/corner
-        print!("[ ");
-        for j in 0..3 {
-          print!("{}", piece.vertex[i][j].to_string());
-          if j < piece.vertex[i].len() - 1  { print!(", "); }
-        }
-        if i < piece.vertex.len() - 1  { print!(" ], "); }
+  fn print_vector(&mut self, piece: &Piece) {
+    print!("Piece {} Vertex Array: [ ", piece.defaultPieceNum);
+    for i in 0..5 { //TODO!: 6,7 for edge/corner
+      print!("[ ");
+      for j in 0..3 {
+        print!("{}", piece.vertex[i][j].to_string());
+        if j < piece.vertex[i].len() - 1  { print!(", "); }
       }
-      println!("]");
-      todo!();
+      if i < piece.vertex.len() - 1  { print!(" ], "); }
     }
+    println!("]");
+    todo!("stop");
+  }
 
   }
 

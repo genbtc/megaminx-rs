@@ -2,32 +2,18 @@
 pub mod center {
   use crate::piece::piece::*;
   use crate::piece_color::PieceColor::ColorData;
-
   //Center functions
   pub trait Center {
-      fn getnum(&self) -> usize;
       fn getcolor(&self) -> ColorData;
-      fn getpoints(&self) -> Points;
-      fn getself(&self) -> &Self where Self: Sized; //so it does not apply to trait objects. returns back a Piece ref
       fn init(&mut self, piecenum: usize) -> &Self where Self: Sized;
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
   impl Center for Piece {
-    fn getnum(&self) -> usize { 
-        self.defaultPieceNum
-    }
     fn getcolor(&self) -> ColorData {
         self.data.color
     }
-    fn getpoints(&self) -> Points {
-        self.points
-    }
-    fn getself(&self) -> &Piece {
-        self
-    }
-    /**
-     * \brief Inits a Center piece
+    /* \brief Inits a Center piece
      * \note  (calls createAxis and initColor)
      * \param n the number of the piece (piecenum)
      */
@@ -39,9 +25,7 @@ pub mod center {
         self.initColorA(piecenum + 1);  //from Piece
         self
     }
-    /**
-     * \brief Render Center Node (CONST)(mut for face)
-     */
+    /* \brief Render Center Block Node */
     fn render(&mut self) -> Vec<VertexPositionColor> {
         //println!("DEBUG center[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
         let (a,b,c,_d) = self.points.calcRaw();
@@ -60,6 +44,7 @@ pub mod center {
             VertexPositionColor { position: *c.as_array(), color: self.data.color.colorRGB[0] }, //normalC
         ]
     }
+    /* \brief Render Center Lines around */
     fn render_lines(&self) -> Vec<VertexPositionColor> {
         let mut returnvec = vec![];
         for l in  [ 0 , 1 , 2 , 3 , 4 , 0 ] {

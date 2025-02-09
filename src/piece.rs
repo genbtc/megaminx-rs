@@ -25,7 +25,7 @@ implement_vertex!(VertexPositionColor, position, color);
 //typedef for Regular Vertex 3 and 3;7
 pub type Vertex3 = [f32; 3];
 pub type Vertex3x7 = [Vertex3; 7];
-pub type TriVertx3 = [Vertex3; 3];
+pub type TriVertex3 = [Vertex3; 3];
 
 //Default initializer data for vertex
 pub const VERTEXZERO: Vertex3 = [0.0,0.0,0.0];
@@ -57,7 +57,7 @@ pub struct Piece {
     //alternate form of Vertex
     pub points: Points,
     pub triIndices: [[usize;3]; 6],
-    pub triVecs: [TriVertx3; 6],
+    pub triVecs: [TriVertex3; 6],
 }
 //Initialize constructor
 impl Piece {
@@ -87,6 +87,12 @@ impl Piece {
     pub fn getpoints(&self) -> Points {
         self.points
     }
+    pub fn getnum(&self) -> usize { 
+        self.defaultPieceNum
+    }
+    pub fn getself(&self) -> &Piece {
+        self
+    }    
 }
 
 //MATHEMATICAL CONSTANTS: (as macros, since float math functions cant be declared const/static)
@@ -134,7 +140,7 @@ impl TriangleSet {
             dotProd: Default::default(),
         }
     }
-    fn newV(vertexes: TriVertx3) -> Self {
+    fn newV(vertexes: TriVertex3) -> Self {
         Self { 
             tri0: *Vector3::<f32>::from_array(&vertexes[0]),        //Three Vectors Local Copied
             tri1: *Vector3::<f32>::from_array(&vertexes[1]),
@@ -269,7 +275,7 @@ impl Points {
         let edgeB = self.subtract(self.c,self.a);   //00->02 (03 is hypotenuse)
         let normalC = glm::cross(edgeA, edgeB);
         let dotProd = -glm::dot(normalC, *self.a());
-        return (edgeA,edgeB,normalC,dotProd);
+        (edgeA,edgeB,normalC,dotProd)
     }    
 }
 //Piece Pack struct to rotateVertexXYZ
@@ -506,6 +512,7 @@ impl PieceVertexMath for Piece {
         self.axis1multi(index, pack);
     }
 }
+
 #[derive(Copy, Clone , Default, PartialEq)]
 pub enum Shape {
     #[default]
@@ -518,7 +525,8 @@ pub use Shape::*;
 pub trait PieceShape {
     fn isShape(&mut self) -> Shape;
     fn new(&mut self);
-    fn newEnum(&mut self, shapeType: Shape);    
+    fn newEnum(&mut self, shapeType: Shape);
+    fn returnObj(&mut self) -> &[Vertex3;7];
 }
 impl PieceShape for Piece {
     fn isShape(&mut self) -> Shape {
@@ -529,25 +537,24 @@ impl PieceShape for Piece {
             0|_ => { EmptyPiece },
         }
     }
+    fn returnObj(&mut self) -> &[Vertex3;7]  { 
+        match self.numSides {
+            2 => { self.edgeInit()   },
+            3 => { self.cornerInit() },
+            1 => { self.centerInit() },
+            0 => { self.faceInit()   },
+            _ => todo!(),
+        }
+    }
+    //Starts a new piece based on how many sides.
     fn new(&mut self) {
         self.data.shape = self.isShape();
-        match self.numSides {
-            2 => { self.edgeInit();   },
-            3 => { self.cornerInit(); },
-            1 => { self.centerInit(); },
-            0 => { self.faceInit();   },
-            _ => {},
-        }
+        self.returnObj();
     }
     //Starts a piece based on the Shape Enum passed in.
     fn newEnum(&mut self, shapeType: Shape) {
         self.data.shape = shapeType;
-        match shapeType {
-            EdgePiece   => { self.edgeInit();   },
-            CornerPiece => { self.cornerInit(); },
-            CenterPiece => { self.centerInit(); },
-            EmptyPiece  => { self.faceInit();   },
-        }
+        self.returnObj();
     }    
 }
 //Piece Color Implementations
@@ -658,8 +665,7 @@ impl PieceColor for Piece {
         crate::corner::corner::Corner::init(self, piecenum, true)
     }
     /**
-     * \brief createAxis sets up the x,y,z Axes that the EdgeCorner pieces ride on
-     * \note (called by init on startup)
+     * \brief createAxis sets up the x,y,z Axes that the EdgeCorner pieces ride on (during init)
      * \param n - the number of the piece (piecenum)
      */
     fn create_edge_axis(&mut self, piecenum: usize, index: usize) {
@@ -677,7 +683,7 @@ impl PieceColor for Piece {
             self.EdgeGrp5(index, pack); },
         26..=30 => {
             self.EdgeGrp6(index, pack); },
-        _ => println!("Must be within 1-30"),
+        _ => println!("error, Edge Must be within 1-30"),
         }
     }
     fn create_corner_axis(&mut self, piecenum: usize, index: usize) {
@@ -692,7 +698,7 @@ impl PieceColor for Piece {
         16..=20 => {
             pack.axis1 = 'x'; pack.axis2 = 'z';
             self.CornerGrp4(index, pack); },
-        _ => println!("Must be within 1-20"),
+        _ => println!("error, Corner Must be within 1-20"),
         }
     }
     fn create_center_axis(&mut self, piecenum: usize, index: usize) {
@@ -704,10 +710,10 @@ impl PieceColor for Piece {
         8..=12 => {
             self.CenterSide2(index, PiecePack { axis1: 'y', axis2: 'x', multi: ((piecenum-2) * 2 % 10) }); },
         1 => {},
-        _ => println!("Must be within 1-12"),
+        _ => println!("edge, Center Must be within 1-12"),
         }
     }
-    //Starts a piece based on the Shape Enum passed in.
+    //Fills a piece based on the Shape Enum passed in.
     fn switch_axis(&mut self, shapeType: Shape, piecenum: usize, index: usize) {
         match shapeType {
             EdgePiece   => { self.create_edge_axis(piecenum, index);   },

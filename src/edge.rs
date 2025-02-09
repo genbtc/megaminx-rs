@@ -1,31 +1,32 @@
 //2024 megaminx-rs edge.rs , by genr8eofl - LICENSED APGL3
+#![allow(dead_code)]
 pub mod edge {
   use crate::piece::piece::*;
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   //Edge functions
   pub trait Edge {
-    fn init(&mut self, piecenum: usize, do_axes: bool);
+    fn init(&mut self, piecenum: usize, do_axes: bool) -> &Self where Self: Sized;
     fn render(&self) -> Vec<VertexPositionColor>;
     fn render_lines(&self, n: i8) -> Vec<VertexPositionColor>;
     fn flip_twice(&mut self);
     fn flip(&mut self);
     fn getself(&self) -> &Self where Self: Sized; //so it does not apply to trait objects. returns back a Piece ref
-    //fn getdata(&self) -> &PieceData;    
+    fn getdata(&self) -> &PieceData;    
   }
   impl Edge for Piece {
     fn getself(&self) -> &Piece {
         self
     }    
-//    fn getdata(&self) -> &PieceData {
-//        &self.data
-//    }//for faces.rs:swap_pieces()
+    fn getdata(&self) -> &PieceData {
+       &self.data
+    } //for faces.rs:swap_pieces()
     /**
-     * \brief Inits a EdgeCorner piece
-     * \note  (calls createAxis and initColor)
-     * \param n the number of the EdgeCorner piece (piecenum)
+     * \brief Inits a Edge piece
+     * \note  (calls create_axis and initColor @ piece.rs)
+     * \param n the number of the Edge piece (piecenum)
      * \param doAxes True by default. First Time Initialization Only
      */
-    fn init(&mut self, piecenum: usize, do_axes: bool) {
+    fn init(&mut self, piecenum: usize, do_axes: bool) -> &Piece {
         self.new();
         if do_axes {
             for i in 0..6 {
@@ -36,6 +37,7 @@ pub mod edge {
         self.data.pieceNum = piecenum;
         self.defaultPieceNum = piecenum;
         self.points.new(self.vertex);
+        self
     }    
     /**
      * \brief Render Edge Node (CONST)

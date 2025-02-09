@@ -3,6 +3,7 @@ pub mod corner {
   use crate::piece::piece::*;
   use crate::piece_color::PieceColor::G_CORNERPIECESCOLORS;
   use crate::edge::edge::Edge;
+  
   //Corner functions
   pub trait Corner {
       fn init(&mut self, piecenum: usize, do_axes: bool);
@@ -14,7 +15,7 @@ pub mod corner {
   impl Corner for Piece {
     /**
      * \brief Inits a Corner piece
-     * \note  (calls createAxis and initColor)
+     * \note  (calls create_axis and initColor @ piece.rs)
      * \param n the number of the Corner piece (piecenum)
      * \param do_axes True by default. First Time Initialization Only
      */
@@ -35,8 +36,8 @@ pub mod corner {
      */
     fn render(&self) -> Vec<VertexPositionColor> {
         //println!("DEBUG Corner[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
-        let (a,b,c,d) = self.points.calcRaw();
-        println!("edgeA{:?}, edgeB{:?}, normalC{:?}, dotProd={:?}", a,b,c,d);
+        let (a,b,c,_d) = self.points.calcRaw();
+        //println!("edgeA{:?}, edgeB{:?}, normalC{:?}, dotProd={:?}", a,b,c,_d);
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },
