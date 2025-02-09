@@ -1,0 +1,270 @@
+megaminx v0.2.5 (/usr/src/linux-dev/src/megaminx-rs)
+├── gl v0.14.0
+│   [build-dependencies]
+│   └── gl_generator v0.14.0
+│       ├── khronos_api v3.1.0
+│       ├── log v0.4.25
+│       └── xml-rs v0.8.25
+├── glium v0.34.0
+│   ├── backtrace v0.3.74
+│   │   ├── addr2line v0.24.2
+│   │   │   └── gimli v0.31.1
+│   │   ├── cfg-if v1.0.0
+│   │   ├── libc v0.2.169
+│   │   ├── miniz_oxide v0.8.3
+│   │   │   └── adler2 v2.0.0
+│   │   ├── object v0.36.7
+│   │   │   └── memchr v2.7.4
+│   │   └── rustc-demangle v0.1.24
+│   ├── fnv v1.0.7
+│   ├── glutin v0.31.3
+│   │   ├── bitflags v2.8.0
+│   │   ├── glutin_egl_sys v0.6.0
+│   │   │   [build-dependencies]
+│   │   │   └── gl_generator v0.14.0 (*)
+│   │   ├── glutin_glx_sys v0.5.0
+│   │   │   └── x11-dl v2.21.0
+│   │   │       ├── libc v0.2.169
+│   │   │       └── once_cell v1.20.3
+│   │   │       [build-dependencies]
+│   │   │       └── pkg-config v0.3.31
+│   │   │   [build-dependencies]
+│   │   │   └── gl_generator v0.14.0 (*)
+│   │   ├── libloading v0.8.6
+│   │   │   └── cfg-if v1.0.0
+│   │   ├── once_cell v1.20.3
+│   │   ├── raw-window-handle v0.5.2
+│   │   ├── wayland-sys v0.31.6
+│   │   │   ├── dlib v0.5.2
+│   │   │   │   └── libloading v0.8.6 (*)
+│   │   │   ├── log v0.4.25
+│   │   │   └── once_cell v1.20.3
+│   │   │   [build-dependencies]
+│   │   │   └── pkg-config v0.3.31
+│   │   └── x11-dl v2.21.0 (*)
+│   │   [build-dependencies]
+│   │   └── cfg_aliases v0.1.1
+│   ├── glutin-winit v0.4.2
+│   │   ├── glutin v0.31.3 (*)
+│   │   ├── raw-window-handle v0.5.2
+│   │   └── winit v0.29.15
+│   │       ├── ahash v0.8.11
+│   │       │   ├── cfg-if v1.0.0
+│   │       │   ├── getrandom v0.2.15
+│   │       │   │   ├── cfg-if v1.0.0
+│   │       │   │   └── libc v0.2.169
+│   │       │   ├── once_cell v1.20.3
+│   │       │   └── zerocopy v0.7.35
+│   │       │   [build-dependencies]
+│   │       │   └── version_check v0.9.5
+│   │       ├── bitflags v2.8.0
+│   │       ├── bytemuck v1.21.0
+│   │       ├── calloop v0.12.4
+│   │       │   ├── bitflags v2.8.0
+│   │       │   ├── log v0.4.25
+│   │       │   ├── polling v3.7.4
+│   │       │   │   ├── cfg-if v1.0.0
+│   │       │   │   ├── rustix v0.38.44
+│   │       │   │   │   ├── bitflags v2.8.0
+│   │       │   │   │   └── linux-raw-sys v0.4.15
+│   │       │   │   └── tracing v0.1.41
+│   │       │   │       ├── pin-project-lite v0.2.16
+│   │       │   │       └── tracing-core v0.1.33
+│   │       │   ├── rustix v0.38.44 (*)
+│   │       │   ├── slab v0.4.9
+│   │       │   │   [build-dependencies]
+│   │       │   │   └── autocfg v1.4.0
+│   │       │   └── thiserror v1.0.69
+│   │       │       └── thiserror-impl v1.0.69 (proc-macro)
+│   │       │           ├── proc-macro2 v1.0.93
+│   │       │           │   └── unicode-ident v1.0.16
+│   │       │           ├── quote v1.0.38
+│   │       │           │   └── proc-macro2 v1.0.93 (*)
+│   │       │           └── syn v2.0.98
+│   │       │               ├── proc-macro2 v1.0.93 (*)
+│   │       │               ├── quote v1.0.38 (*)
+│   │       │               └── unicode-ident v1.0.16
+│   │       ├── cursor-icon v1.1.0
+│   │       ├── libc v0.2.169
+│   │       ├── log v0.4.25
+│   │       ├── memmap2 v0.9.5
+│   │       │   └── libc v0.2.169
+│   │       ├── once_cell v1.20.3
+│   │       ├── percent-encoding v2.3.1
+│   │       ├── raw-window-handle v0.5.2
+│   │       ├── raw-window-handle v0.6.2
+│   │       ├── rustix v0.38.44 (*)
+│   │       ├── sctk-adwaita v0.8.3
+│   │       │   ├── ab_glyph v0.2.29
+│   │       │   │   ├── ab_glyph_rasterizer v0.1.8
+│   │       │   │   └── owned_ttf_parser v0.25.0
+│   │       │   │       └── ttf-parser v0.25.1
+│   │       │   ├── log v0.4.25
+│   │       │   ├── memmap2 v0.9.5 (*)
+│   │       │   ├── smithay-client-toolkit v0.18.1
+│   │       │   │   ├── bitflags v2.8.0
+│   │       │   │   ├── calloop v0.12.4 (*)
+│   │       │   │   ├── calloop-wayland-source v0.2.0
+│   │       │   │   │   ├── calloop v0.12.4 (*)
+│   │       │   │   │   ├── rustix v0.38.44 (*)
+│   │       │   │   │   ├── wayland-backend v0.3.8
+│   │       │   │   │   │   ├── downcast-rs v1.2.1
+│   │       │   │   │   │   ├── rustix v0.38.44 (*)
+│   │       │   │   │   │   ├── scoped-tls v1.0.1
+│   │       │   │   │   │   ├── smallvec v1.13.2
+│   │       │   │   │   │   └── wayland-sys v0.31.6 (*)
+│   │       │   │   │   │   [build-dependencies]
+│   │       │   │   │   │   └── cc v1.2.12
+│   │       │   │   │   │       └── shlex v1.3.0
+│   │       │   │   │   └── wayland-client v0.31.8
+│   │       │   │   │       ├── bitflags v2.8.0
+│   │       │   │   │       ├── rustix v0.38.44 (*)
+│   │       │   │   │       ├── wayland-backend v0.3.8 (*)
+│   │       │   │   │       └── wayland-scanner v0.31.6 (proc-macro)
+│   │       │   │   │           ├── proc-macro2 v1.0.93 (*)
+│   │       │   │   │           ├── quick-xml v0.37.2
+│   │       │   │   │           │   └── memchr v2.7.4
+│   │       │   │   │           └── quote v1.0.38 (*)
+│   │       │   │   ├── cursor-icon v1.1.0
+│   │       │   │   ├── libc v0.2.169
+│   │       │   │   ├── log v0.4.25
+│   │       │   │   ├── memmap2 v0.9.5 (*)
+│   │       │   │   ├── rustix v0.38.44 (*)
+│   │       │   │   ├── thiserror v1.0.69 (*)
+│   │       │   │   ├── wayland-backend v0.3.8 (*)
+│   │       │   │   ├── wayland-client v0.31.8 (*)
+│   │       │   │   ├── wayland-csd-frame v0.3.0
+│   │       │   │   │   ├── bitflags v2.8.0
+│   │       │   │   │   ├── cursor-icon v1.1.0
+│   │       │   │   │   └── wayland-backend v0.3.8 (*)
+│   │       │   │   ├── wayland-cursor v0.31.8
+│   │       │   │   │   ├── rustix v0.38.44 (*)
+│   │       │   │   │   ├── wayland-client v0.31.8 (*)
+│   │       │   │   │   └── xcursor v0.3.8
+│   │       │   │   ├── wayland-protocols v0.31.2
+│   │       │   │   │   ├── bitflags v2.8.0
+│   │       │   │   │   ├── wayland-backend v0.3.8 (*)
+│   │       │   │   │   ├── wayland-client v0.31.8 (*)
+│   │       │   │   │   └── wayland-scanner v0.31.6 (proc-macro) (*)
+│   │       │   │   ├── wayland-protocols-wlr v0.2.0
+│   │       │   │   │   ├── bitflags v2.8.0
+│   │       │   │   │   ├── wayland-backend v0.3.8 (*)
+│   │       │   │   │   ├── wayland-client v0.31.8 (*)
+│   │       │   │   │   ├── wayland-protocols v0.31.2 (*)
+│   │       │   │   │   └── wayland-scanner v0.31.6 (proc-macro) (*)
+│   │       │   │   ├── wayland-scanner v0.31.6 (proc-macro) (*)
+│   │       │   │   └── xkeysym v0.2.1
+│   │       │   └── tiny-skia v0.11.4
+│   │       │       ├── arrayref v0.3.9
+│   │       │       ├── arrayvec v0.7.6
+│   │       │       ├── bytemuck v1.21.0
+│   │       │       ├── cfg-if v1.0.0
+│   │       │       ├── log v0.4.25
+│   │       │       └── tiny-skia-path v0.11.4
+│   │       │           ├── arrayref v0.3.9
+│   │       │           ├── bytemuck v1.21.0
+│   │       │           └── strict-num v0.1.1
+│   │       ├── smithay-client-toolkit v0.18.1 (*)
+│   │       ├── smol_str v0.2.2
+│   │       ├── wayland-backend v0.3.8 (*)
+│   │       ├── wayland-client v0.31.8 (*)
+│   │       ├── wayland-protocols v0.31.2 (*)
+│   │       ├── wayland-protocols-plasma v0.2.0
+│   │       │   ├── bitflags v2.8.0
+│   │       │   ├── wayland-backend v0.3.8 (*)
+│   │       │   ├── wayland-client v0.31.8 (*)
+│   │       │   ├── wayland-protocols v0.31.2 (*)
+│   │       │   └── wayland-scanner v0.31.6 (proc-macro) (*)
+│   │       ├── x11-dl v2.21.0 (*)
+│   │       ├── x11rb v0.13.1
+│   │       │   ├── as-raw-xcb-connection v1.0.1
+│   │       │   ├── libc v0.2.169
+│   │       │   ├── libloading v0.8.6 (*)
+│   │       │   ├── once_cell v1.20.3
+│   │       │   ├── rustix v0.38.44 (*)
+│   │       │   └── x11rb-protocol v0.13.1
+│   │       └── xkbcommon-dl v0.4.2
+│   │           ├── bitflags v2.8.0
+│   │           ├── dlib v0.5.2 (*)
+│   │           ├── log v0.4.25
+│   │           ├── once_cell v1.20.3
+│   │           └── xkeysym v0.2.1
+│   │       [build-dependencies]
+│   │       └── cfg_aliases v0.1.1
+│   │   [build-dependencies]
+│   │   └── cfg_aliases v0.1.1
+│   ├── lazy_static v1.5.0
+│   ├── memoffset v0.9.1
+│   │   [build-dependencies]
+│   │   └── autocfg v1.4.0
+│   ├── raw-window-handle v0.5.2
+│   ├── smallvec v1.13.2
+│   ├── takeable-option v0.5.0
+│   └── winit v0.29.15 (*)
+│   [build-dependencies]
+│   └── gl_generator v0.14.0 (*)
+├── glm v0.2.3
+│   ├── num v0.1.43
+│   │   ├── num-bigint v0.1.45
+│   │   │   ├── num-integer v0.1.46
+│   │   │   │   └── num-traits v0.2.19
+│   │   │   │       [build-dependencies]
+│   │   │   │       └── autocfg v1.4.0
+│   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   ├── rand v0.4.6
+│   │   │   │   └── libc v0.2.169
+│   │   │   └── rustc-serialize v0.3.25
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   ├── num-complex v0.1.44
+│   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   └── rustc-serialize v0.3.25
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   ├── num-integer v0.1.46 (*)
+│   │   ├── num-iter v0.1.45
+│   │   │   ├── num-integer v0.1.46 (*)
+│   │   │   └── num-traits v0.2.19 (*)
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   ├── num-rational v0.1.43
+│   │   │   ├── num-bigint v0.1.45 (*)
+│   │   │   ├── num-integer v0.1.46 (*)
+│   │   │   ├── num-traits v0.2.19 (*)
+│   │   │   └── rustc-serialize v0.3.25
+│   │   │   [build-dependencies]
+│   │   │   └── autocfg v1.4.0
+│   │   └── num-traits v0.2.19 (*)
+│   ├── quickcheck v0.2.27
+│   │   ├── env_logger v0.3.5
+│   │   │   ├── log v0.3.9
+│   │   │   │   └── log v0.4.25
+│   │   │   └── regex v0.1.80
+│   │   │       ├── aho-corasick v0.5.3
+│   │   │       │   └── memchr v0.1.11
+│   │   │       │       └── libc v0.2.169
+│   │   │       ├── memchr v0.1.11 (*)
+│   │   │       ├── regex-syntax v0.3.9
+│   │   │       ├── thread_local v0.2.7
+│   │   │       │   └── thread-id v2.0.0
+│   │   │       │       ├── kernel32-sys v0.2.2
+│   │   │       │       │   └── winapi v0.2.8
+│   │   │       │       │   [build-dependencies]
+│   │   │       │       │   └── winapi-build v0.1.1
+│   │   │       │       └── libc v0.2.169
+│   │   │       └── utf8-ranges v0.1.3
+│   │   ├── log v0.3.9 (*)
+│   │   └── rand v0.3.23
+│   │       ├── libc v0.2.169
+│   │       └── rand v0.4.6 (*)
+│   └── rand v0.3.23 (*)
+└── sdl2 v0.37.0
+    ├── bitflags v1.3.2
+    ├── c_vec v2.0.0
+    ├── lazy_static v1.5.0
+    ├── libc v0.2.169
+    └── sdl2-sys v0.37.0
+        └── libc v0.2.169
+        [build-dependencies]
+        ├── cfg-if v1.0.0
+        └── version-compare v0.1.1

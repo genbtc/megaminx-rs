@@ -4,17 +4,21 @@ pub mod edge {
   use crate::piece_color::PieceColor::G_EDGEPIECESCOLORS;
   //Edge functions
   pub trait Edge {
-    fn getdata(&self) -> &PieceData;
-    fn init(&mut self, piecenum: usize, do_axes: bool);    
+    fn init(&mut self, piecenum: usize, do_axes: bool);
     fn render(&self) -> Vec<VertexPositionColor>;
     fn render_lines(&self, n: i8) -> Vec<VertexPositionColor>;
-    fn flip_twice(&mut self);    
+    fn flip_twice(&mut self);
     fn flip(&mut self);
+    fn getself(&self) -> &Self where Self: Sized; //so it does not apply to trait objects. returns back a Piece ref
+    //fn getdata(&self) -> &PieceData;    
   }
   impl Edge for Piece {
-    fn getdata(&self) -> &PieceData {
-        &self.data
-    }//for faces.rs:swap_pieces()
+    fn getself(&self) -> &Piece {
+        self
+    }    
+//    fn getdata(&self) -> &PieceData {
+//        &self.data
+//    }//for faces.rs:swap_pieces()
     /**
      * \brief Inits a EdgeCorner piece
      * \note  (calls createAxis and initColor)

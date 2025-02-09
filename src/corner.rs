@@ -36,7 +36,7 @@ pub mod corner {
     fn render(&self) -> Vec<VertexPositionColor> {
         //println!("DEBUG Corner[{}] self.vertex {:?}", self.defaultPieceNum, self.vertex);
         let (a,b,c,d) = self.points.calcRaw();
-        println!("{:?}, {:?}, {:?}, {:?}", a,b,c,d);
+        println!("edgeA{:?}, edgeB{:?}, normalC{:?}, dotProd={:?}", a,b,c,d);
         vec![
             VertexPositionColor { position: self.vertex[0], color: self.data.color.colorRGB[0] },
             VertexPositionColor { position: self.vertex[1], color: self.data.color.colorRGB[0] },

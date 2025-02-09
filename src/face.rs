@@ -210,8 +210,8 @@ pub mod face {
         todo!(); // SEG FAULT [a] overflow, Face Not Attached To anything.
         //Has to be attached to the dyn Trait objects to read (get) the Data struct.
         //Hopefully the mut swap still works.
-        let mut edge_data_a = self.edge[a].getdata();
-        let mut edge_data_b = self.edge[b].getdata();
+        let mut edge_data_a = &self.edge[a];
+        let mut edge_data_b = &self.edge[b];
         //HAS to be broken into two because of mutability slicing
         std::mem::swap(&mut edge_data_a, &mut edge_data_b);
         // ABOVE WORKS BUT BELOW DOES NOT
@@ -228,19 +228,15 @@ pub mod face {
 //error[E0599]: no method named `swapdata` found for struct `Box<dyn Edge>` in the current scope  
     }
     fn get_face_piece(&mut self, _n: usize, _i: usize) {
+        //- `match` arms have incompatible types
         // match n {
         //     1 => self.get_center_piece(n,i),
         //     2 => self.get_edge_piece(n,i),
         //     3 => self.get_corner_piece(n,i),
         // }
     }
-    // error[E0308]: `match` arms have incompatible types
-    // --> src/face.rs:318:18
-    //  | |                  -------------------------- this is found to be of type `&mut Box<(dyn center::center::Center + 'static)>`
-    //  | |                  ^^^^^^^^^^^^^^^^^^^^^^^^ expected trait `Center`, found trait `Edge`
-    //  | |_________- `match` arms have incompatible types
     //  = note: expected mutable reference `&mut Box<(dyn center::center::Center + 'static)>`
-    //             found mutable reference `&mut Box<dyn Edge>`
+    //             found mutable reference `&mut Box<dyn Edge> + 'static`
 
     //    expected `&mut Box<(dyn center::center::Center + 'static)>` because of return type            
 

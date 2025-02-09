@@ -137,10 +137,10 @@ pub mod megaminx {
     fn init_center_pieces(&mut self) {
         for i in 0..NUM_FACES {
             //println!("initing center: {}", i);
-            let mut centerpiece: Piece = Piece::new(i);
-            Center::init(&mut centerpiece, i);
-            self.faces[i].attach_center(Box::new(centerpiece));
-            self.centers.push(Box::new(centerpiece));
+            let mut piece: Piece = Piece::new(i);
+            let centerpiece: &Piece = Center::init(&mut piece, i);
+            self.centers.push(Box::new(*centerpiece));
+            self.faces[i].attach_center(Box::new(piece));
             //self.print_vector(&centerpiece);
         }
         assert_eq!(self.centers.len(), NUM_FACES);        
@@ -156,27 +156,20 @@ pub mod megaminx {
           let edge_vertex_list: [Vertex3;7] = *edgepiece.edgeInit();
           edgepiece.init_edge_data(i, edge_vertex_list);
           self.edges.push(Box::new(edgepiece));
-          //self.print_vector(&edgepiece);
+          self.print_vector(&edgepiece);
           let [a,b,_] = edgepiece.getcolor().colorNum;
+          let edgepiecebox = Box::new(edgepiece);
           if edgepiece.matchesColor(a) {
-            self.faces[a - 1].attach_edge_pieces(Box::new(edgepiece));
+            self.faces[a - 1].attach_edge_pieces(edgepiecebox.clone());
             //print!("EdgecolorA: {:?} ", a);
           }
           if edgepiece.matchesColor(b) {
-            self.faces[b - 1].attach_edge_pieces(Box::new(edgepiece));
+            self.faces[b - 1].attach_edge_pieces(edgepiecebox);
             //println!("EdgecolorB: {:?}", b);
           }
-          foundedges.extend(self.find_pieces_of_face(a - 1, &edgepiece, 1)); //30*5 = 150
+          foundedges.extend(self.find_pieces_of_face(a - 1, &edgepiece, 1));
       }
-      //foundedges: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
-      //foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]
-      // initing edge: 29
-      // colorA: 7
-      // colorB: 12
-      // foundedges: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29, 29] 150
-      // change function from 5 to 1  :
-      // foundedges: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29] 30
-      println!("foundedges: {:?} {}", foundedges, foundedges.len());
+      println!("initialized edges: {:?} {}", foundedges, foundedges.len());
       assert_eq!(self.edges.len(), NUM_EDGES);        
   }
 
@@ -191,16 +184,17 @@ pub mod megaminx {
           self.corners.push(Box::new(cornerpiece));
           //self.print_vector(&cornerpiece);
           let [a,b,c] = cornerpiece.getcolor().colorNum;
+          let cornerpiecebox = Box::new(cornerpiece);
           if cornerpiece.matchesColor(a) {
-            self.faces[a - 1].attach_corner_pieces(Box::new(cornerpiece));
+            self.faces[a - 1].attach_corner_pieces(cornerpiecebox.clone());
             //print!("cornerColorA: {:?} ", a);
           }
           if cornerpiece.matchesColor(b) {
-            self.faces[b - 1].attach_corner_pieces(Box::new(cornerpiece));
+            self.faces[b - 1].attach_corner_pieces(cornerpiecebox.clone());
             //print!("cornerColorB: {:?} ", b);
           }
           if cornerpiece.matchesColor(c) {
-            self.faces[c - 1].attach_corner_pieces(Box::new(cornerpiece));
+            self.faces[c - 1].attach_corner_pieces(cornerpiecebox);
             //print!("cornerColorC: {:?} \n", c);
           }
       }
@@ -218,6 +212,7 @@ pub mod megaminx {
         if i < piece.vertex.len() - 1  { print!(" ], "); }
       }
       println!("]");
+      todo!();
     }
 
   }

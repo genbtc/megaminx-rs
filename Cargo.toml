@@ -10,5 +10,5 @@ features = ["gfx"]
 
 [dependencies]
 gl = "0.14.0"
-glium = "0.34.0"
+glium = "0.36.0"
 glm = "0.2.3"

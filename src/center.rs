@@ -9,7 +9,7 @@ pub mod center {
       fn getcolor(&self) -> ColorData;
       fn getpoints(&self) -> Points;
       fn getself(&self) -> &Self where Self: Sized; //so it does not apply to trait objects. returns back a Piece ref
-      fn init(&mut self, piecenum: usize);
+      fn init(&mut self, piecenum: usize) -> &Self where Self: Sized;
       fn render(&mut self) -> Vec<VertexPositionColor>;
       fn render_lines(&self) -> Vec<VertexPositionColor>;
   }
@@ -31,15 +31,14 @@ pub mod center {
      * \note  (calls createAxis and initColor)
      * \param n the number of the piece (piecenum)
      */
-    fn init(&mut self, piecenum: usize) {
+    fn init(&mut self, piecenum: usize) -> &Piece {
         let _center_vertex_list = self.centerInit();
         for i in 0..5  {
             self.create_center_axis(piecenum, i);
         }
         self.initColorA(piecenum + 1);  //from Piece
-        
+        self
     }
-    //Center::init_data(&mut centerpiece, i, center_vertex_list);    
     /**
      * \brief Render Center Node (CONST)(mut for face)
      */

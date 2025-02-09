@@ -3,11 +3,6 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
-//pub use crate::piece::piece::Piece;
-//pub use crate::piece::piece::PieceData;
-//pub use crate::piece::piece::Vertex3;
-//pub use crate::piece::piece::VERTEXDATAZERO;
-//pub use crate::piece::piece::VERTEXZERO;
 pub mod piece {
 use crate::piece_color::PieceColor::{ColorData, ColorPack, ColorPiece, G_COLORRGBS};
 use glm::* ; //{Vector3,Matrix4};
@@ -118,7 +113,6 @@ macro_rules! cospim35 { () => { inscirclerad!() * pim(3.5).cos()   }; }     //-5
 macro_rules! cospim15 { () => { inscirclerad!() * pim(1.5).cos()   }; }      //49.999998901510480
 macro_rules! sinpim35 { () => { inscirclerad!() * pim(3.5).sin()   }; }      //68.819093936061520
 
-//#[derive(Copy, Clone, Default)]
 pub struct TriangleSet {
     pub tri0: Vector3<f32>,
     pub tri1: Vector3<f32>,
@@ -128,7 +122,6 @@ pub struct TriangleSet {
     pub normalC: Vector3<f32>,
     pub dotProd: f32,
 }
-//|     ^^^^^^^^^^^^^^^^^^^^^^ the trait `std::default::Default` is not implemented for `glm::Vector3<f32>`
 impl TriangleSet {
     fn new(vertex0: Vertex3, vertex1: Vertex3, vertex2: Vertex3) -> Self {
         Self { 
@@ -235,6 +228,7 @@ impl Points {
         lhs[1]*rhs[1] + 
         lhs[2]*rhs[2]
     }
+    //basic minus
     pub fn subtract(&self, lhs: Vertex3, rhs: Vertex3) -> Vector3::<f32> {
         Vector3::<f32>::new(
             lhs[0] - rhs[0],
@@ -242,6 +236,7 @@ impl Points {
             lhs[2] - rhs[2]
         )
     }
+    //basic plus
     pub fn add(&self, lhs: Vertex3, rhs: Vertex3) -> Vector3::<f32> {
         Vector3::<f32>::new(
             lhs[0] + rhs[0],
@@ -259,6 +254,7 @@ impl Points {
         //dst.w = v.x*m[0][3] + v.y*m[1][3] + v.z*m[2][3] + 0.0;
         dst
     }
+    //return four values as a set
     fn calc(&mut self) -> TriangleSet {
         let mut tri0 = TriangleSet::new(self.a,self.b,self.c);
         tri0.edgeA = tri0.tri1 - tri0.tri0;    //00->01 (Difference Edges)
@@ -267,6 +263,7 @@ impl Points {
         tri0.dotProd = -glm::dot(tri0.normalC, tri0.tri0);
         tri0
     }
+    //return four values as tuple(of raw vectors)
     pub fn calcRaw(&self) -> (Vector3<f32>,Vector3<f32>,Vector3<f32>,f32) {
         let edgeA = self.subtract(self.b,self.a);   //00->01 (Difference Edges)
         let edgeB = self.subtract(self.c,self.a);   //00->02 (03 is hypotenuse)
@@ -282,7 +279,7 @@ pub struct PiecePack {
     pub axis2: char,
     pub multi: usize
 }
-//Math & init Piece functions:
+//Init Piece with Vertex Math functions:
 pub trait PieceVertexInit {
     fn cornerInit(&mut self) -> &Vertex3x7;
     fn edgeInit(&mut self) -> &Vertex3x7;
@@ -358,8 +355,7 @@ impl PieceVertexInit for Piece {
         tri4.calc();
         tri5.calc();
         //self.tris = [ tri0,  tri1,  tri2,  tri3,  tri4,  tri5 ];
-
-        &self.vertex    //Return
+        &self.vertex    //Return Corner
     }
     //Creates the common starting vertexes for all pieces that are EDGES
     fn edgeInit(&mut self) -> &Vertex3x7 {
@@ -409,7 +405,7 @@ impl PieceVertexInit for Piece {
         let mut tri3 = TriangleSet::newV(self.triVecs[3]);
         tri3.calc();
 
-        &self.vertex    //Return
+        &self.vertex    //Return Edge
     }
     //Creates the common starting vertexes for all pieces that are CENTERS
     fn centerInit(&mut self) -> &Vertex3x7 {
@@ -422,7 +418,7 @@ impl PieceVertexInit for Piece {
         }
         self.points.new(self.vertex);
         self.triIndices = [[0,1,2],[0,2,3],[0,3,4],Default::default(),Default::default(),Default::default()];
-        &self.vertex    //Return
+        &self.vertex    //Return Center
     }    
     //Creates the common starting vertexes for all pieces that are FACES
     fn faceInit(&mut self) -> &Vertex3x7 {
@@ -438,7 +434,7 @@ impl PieceVertexInit for Piece {
             self.rotateVertexXYZ(i, 'z', (i as f32) * pim(2.));
         }
         self.points.new(self.vertex);
-        &self.vertex    //Return
+        &self.vertex    //Return Face
     }
 }
 impl PieceVertexMath for Piece {

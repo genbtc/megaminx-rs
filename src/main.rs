@@ -95,15 +95,6 @@ pub fn main() -> Result<(), String> {
         let _ = canvas.circle((width/2).try_into().unwrap(), (height/2).try_into().unwrap(), (height/2).try_into().unwrap(), (255,255,255,155));
         let _ = canvas.draw_line(Point::new(0,640), Point::new(320,320));
         canvas.present();
-        let points = megaminx.centers[0].getpoints();
-        
-        let a = points.a;
-        let _la = points.length(a);
-        let x = (width as f32)  * a[0]/a[2];
-        let y = (height as f32) * a[1]/a[2];
-        
-        //println!("{:?} len {} x,y {} {}",a, la, x, y ); //len 116.43434 for dode 100, len 98.96919 for 85.  //[17.0, 23.398495, -94.64889] = x,y -114.951164 -158.21672
-        let _ = canvas.draw_line(Point::new(0,0), Point::new(x.abs() as i32, y.abs() as i32));
 
         //Orthographic Projection Matrix
         let projmatrix: [[f32; 4]; 4] = [
@@ -112,8 +103,6 @@ pub fn main() -> Result<(), String> {
             [0.0, 0.0, 0.01, 0.0],
             [0.0+translate_x, 0.0+translate_y, 0.0+translate_z, zoom]
         ];
-        let _rv = points.multiply(a, projmatrix);
-        //println!("{:?} ", rv );
         
         //Glium compile GL shaders - Color,
         let program_color = glium::Program::from_source(&display, vertex_shader_src_color, fragment_shader_src_color, None).unwrap();
